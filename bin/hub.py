@@ -10,7 +10,7 @@ logging = config.logger
 
 from biothings.hub import HubServer
 import hub.dataload.sources
-server = HubServer(hub.dataload.sources,name="BioThings Studio")
+server = HubServer(hub.dataload.sources,name=config.HUB_NAME)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,12 @@
+{
+    "version" : "0.1",
+    "requires" : ["csvsort"],
+    "dumper" : {
+        "data_url" : "https://hive.biochemistry.gwu.edu/prd//biomuta/content/biomuta-master.csv",
+        "uncompress" : false
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "ignore_duplicates" : false
+    }
+}

@@ -28,7 +28,7 @@ MAX_RANDOMLY_PICKED = 10
 MAX_DIFF_SIZE = 10 * 1024**2
 
 # ES s3 repository to use snapshot/restore (must be pre-configured in ES)
-SNAPSHOT_REPOSITORY = "biothings_repository"
+SNAPSHOT_REPOSITORY = "pending_repository"
 
 # cache file format ("": ascii/text uncompressed, or "gz|zip|xz"
 CACHE_FORMAT = "xz"
@@ -111,12 +111,12 @@ HIPCHAT_CONFIG = {
 }
 
 # SSH port for hub console
-HUB_SSH_PORT = 7022
-HUB_API_PORT = 7080
+HUB_SSH_PORT = 19022
+HUB_API_PORT = 19080
 
 # Hub name/icon url/version, for display purpose
-HUB_NAME = "BioThings Studio"
-HUB_ICON = None # default one
+HUB_NAME = "Pending API"
+HUB_ICON = "http://biothings.io/static/img/sdk-icon.svg"
 HUB_VERSION = "master"
 
 USE_RELOADER = True # so no need to restart hub when a datasource has changed

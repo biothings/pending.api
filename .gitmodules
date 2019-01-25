@@ -1,0 +1,9 @@
+[submodule "myvariant"]
+	path = myvariant
+	url = https://github.com/biothings/myvariant.info.git
+[submodule "mygene"]
+	path = mygene
+	url = https://github.com/biothings/mygene.info.git
+[submodule "mychem"]
+	path = mychem
+	url = https://github.com/biothings/mychem.info.git
