@@ -1,0 +1,11 @@
+{
+    "version": "0.1",
+    "dumper" : {
+        "data_url" : "http://denovo-db.gs.washington.edu/denovo-db.non-ssc-samples.variants.tsv.gz",
+        "uncompress" : true
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "ignore_duplicates" : false
+    }
+}
