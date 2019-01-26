@@ -1,0 +1,11 @@
+{
+    "version": "0.1",
+    "dumper" : {
+        "data_url" : "https://data.broadinstitute.org/ccle/CCLE_DepMap_18q3_maf_20180718.txt",
+        "uncompress" : false
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "ignore_duplicates" : false
+    }
+}
