@@ -122,13 +122,14 @@ def load_data(data_folder):
             json_rows = csv.reader(csvfile)
             json_rows = (json.loads(row[1]) for row in json_rows)
             row_groups = (it for (key, it) in groupby(json_rows, lambda row: row["_id"]))
-            json_rows = (merge_duplicate_rows(rg, "biomuta") for rg in row_groups)
+            json_rows = (merge_duplicate_rows(rg, "kaviar") for rg in row_groups)
         
             res = yield from (unlist(dict_sweep(row, vals=[None, ])) for row in json_rows)
             yield res
 
     finally:
-        os.remove(tmp_path)
-        os.remove(input_fn)
+        pass
+        #os.remove(tmp_path)
+        #os.remove(input_fn)
 
 
