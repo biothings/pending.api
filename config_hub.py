@@ -135,13 +135,6 @@ CACHE_FOLDER = None
 # other instances can use (production, standalones)
 BIOTHINGS_ROLE = "slave"
 
-# S3 bucket, root of all biothings releases information
-S3_RELEASE_BUCKET = "biothings-releases"
-# bucket/folder containing releases
-S3_DIFF_BUCKET = "biothings-diffs"
-# what sub-folder should be used within diff bucket to upload diff files
-S3_APP_FOLDER = "pending" # actual pending datasource name will be appended
-
 import logging
 from biothings.utils.loggers import setup_default_log
 
@@ -199,6 +192,12 @@ ES_DOC_TYPE = None
 ES_HOST = "localhost:9200"
 
 STANDALONE_VERSION = "standalone_v2"
+# S3 bucket, root of all biothings releases information
+S3_RELEASE_BUCKET = "biothings-releases"
+# bucket/folder containing releases
+S3_DIFF_BUCKET = "biothings-diffs"
+# what sub-folder should be used within diff bucket to upload diff files
+S3_APP_FOLDER = "pending" # actual pending datasource name will be appended
 
 
 TORNADO_SETTINGS = {
