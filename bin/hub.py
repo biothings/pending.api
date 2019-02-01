@@ -8,9 +8,16 @@ set_versions(config,app_folder)
 biothings.config_for_app(config)
 logging = config.logger
 
-from biothings.hub import HubServer
+from standalone.hub import AutoHubServer
 import hub.dataload.sources
-server = HubServer(hub.dataload.sources,name=config.HUB_NAME)
+
+
+s3_folders = config.BIOTHINGS_S3_FOLDER.split(",")
+server = AutoHubServer(s3_folders,source_list=None,
+                          features=["job","dump","upload","sync","index","api"],
+                          name=config.HUB_NAME,
+                          api_config=None,websocket_config=None,
+                          dataupload_config=None)
 
 
 if __name__ == "__main__":
