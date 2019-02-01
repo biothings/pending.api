@@ -6,16 +6,23 @@ from biothings.utils.dataload import merge_duplicate_rows, dict_sweep
 from myvariant.src.utils.hgvs import get_hgvs_from_vcf
 from itertools import groupby, chain
 import json
-from tempfile import mkstemp
 import vcf
 import tarfile
 import gzip, shutil
 from csvsort import csvsort 
+import config
 
 VALID_COLUMN_NO = 8
 
 '''this parser is for Kaviar version 160204-Public(All variants, annotated with data sources) downloaded from
 http://db.systemsbiology.net/kaviar/Kaviar.downloads.html'''
+
+# patch tempfile to force tmp dir to in data_folder
+import tempfile
+def mytempdir():
+    return [os.path.join(config.DATA_ARCHIVE_ROOT,"tmp")]
+tempfile._candidate_tempdir_list = mytempdir
+from tempfile import mkstemp
 
 
 # convert one snp to json
@@ -124,12 +131,14 @@ def load_data(data_folder):
             row_groups = (it for (key, it) in groupby(json_rows, lambda row: row["_id"]))
             json_rows = (merge_duplicate_rows(rg, "kaviar") for rg in row_groups)
         
-            res = yield from (unlist(dict_sweep(row, vals=[None, ])) for row in json_rows)
-            yield res
+            import logging
+            for row in json_rows:
+                logging.debug(row)
+                res = unlist(dict_sweep(row, vals=[None, ]))
+                yield res
 
     finally:
-        pass
-        #os.remove(tmp_path)
-        #os.remove(input_fn)
+        os.remove(tmp_path)
+        os.remove(input_fn)
 
 

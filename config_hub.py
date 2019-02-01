@@ -115,7 +115,7 @@ HUB_SSH_PORT = 19022
 HUB_API_PORT = 19080
 
 # Hub name/icon url/version, for display purpose
-HUB_NAME = "Pending API"
+HUB_NAME = "Pending (backend)"
 HUB_ICON = "http://biothings.io/static/img/sdk-icon.svg"
 HUB_VERSION = "master"
 
