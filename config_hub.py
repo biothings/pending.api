@@ -195,7 +195,7 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle"
 ES_INDEX_NAME = "pending"
-ES_DOC_TYPE = "dummy"
+ES_DOC_TYPE = None
 ES_HOST = "localhost:9200"
 
 STANDALONE_VERSION = "standalone_v2"
