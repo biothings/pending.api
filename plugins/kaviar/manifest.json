@@ -1,6 +1,10 @@
 {
     "version": "0.1",
     "requires" : ["csvsort","pyvcf"],
+    "__metadata__" : {
+	    "url" : "http://db.systemsbiology.net/kaviar",
+	    "license_url" : "http://db.systemsbiology.net/kaviar"
+    },
     "dumper" : {
         "data_url" : "http://s3-us-west-2.amazonaws.com/kaviar-160204-public/Kaviar-160204-Public-hg19.vcf.tar",
         "uncompress" : true
