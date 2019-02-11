@@ -7,3 +7,6 @@
 [submodule "mychem"]
 	path = mychem
 	url = https://github.com/biothings/mychem.info.git
+[submodule "standalone"]
+	path = standalone
+	url = https://github.com/biothings/standalone.git
