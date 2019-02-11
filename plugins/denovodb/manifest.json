@@ -1,8 +1,12 @@
 {
     "version": "0.1",
     "__metadata__" : {
-	    "url" : "http://denovo-db.gs.washington.edu/denovo-db",
-	    "license_url" : "http://denovo-db.gs.washington.edu/denovo-db/Usage.jsp"
+        "url" : "http://denovo-db.gs.washington.edu/denovo-db",
+        "license_url" : "http://denovo-db.gs.washington.edu/denovo-db/Usage.jsp",
+        "author" : {
+            "name" : "Byung Ryul Jeon",
+            "url" : "https://github.com/jeonbr"
+        }
     },
     "dumper" : {
         "data_url" : "http://denovo-db.gs.washington.edu/denovo-db.non-ssc-samples.variants.tsv.gz",

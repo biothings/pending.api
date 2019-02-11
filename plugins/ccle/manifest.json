@@ -1,5 +1,13 @@
 {
     "version": "0.1",
+    "__metadata__" : {
+        "url" : "https://portals.broadinstitute.org/ccle",
+        "license_url" : "https://portals.broadinstitute.org/ccle/about#terms",
+        "author" : {
+            "name" : "Byung Ryul Jeon",
+            "url" : "https://github.com/jeonbr"
+        }
+    },
     "dumper" : {
         "data_url" : "https://data.broadinstitute.org/ccle/CCLE_DepMap_18q3_maf_20180718.txt",
         "uncompress" : false
