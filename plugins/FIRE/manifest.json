@@ -1,0 +1,44 @@
+{
+    "version": "0.1",
+    "__metadata__" : {
+        "url" : "https://sites.google.com/site/fireregulatoryvariation",
+        "license_url" : "https://www.ncbi.nlm.nih.gov/pubmed/28961785",
+        "author" : {
+            "name" : "Sze Wai TSE",
+            "url" : "https://github.com/jeonbr"
+        }
+    },
+    "dumper" : {
+        "data_url" : [
+                     "https://www.dropbox.com/s/dl/fpxxbzrbi460te7/FIRE_chr1.txt.gz", 
+                     "https://www.dropbox.com/s/dl/6fb97os3jjik91z/FIRE_chr2.txt.gz",
+                     "https://www.dropbox.com/s/dl/prljbprygiis08o/FIRE_chr3.txt.gz", 
+                     "https://www.dropbox.com/s/dl/p03h2zqc8ozl98y/FIRE_chr4.txt.gz", 
+                     "https://www.dropbox.com/s/dl/vbhhc35ae64i5ei/FIRE_chr5.txt.gz",
+                     "https://www.dropbox.com/s/dl/ro2ay1rp6o4elwt/FIRE_chr6.txt.gz", 
+                     "https://www.dropbox.com/s/dl/dxi23frpt4iwcmh/FIRE_chr7.txt.gz",  
+                     "https://www.dropbox.com/s/dl/yzwjyf3pmbp6zct/FIRE_chr8.txt.gz", 
+                     "https://www.dropbox.com/s/dl/na8zrxajovhmxvn/FIRE_chr9.txt.gz",  
+                     "https://www.dropbox.com/s/dl/x21ifcd6vohud1a/FIRE_chr10.txt.gz", 
+                     "https://www.dropbox.com/s/dl/bl791xo01s03f3n/FIRE_chr11.txt.gz", 
+                     "https://www.dropbox.com/s/dl/tqd1pcv88eh2dr8/FIRE_chr12.txt.gz", 
+                     "https://www.dropbox.com/s/dl/0rzzfw90974jesk/FIRE_chr13.txt.gz", 
+                     "https://www.dropbox.com/s/dl/zox5qin56qqjzi0/FIRE_chr14.txt.gz", 
+                     "https://www.dropbox.com/s/dl/g8k0e37vjd3q9j0/FIRE_chr15.txt.gz",  
+                     "https://www.dropbox.com/s/dl/w0wvnovn2ramr46/FIRE_chr16.txt.gz",
+                     "https://www.dropbox.com/s/dl/yex2381mw0c34c3/FIRE_chr17.txt.gz", 
+                     "http://web.stanford.edu/~nilah/fire/FIRE_chr18.txt.gz",   
+                     "http://web.stanford.edu/~nilah/fire/FIRE_chr19.txt.gz",  
+                     "http://web.stanford.edu/~nilah/fire/FIRE_chr20.txt.gz",   
+                     "http://web.stanford.edu/~nilah/fire/FIRE_chr21.txt.gz",   
+                     "http://web.stanford.edu/~nilah/fire/FIRE_chr22.txt.gz",  
+                     "https://www.dropbox.com/s/dl/12pylu6tixvcw6p/FIRE_chrX.txt.gz", 
+                     "https://www.dropbox.com/s/dl/x1he9l1byw50wzk/FIRE_chrY.txt.gz"
+         ]
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "parallelizer" : "parallelizer:jobs",
+        "ignore_duplicates" : false
+    }
+}
