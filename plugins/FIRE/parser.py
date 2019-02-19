@@ -13,10 +13,6 @@ def load_data (data_file):
                     if y[0] != "Chrom":
                        _id = hgvs.get_hgvs_from_vcf(y[0], y[1],y[2], y[3])
                        d = {"_id":_id, "fire": {}}
-                       d["fire"]["chr"] = y[0]
-                       d["fire"]["pos"] = y[1]
-                       d["fire"]["ref"] = y[2]
-                       d["fire"]["alt"] = y[3]
                        d["fire"]["score"] = float(y[4])
                        yield d
                        d = {}
