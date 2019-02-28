@@ -3,6 +3,7 @@
     "__metadata__" : {
         "url" : "https://sites.google.com/site/fireregulatoryvariation",
         "license_url" : "https://www.ncbi.nlm.nih.gov/pubmed/28961785",
+	"assembly" : "hg19",
         "author" : {
             "name" : "Sze Wai TSE",
             "url" : "https://github.com/AnnaTSW0609"
