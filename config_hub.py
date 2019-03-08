@@ -187,7 +187,7 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 #ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
 
-BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle,pending-kaviar"
+BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle,pending-kaviar,pending-fire,pending-biomuta"
 ES_INDEX_NAME = "pending"
 ES_DOC_TYPE = None
 ES_HOST = "localhost:9200"

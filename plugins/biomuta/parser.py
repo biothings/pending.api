@@ -7,8 +7,10 @@ from myvariant.src.utils.hgvs import get_hgvs_from_vcf
 from itertools import groupby
 from tempfile import mkstemp
 import json
-from csvsort import csvsort 
 import re
+from collections import defaultdict
+
+from csvsort import csvsort
 
 VALID_COLUMN_NO = 22
 
@@ -28,7 +30,7 @@ def _map_line_to_json(df):
     alt = df["alt_nt"]
 
     HGVS = get_hgvs_from_vcf(chrom, int(pos), ref, alt, mutant_type=False)
-    
+
     transcript_id = clean_data(df["transcript_id"], ("-",))
     peptide_id = clean_data(df["peptide_id"], ("-",))
     uniprot_ac = clean_data(df["uniprot_ac"], ("-",))
@@ -78,10 +80,15 @@ def _map_line_to_json(df):
             'uberon_id': uberon_id,
             'gene_name': gene_name,
             'pmid': pmid_list,
-            'site_prd': site_prd,
-            'site_ann': site_ann
         }
     }
+    if site_ann:
+        for dic in site_ann:
+            one_snp_json["biomuta"].update(dic)
+
+    if site_prd:
+        one_snp_json["biomuta"].update(site_prd)
+
     one_snp_json = value_convert_to_number(one_snp_json)
     one_snp_json['biomuta']['chrom'] = str(one_snp_json['biomuta']['chrom'])
     one_snp_json['biomuta']['do_id']['do_id'] = str(one_snp_json['biomuta']['do_id']['do_id'])
@@ -115,7 +122,21 @@ def site_prd_parser(s):
     prds = s.strip()
     if prds:
         prds = prds.split(";")
-        return [ prd_parser(prd) for prd in prds]
+        prds = [ prd_parser(prd) for prd in prds]
+        prds = [ p for p in prds if p ]
+
+        result = defaultdict(list)
+
+        for d in prds:
+            for k, v in d.items():
+                result[k].append(v)
+
+        for k, v in result.items():
+            if len(v) == 1:
+                result[k] = v[0]
+
+        return dict(result)
+
 
 def prd_parser(prd):
     prd = prd.strip()
@@ -124,30 +145,55 @@ def prd_parser(prd):
         assert prd_count == 1, "other site_prd: {}".format(prd)
         matched = re.match("polyphen:(.*) \(probability = ([0-9\.]*)\)", prd)
         assert matched, "polyphen parser error: {}".format(prd)
-        return {"prd": "polyphen", "prediction": matched.group(1), "score": matched.group(2)}
+        prediction = matched.group(1)
+        score = matched.group(2)
+        if score and (prediction !="unknown"):
+            return {"polyphen" : {"prediction":prediction, "score": score}}
 
     elif prd.startswith("netnglyc"):
         prd_count = len([match for match in re.finditer(":", prd)])
         assert prd_count == 1, "other site_prd: {}".format(prd)
         matched = re.match(r"netnglyc:([^\|]*)\|(.*)", prd)
         assert matched, "netnglyc parser error: {}".format(prd)
-        return {"prd": "netnglyc", "prediction": matched.group(2), "score": matched.group(1)}
+        return { "netnglyc" : { "prediction": matched.group(2), "score": matched.group(1)}}
 
     else:
         raise ValueError("No matching parser: {}".format(prd))
 
+
 def ann_parser(ann):
-    s = ann.strip().split(":")
+    s = site_ann_error_corrector(ann)
+    s = s.strip().split(":")
     if len(s) == 1:
-        return s[0]
+        return None
     elif len(s) == 2:
-        return {s[0] : s[1]}
+        k = s[0].lower().replace("-", "_").replace("_annotation", "")
+        v = s[1].split("|")
+        if len(v) == 1 :
+            return { k : {"value": v[0]}}
+        elif len(v) >= 2:
+            return { k : {"value": v[0], "info":v[1:]}}
+        else:
+            raise ValueError("Not Adequate key:value format: {}".format(ann))
     else:
         raise ValueError("Not Adequate key:value or value format: {}".format(ann))
 
+
+def site_ann_error_corrector(s):
+    """ Correct site_ann column error such as
+        Natural_Variant_Annotation:In 3MC1) (PubMed:26419238.
+        Natural_Variant_Annotation:In HAYOS) (Ref.19.
+        Natural_Variant_Annotation:In OPA1) (Ref.28.
+    """
+    return s.replace(") (PubMed:26419238.", "").replace(") (Ref.19.", "").replace(") (Ref.28.", "")
+
+
 def site_ann_parser(s):
+    s = s.replace("; ", "|")
     anns = s.strip().split(";")
-    return [ ann_parser(ann) for ann in anns]
+    anns = [ ann_parser(ann) for ann in anns]
+    return [ann for ann in anns if ann ]
+
 
 # open file, parse, pass to json mapper
 def load_data(data_folder):
@@ -161,16 +207,16 @@ def load_data(data_folder):
     json_rows = map(_map_line_to_json, biomuta)
 
     fd_tmp, tmp_path = mkstemp(dir=data_folder)
-    
+
     try:
         with open(tmp_path, "w") as f:
             dbwriter = csv.writer(f)
             for i, doc in enumerate(json_rows):
                 if doc:
-                    dbwriter.writerow([doc['_id'], json.dumps(doc)])  
+                    dbwriter.writerow([doc['_id'], json.dumps(doc)])
 
         csvsort(tmp_path, [0,], has_header=False)
-        
+
         with open(tmp_path) as csvfile:
             json_rows = csv.reader(csvfile)
             json_rows = (json.loads(row[1]) for row in json_rows)
@@ -182,6 +228,4 @@ def load_data(data_folder):
 
     finally:
         os.remove(tmp_path)
-
-
 
