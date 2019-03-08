@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="bg-dark">
+  <head>
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="HandheldFriendly" content="True" />
+		<meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="http://myvariant.info/">
+    <meta property="og:site_name" content="MyVariant.info">
+    <meta property="og:title" content="MyVariant.info | Variant Annotation as a Service." />
+    <meta name="description" content="Variant Annotation as a Service." />
+    <meta property="og:image" content="https://s17.postimg.cc/wrqt8039b/featured.jpg">
+    <meta property="og:image:type" content="image/jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="Variant Annotation as a Service.">
+    <meta property="fb:app_id" content="" />
+    <meta name="twitter:title" content="MyVariant.info | Variant Annotation as a Service." />
+    <meta name="twitter:image" content="/static/img/myvariant-favicon.png" />
+    <meta name="twitter:url" content="http://myvarint.info" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:description" content="Variant Annotation as a Service." />
+    <link rel="apple-touch-icon" href="/static/img/myvariant-favicon.png" />
+		<link rel="shortcut icon" type="image/png" href="/static/img/myvariant-favicon.png"/>
+    <title>MyVariant.info | Try API</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+		<link rel="stylesheet" href="/static/css/app.css" />
+		<link rel="stylesheet" href="/static/css/main.css" />
+		<link rel="stylesheet" href="/static/css/academicons.min.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/>
+		<link type="text/css" rel="stylesheet" href="/static/css/our-custom-swagger.css"/>
+  </head>
+  <style>
+    a{
+      border:none;
+    }
+    .swagger-ui .opblock .opblock-summary{
+      overflow: auto;
+    }
+    .navbar{
+      box-shadow: 0px 5px 10px black;
+      padding: 0;
+    }
+    body{
+  padding-top: 10vh;
+}
+.navbar-dark .navbar-brand{
+  border: none !important;
+}
+
+.col{
+  width: auto !important;
+}
+  </style>
+    <script src="/static/js/jquery.min.js"></script>
+    <header>
+      <nav class="navbar navbar-light bg-light greenBackGradient fixed-top">
+        <a class="navbar-item nav-link" href="/">
+          <img src="/static/img/myvariant-text.png" width="180px" alt="MyVariant.info" style="padding-bottom: 0px;">
+        </a>
+      </nav>
+    </header>
+    <body>
+      <div id="swagger-ui" style="overflow: scroll; margin-bottom:20px;"></div>
+    </body>
+    <footer id="footer" class="bg-dark" style="bottom:0; padding: none !important;">
+      <div class="copyright text-center text-muted">
+        <ul class="noListStyle listBlock">
+          <li>
+            <a class="link text-green" href="http://myvariant.info/rss/" target="_blank">
+              <i class="fas fa-rss fa-2x"></i>
+            </a>
+          </li>
+          <li>
+            <a class="link text-green" href="http://twitter.com/myvariantinfo" target="_blank">
+              <i class="fab fa-twitter fa-2x"></i>
+            </a>
+          </li>
+          <li>
+            <a class="link text-green" href="https://github.com/biothings/myvariant.info" target="_blank">
+              <i class="fab fa-github-alt fa-2x"></i>
+            </a>
+          </li>
+        </ul>
+        <hr />
+        <p class="smallFont">
+          All content copyright <a href="http://myvariant.info/" class="link text-green">MyVariant.info</a> © 2018 <br /> All rights reserved.
+          <a href="/terms" class="link text-green">Terms of use. </a>
+          <a href="/citation/" class="link text-green">How To Cite</a>
+        </p>
+      </div>
+    </footer>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/solid.js" integrity="sha384-+Ga2s7YBbhOD6nie0DzrZpJes+b2K1xkpKxTFFcx59QmVPaSA8c7pycsNaFwUK6l" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/brands.js" integrity="sha384-sCI3dTBIJuqT6AwL++zH7qL8ZdKaHpxU43dDt9SyOzimtQ9eyRhkG3B7KMl6AO19" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/fontawesome.js" integrity="sha384-7ox8Q2yzO/uWircfojVuCQOZl+ZZBg2D2J5nkpLqzH1HY0C1dHlTKIbpRz/LG23c" crossorigin="anonymous"></script>
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script>
+      // Plug-in to hide empty tags in Swagger UI
+      const HideEmptyTagsPlugin = () => {
+        return {
+          statePlugins: {
+            spec: {
+              wrapSelectors: {
+                taggedOperations: (ori) => (...args) => {
+                  return ori(...args)
+                    .filter(tagMeta => tagMeta.get("operations") && tagMeta.get("operations").size > 0)
+                }
+              }
+            }
+          }
+        }
+      };
+
+      // SwaggerUI Bundle
+      const ui = SwaggerUIBundle({
+        url: "https://smart-api.info/api/metadata/09c8782d9f4027712e65b95424adba79",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          // SwaggerUIStandalonePreset
+          // disables TopBar
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl,
+          // plug-in to hide empty tags
+          HideEmptyTagsPlugin
+        ],
+        // layout: "StandaloneLayout"
+        // disables TopBar
+      })
+      window.ui = ui;
+    </script>
+  </body>
+</html>
