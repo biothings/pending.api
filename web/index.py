@@ -8,7 +8,7 @@ import tornado.web
 import tornado.escape
 from tornado.options import define, options
 
-from web.handlers import APP_LIST
+from handlers import APP_LIST
 
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 
