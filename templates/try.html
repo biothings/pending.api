@@ -1,44 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 <style type="text/css">
-.reflection {
-  margin:0;
-  padding:0;
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform: translate(-50%, -50%);
-  text-transform: uppercase;
-  color:white;
-  font-size: 3.5em;
-}
 
-.reflection:before {
-  content: attr(data-text);
-  position:absolute;
-  top:0;
-  left:0;
-  transform-origin: bottom;
-  transform: rotateX(180deg);
-  line-height: 1em;
-  background: linear-gradient(0deg, grey 0, transparent 70%);
-  -webkit-background-clip: text;
-  color: transparent;
-  opacity: 0.6;
-}
-
-.link-list{
-  list-style: none;
-  padding: 0;
-}
-
-.link-list li::after{
-  content: ' | ';
-}
-
-.link-list li:last-child::after{
-  content: '';
-}
 </style>
 <section id="try-app">
   <div v-if="validAPI" class="container mt-5">
@@ -321,8 +284,8 @@
             // console.log('meta', res.data)
             self.metadata = res.data;
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
-            if (self.metadata.doc_type) {
-              self.type= self.metadata.doc_type;
+            if (self.metadata.biothing_type) {
+              self.type= self.metadata.biothing_type;
             }
             self.getAPIFields();
           }).catch(err=>{
