@@ -14,6 +14,7 @@
   --orange-medium: #FD7400;
   --orange-light: #FF8E39;
 }
+
 ::selection{
   background-color: black;
   color: #ffc107;

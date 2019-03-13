@@ -17,7 +17,7 @@ if src_path not in sys.path:
 print(src_path)
 
 (SRC_PATH, _) = os.path.split(os.path.abspath(__file__))
-STATIC_PATH = os.path.join(SRC_PATH,'templates/static')
+STATIC_PATH = os.path.join(SRC_PATH,'../templates/static')
 print(STATIC_PATH)
 
 define("port", default=8000, help="run on the given port", type=int)
