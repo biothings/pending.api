@@ -16,21 +16,21 @@
           <ul class="link-list">
             <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["url"]'>
               <small class="">
-                <a :href='metadata.src[getKeyName(metadata.src)]["url"]' target="_blank" class="link">
+                <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["url"]' target="_blank" class="link">
                   Source
                 </a>
               </small>
             </li>
             <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["code"]["url"]'>
               <small class="">
-                <a :href='metadata.src[getKeyName(metadata.src)]["code"]["url"]' target="_blank" class="link">
+                <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["code"]["url"]' target="_blank" class="link">
                   Code
                 </a>
               </small>
             </li>
             <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["license_url"]'>
               <small class="">
-                <a :href='metadata.src[getKeyName(metadata.src)]["license_url"]' target="_blank" class="link">
+                <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["license_url"]' target="_blank" class="link">
                   License
                 </a>
               </small>
@@ -39,22 +39,22 @@
           <template v-if='metadata.src[getKeyName(metadata.src)]["author"]'>
             <small class="d-block mt-2">
               Developed by
-              <a :href='metadata.src[getKeyName(metadata.src)]["author"]["url"]' target="_blank" class="link">
+              <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["author"]["url"]' target="_blank" class="link">
                 <i class="fab fa-github"></i> <span v-text='metadata.src[getKeyName(metadata.src)]["author"]["name"]'></span>
               </a>
             </small>
           </template>
           <h3 class="m-3" v-text="numberWithCommas(numberOfDocs)+' documents'"></h3>
           <div class="m-5 p-1" style="position: relative">
-            <a target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
+            <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
           </div>
           <div>
             <hr />
             <small>Pending for integration with:</small>
             <div v-if="metadata.biothing_type">
-              <a v-if="metadata.biothing_type === 'gene'" target="_blank" href="http://mygene.info/"><img  src="/static/img/mygene-text.svg" height="40px"/></a>
-              <a v-if="metadata.biothing_type === 'variant'" target="_blank" href="http://myvariant.info"><img  src="/static/img/myvariant-text.svg" height="40px"/></a>
-              <a v-if="metadata.biothing_type === 'chemical'" target="_blank" href="http://mychem.info"><img src="/static/img/mychem-text.svg" height="40px"/></a>
+              <a rel="noopener" v-if="metadata.biothing_type === 'gene'" target="_blank" href="http://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="40px"/></a>
+              <a rel="noopener" v-if="metadata.biothing_type === 'variant'" target="_blank" href="http://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="40px"/></a>
+              <a rel="noopener" v-if="metadata.biothing_type === 'chemical'" target="_blank" href="http://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="40px"/></a>
             </div>
           </div>
         </div>
@@ -70,12 +70,6 @@
             <div class="form-group col-sm-4">
               <h4>pending.biothings.io/<span class="text-warning" v-text="api"></span></h4>
             </div>
-            <!-- <div class="form-group col-sm-3">
-              <select v-model="apiSelected" class="form-control" id="api">
-                <option v-for="api in pending" :value='getKeyName(api.src)' v-text='getKeyName(api.src)'></option>
-              </select>
-              <label class="text-warning" v-if="!apiSelected" for="api">Select an API</label>
-            </div> -->
             <div class="form-group col-sm-5">
               <template v-if="querySelectionType==='example'">
                 <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
@@ -106,7 +100,7 @@
             </div>
           </form>
           <p class="bold" v-if="success && queryString">
-            <i  class="fas fa-check text-success"></i> <a target="_blank" :href="'http:'+queryString" v-text="'http:'+queryString" class="m-auto" :class="[ success ? 'text-success' : 'text-danger']" type="text"></a>
+            <i  class="fas fa-check text-success"></i> <a rel="noopener" target="_blank" :href="'http:'+queryString" v-text="'http:'+queryString" class="m-auto" :class="[ success ? 'text-success' : 'text-danger']" type="text"></a>
           </p>
           <div class="progress" v-if="loading">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
@@ -132,7 +126,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
   <script src="/static/js/app.js"></script>
   <script src="/static/js/renderjson.js"></script>
-  <script src="/static/js/gremlins.js"></script>
   <script>
     var app = new Vue({
       el: '#try-app',
@@ -156,9 +149,6 @@
         }
       },
       methods: {
-        test(){
-          gremlins.createHorde().unleash();
-        },
         getAPIFields(){
           let self = this;
           let fields={};
@@ -298,7 +288,6 @@
         mounted: function(){
           this.api  = window.location.pathname.replace('/','').toLowerCase();
           this.getMetadata();
-          // this.test();
         }
     });
   </script>
