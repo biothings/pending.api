@@ -11,6 +11,7 @@ import tornado.web
 from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 
+import requests
 
 log = logging.getLogger("pending")
 
@@ -22,6 +23,10 @@ TEMPLATE_PATH = os.path.join(src_path, 'templates/')
 templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
+def get_api_list():
+    r = requests.get('http://pending.biothings.io:20080/api/list');
+    return r.json()['result']
+
 class BaseHandler(tornado.web.RequestHandler):
     def return_json(self, data):
         _json_data = json_encode(data)
@@ -30,9 +35,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
+        list = get_api_list()
         index_file = "index.html"
         index_template = templateEnv.get_template(index_file)
-        index_output = index_template.render()
+        index_output = index_template.render(Context=json.dumps({"List": list}))
         self.write(index_output)
 
 class ApiViewHandler(BaseHandler):

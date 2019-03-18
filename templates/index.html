@@ -263,7 +263,8 @@
              queryString:'',
              querySelectionType:'example',
              success: false,
-						 apiList:[]
+						 apiList:[],
+						 context:{}
           }
         },
         methods: {
@@ -511,9 +512,14 @@
 
         },
           mounted: function(){
+						let self = this;
+						if ({{Context}}) {
+							self.context = {{Context}}
+							self.getMetadata(self.context.List);
+						}
             this.loadAnimation();
 						//for testing only
-            this.getMetadataTest();
+            // this.getMetadataTest();
 						//for production
 						// this.getList();
           }
