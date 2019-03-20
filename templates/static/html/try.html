@@ -231,8 +231,11 @@
           self.exampleQueries.push(query);
         },
         generateParameterQuery(field,value){
-          let query ='/query?q='+field+":"+value;
-          this.exampleQueries.push(query);
+          console.log(value, typeof value)
+          if (typeof value !== 'undefined' && typeof value !== 'object') {
+            let query ='/query?q='+field+":"+value;
+            this.exampleQueries.push(query);
+          }
         },
         numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
