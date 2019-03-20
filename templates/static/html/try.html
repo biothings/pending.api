@@ -231,7 +231,6 @@
           self.exampleQueries.push(query);
         },
         generateParameterQuery(field,value){
-          console.log(value, typeof value)
           if (typeof value !== 'undefined' && typeof value !== 'object') {
             let query ='/query?q='+field+":"+value;
             this.exampleQueries.push(query);

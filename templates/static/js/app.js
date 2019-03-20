@@ -3,15 +3,13 @@ if ('serviceWorker' in navigator) {
   // Use the window load event to keep the page load performant
   window.addEventListener('load', () => {
     try{
-      navigator.serviceWorker.register('/static/html/worker.js',{
-        'scope':"/static/html/"
-      }).then(function(ServiceWorkerRegistration) {
+      navigator.serviceWorker.register('/static/js/worker.js').then(function(ServiceWorkerRegistration) {
         console.log('Service Worker registered');
       }).catch(err=>{
         console.log('Service Worker registration failed');
       });
     }catch(err){
-      console.log('failed');
+      // console.log('failed');
     }
   });
 }
