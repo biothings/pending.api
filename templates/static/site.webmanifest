@@ -1,7 +1,8 @@
 {
   "name": "Pending BioThings APIs",
   "short_name": "Pending",
-  "start_url": "/",
+  "start_url": "http://pending.biothings.io/",
+  "scope": "/",
   "icons": [{
       "src": "/static/img/android-chrome-192x192.png",
       "sizes": "192x192",

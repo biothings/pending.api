@@ -231,7 +231,6 @@
 			{% block extra_scripts %}
       <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-			<script src="static/js/app.js"></script>
       <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 			<script>
       AOS.init();
@@ -509,7 +508,27 @@
 						let timer = setInterval(function(){
 			        init();
 			      }, 40000);
-          }
+          },
+					registerServiceWorker(){
+						// Check that service workers are registered
+						if ('serviceWorker' in navigator) {
+						  // Use the window load event to keep the page load performant
+						  window.addEventListener('load', () => {
+						    try{
+						      navigator.serviceWorker.register('/static/worker.js').then(function(ServiceWorkerRegistration) {
+						        console.log('Service Worker registered');
+						      }).catch(err=>{
+						        console.log('Service Worker registration failed');
+						      });
+						    }catch(err){
+						      // console.log('failed');
+						    }
+						  });
+						}
+
+						// console.log(caches)
+
+					}
 
         },
           mounted: function(){
@@ -523,6 +542,8 @@
             // this.getMetadataTest();
 						//for production
 						// this.getList();
+
+						this.registerServiceWorker();
           }
       });
 

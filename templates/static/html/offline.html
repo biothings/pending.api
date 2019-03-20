@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% block content %}
+<style type="text/css">
+
+</style>
+<section id="try-app">
+<div class="container text-center text-light">
+  <h1>You are currently offline</h1>
+</div>
+</section>
+
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#offline-app',
+      data: function(){
+        return {
+
+        }
+      },
+      methods: {
+      },
+        mounted: function(){
+        }
+    });
+  </script>
+{% endblock %}
