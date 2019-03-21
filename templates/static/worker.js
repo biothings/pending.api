@@ -111,11 +111,11 @@
                 '/static/js/renderjson.js',
                 "/static/css/app.css",
                 '/static/js/contribute.js',
-                "http://pending.biothings.io/denovodb/metadata",
-                "http://pending.biothings.io/ccle/metadata",
-                "http://pending.biothings.io/kaviar/metadata",
-                "http://pending.biothings.io/biomuta/metadata",
-                "http://pending.biothings.io/fire/metadata",
+                "https://pending.biothings.io/denovodb/metadata",
+                "https://pending.biothings.io/ccle/metadata",
+                "https://pending.biothings.io/kaviar/metadata",
+                "https://pending.biothings.io/biomuta/metadata",
+                "https://pending.biothings.io/fire/metadata",
               ]);
     });
   };
