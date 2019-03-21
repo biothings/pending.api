@@ -115,9 +115,9 @@
                 <hr />
                 <small>Pending for integration with:</small>
                 <div v-if="api.biothing_type">
-                  <a rel="noopener"  v-if="api.biothing_type === 'gene'" target="_blank" href="http://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.biothing_type === 'variant'" target="_blank" href="http://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.biothing_type === 'chemical'" target="_blank" href="http://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
                 </div>
               </div>
               <div class="p-3 mt-4" style="position: relative">
@@ -158,7 +158,7 @@
             <a rel="noopener"  class="link" target="_blank" href="http://docs.biothings.io/en/latest/doc/studio.html" title="BioThings Studio">
               <img style="border:0px;" width="128" src="https://biothings.io/static/img/biothings-studio-128.png" alt="Logo 128"/>
               <small class="d-block">
-                Learn More
+                Learn More About BioThings Studio <i class="fas fa-chevron-right"></i>
               </small>
             </a>
             <hr class="m-4"/>
@@ -171,7 +171,7 @@
                     Gene annotation <br />as a service
                   </small>
                   <small class="d-block mt-2">
-                    Learn More <i class="fas fa-chevron-right"></i>
+                    Learn More About MyGene <i class="fas fa-chevron-right"></i>
                   </small>
                 </a>
               </div>
@@ -182,7 +182,7 @@
                     Variant annotation <br />as a service
                   </small>
                   <small class="d-block mt-2">
-                    Learn More <i class="fas fa-chevron-right"></i>
+                    Learn More About MyVariant <i class="fas fa-chevron-right"></i>
                   </small>
                 </a>
               </div>
@@ -193,7 +193,7 @@
                     Chemical/Drug annotation <br />as a service
                   </small>
                   <small class="d-block mt-2">
-                    Learn More <i class="fas fa-chevron-right"></i>
+                    Learn More About MyChem <i class="fas fa-chevron-right"></i>
                   </small>
                 </a>
               </div>
@@ -544,6 +544,24 @@
 						// this.getList();
 
 						this.registerServiceWorker();
+						window.addEventListener('beforeinstallprompt', (e) => {
+						  // Prevent Chrome 67 and earlier from automatically showing the prompt
+						  e.preventDefault();
+						  // Stash the event so it can be triggered later.
+						  deferredPrompt = e;
+						  // Update UI notify the user they can add to home screen
+							deferredPrompt.prompt();
+							deferredPrompt.userChoice
+						    .then(function(choiceResult){
+
+						  if (choiceResult.outcome === 'accepted') {
+						    console.log('User accepted the A2HS prompt');
+						  } else {
+						    console.log('User dismissed the A2HS prompt');
+						  }
+
+						  deferredPrompt = null;
+						});
           }
       });
 
