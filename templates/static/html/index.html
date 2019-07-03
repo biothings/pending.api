@@ -29,66 +29,6 @@
 			</div>
 		</div>
 
-		<!-- <div data-aos="fade-up" data-aos-duration="3000" class="jumbotron bg-dark text-light text-center">
-      <div class="gradientBox">
-        <div class="bg-dark jumbotron">
-					<img style="border:0px;" width="100px" src="https://i.gifer.com/S9Ab.gif" alt="Logo 64"/>
-          <h1 class="mb-5 shine">
-            Welcome
-          </h1>
-          <h1 class="m-5 shine">
-            More
-          </h1>
-          <a class="mr-3 link" href="#pending"><i class="fas fa-chevron-right"></i> View More Pending APIs</a>
-          <a class="mr-3 link" href="#contribute"><i class="fas fa-chevron-right"></i> Learn How To Contribute</a>
-          <a class="mr-3 link" href="#help"><i class="fas fa-chevron-right"></i> Need Help?</a>
-        </div>
-      </div>
-    </div> -->
-
-    <!-- <div data-aos="fade-up" data-aos-duration="3000" class="jumbotron bg-dark text-light text-center">
-      <div class="gradientBox">
-        <div class="bg-dark jumbotron">
-					<img style="border:0px;" width="100px" src="https://i.gifer.com/S9Ab.gif" alt="Logo 64"/>
-          <h1 class="mb-5 shine">
-            Featured
-          </h1>
-          <div class="bg-warning w-75 m-auto" style="padding:2px;">
-            <div v-if="pending.length" class="bg-dark p-5">
-              <h3 class="font-weight-bold" v-text='getKeyName(pending[0].src)'></h3>
-              <template v-if='pending[0].src[getKeyName(pending[0].src)]["author"]'>
-                <small class="d-block">
-                  Developed by
-                  <a :href='pending[0].src[getKeyName(pending[0].src)]["author"]["url"]' target="_blank" class="link">
-                    <i class="fab fa-github"></i> <span v-text='pending[0].src[getKeyName(pending[0].src)]["author"]["name"]'></span>
-                  </a>
-                </small>
-              </template>
-              <small class="badge bg-dark" v-text="numberWithCommas(pending[0].src[getKeyName(pending[0].src)].stats[getKeyName(pending[0].src)])+' documents'"></small>
-              <div>
-                <hr />
-                <small>Pending for integration with:</small>
-                <div>
-                  <a v-if="pending[0].doc_type === 'gene'" target="_blank" href="http://mygene.info/"><img  src="/static/img/mygene-text.svg" height="20px"/></a>
-                  <a v-if="pending[0].doc_type === 'variant'" target="_blank" href="http://myvariant.info"><img  src="/static/img/myvariant-text.svg" height="20px"/></a>
-                  <a v-if="pending[0].doc_type === 'chemical'" target="_blank" href="http://mychem.info"><img src="/static/img/mychem-text.svg" height="20px"/></a>
-                </div>
-              </div>
-              <div class="p-3 mt-4" style="position: relative">
-                <a class="btn-main" :href="'./'+getKeyName(pending[0].src)">Try It</a>
-              </div>
-            </div>
-          </div>
-          <h1 class="m-5 shine">
-            More
-          </h1>
-          <a class="mr-3 link" href="#pending"><i class="fas fa-chevron-right"></i> View More Pending APIs</a>
-          <a class="mr-3 link" href="#contribute"><i class="fas fa-chevron-right"></i> Learn How To Contribute</a>
-          <a class="mr-3 link" href="#help"><i class="fas fa-chevron-right"></i> Need Help?</a>
-        </div>
-      </div>
-    </div> -->
-
     <div data-aos="fade-up" data-aos-duration="3000" id="pending" class="jumbotron bg-dark text-light text-center">
       <div class="gradientBox">
         <div class="bg-dark jumbotron">
@@ -97,18 +37,12 @@
           </h1>
 
           <object  data-aos="fade-in" id="hero1" alt="pending apis" width="70%" type="image/svg+xml" data="static/img/hero-1.svg"></object>
-          <!-- <form class="w-50 m-auto" @submit.prevent="search(query)">
-            <div class="form-group row">
-              <input type="text" v-model="query" class="form-control bg-secondary text-light col-sm-7 mr-1" id="exampleFormControlInput1" placeholder="Search">
-              <button @click.prevent="search(query)" class="btn btn-outline-dark text-white col-sm-2 mr-1">Search</button>
-              <button @click.prevent="getMetadata(); query=''" class="btn btn-outline-dark text-white col-sm-2">Reset</button>
-            </div>
-          </form> -->
+
           <div class="text-muted font-weight-light">
             <small>(<span v-text="pending.length"></span>) APIs</small>
           </div>
           <div class="flexP">
-            <div v-for="(api,index) in pending" class="flexC apiBack slit-in-vertical" v-if="index < shown">
+            <div v-for="(api,index) in pending" class="flexC apiBack" v-if="index < shown">
               <h3 class="font-weight-bold" v-text='getKeyName(api.src)'></h3>
               <small class="badge bg-dark" v-text="numberWithCommas(api.src[getKeyName(api.src)].stats[getKeyName(api.src)])+' documents'"></small>
               <div>
@@ -118,6 +52,11 @@
                   <a rel="noopener"  v-if="api.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+                </div>
+								<div v-if="api.doc_type">
+                  <a rel="noopener"  v-if="api.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
                 </div>
               </div>
               <div class="p-3 mt-4" style="position: relative">
@@ -238,25 +177,8 @@
         el: '#index-app',
         data: function(){
           return {
-            pendingApis:[
-              {
-               'metadataUrl':'//pending.biothings.io/denovodb/metadata'
-              },
-              {
-                'metadataUrl':'//pending.biothings.io/ccle/metadata'
-              },
-              {
-               'metadataUrl':'//pending.biothings.io/kaviar/metadata'
-               },
-               {
-                'metadataUrl':'//pending.biothings.io/fire/metadata'
-                },
-	              {
-	               'metadataUrl':'//pending.biothings.io/biomuta/metadata'
-	               }
-             ],
              pending:[],
-             shown:6,
+             shown:8,
              query:"",
              apiSelected:'',
              querySelected:'',
@@ -290,17 +212,6 @@
           getKeyName(obj){
             for (var key in obj) {
               return key;
-            }
-          },
-          getMetadataTest(){
-            let self = this;
-            self.pending=[];
-            for (var i = 0; i < self.pendingApis.length; i++) {
-              axios.get(self.pendingApis[i].metadataUrl).then(res=>{
-                self.pending.push(res.data);
-              }).catch(err=>{
-                throw err;
-              })
             }
           },
 					getList(){
@@ -538,21 +449,19 @@
 							self.getMetadata(self.context.List);
 						}
             this.loadAnimation();
-						//for testing only
-            // this.getMetadataTest();
-						//for production
-						// this.getList();
 
 						this.registerServiceWorker();
-						window.addEventListener('beforeinstallprompt', (e) => {
-						  // Prevent Chrome 67 and earlier from automatically showing the prompt
-						  e.preventDefault();
-						  // Stash the event so it can be triggered later.
-						  deferredPrompt = e;
-							console.log('prompt to install Web App')
-						  // Update UI notify the user they can add to home screen
-							deferredPrompt.prompt();
-						});
+
+						// PROMPT TO INSTALL OFFLINE APP
+						// window.addEventListener('beforeinstallprompt', (e) => {
+						//   // Prevent Chrome 67 and earlier from automatically showing the prompt
+						//   e.preventDefault();
+						//   // Stash the event so it can be triggered later.
+						//   deferredPrompt = e;
+						// 	// console.log('prompt to install Web App')
+						//   // Update UI notify the user they can add to home screen
+						// 	deferredPrompt.prompt();
+						// });
           }
       });
 
