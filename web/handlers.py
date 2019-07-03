@@ -24,7 +24,7 @@ templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 def get_api_list():
-    r = requests.get('http://pending.biothings.io:20080/api/list');
+    r = requests.get('https://biothings.ncats.io/api/list');
     return r.json()['result']
 
 class BaseHandler(tornado.web.RequestHandler):
