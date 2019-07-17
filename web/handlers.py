@@ -48,7 +48,15 @@ class ApiViewHandler(BaseHandler):
         view_output = view_template.render()
         self.write(view_output)
 
+class NcatsHandler(BaseHandler):
+    def get(self, namespace=None, className=None):
+        view_file = "ncats-landing.html"
+        view_template = templateEnv.get_template(view_file)
+        view_output = view_template.render()
+        self.write(view_output)
+
 APP_LIST = [
     (r"/?", MainHandler),
+    (r"/ncats/?", NcatsHandler),
     (r"/(.+)/?", ApiViewHandler),
 ]
