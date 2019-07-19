@@ -44,7 +44,7 @@
           <div class="flexP">
             <div v-for="(api,index) in pending" class="flexC apiBack" v-if="index < shown">
               <h3 class="font-weight-bold" v-text='getKeyName(api.src)'></h3>
-              <small class="badge bg-dark" v-text="numberWithCommas(api.src[getKeyName(api.src)].stats[getKeyName(api.src)])+' documents'"></small>
+							<small class="badge bg-dark" v-text="numberWithCommas(api.src[getKeyName(api.src)].stats[getKeyName(api.src)])+' documents'"></small>
               <div>
                 <hr />
                 <small>Pending for integration with:</small>
