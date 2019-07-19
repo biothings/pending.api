@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html class="bg-light" lang="en-US" >
+	<head>
+		<title>NCATS Pending APIs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="HandheldFriendly" content="True" />
+		<meta property="og:locale" content="en_US" />
+		<!-- Unique for each site -->
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="https://ncats.nih.gov/sites/all/themes/ncats-2014/favicon.ico" type="image/vnd.microsoft.icon" />
+    <meta name="generator" content="Drupal 7 (http://drupal.org)" />
+    <link rel="canonical" href="https://ncats.nih.gov/" />
+    <link rel="shortlink" href="https://ncats.nih.gov/" />
+    <meta property="og:site_name" content="National Center for Advancing Translational Sciences" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ncats.nih.gov/" />
+    <meta property="og:title" content="National Center for Advancing Translational Sciences" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="https://ncats.nih.gov/" />
+    <meta name="twitter:title" content="National Center for Advancing Translational Sciences" />
+		<!-- Styles -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+		<script async defer src="https://buttons.github.io/buttons.js"></script>
+    <style>
+      h1,h2,h3,h4,h5,h6{
+        font-weight: lighter;
+      }
+      .fullscreen{
+        min-height: 100vh;
+      }
+    </style>
+	</head>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#"><img height="50px" alt='logo' src="https://ncats.nih.gov/sites/all/themes/ncats-2014/images/assets/ncats-logo.png"/></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#pending">Pending APIs</span></a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+	<body class="bg-light">
+    <div id="ncats" class="container">
+      <section  class="jumbotron fullscreen bg-light">
+        <div class="text-center">
+          <h2 class="m-5">National Center for Advancing Translational Sciences <br /><b>Pending APIs</b></h2>
+          <p class="w-75 m-auto">
+  					Pending APIs are a collection of community-contributed APIs from various data sources. They were built using
+  					<a rel="noopener"  class="link" href="https://biothingsapi.readthedocs.io/en/latest/" target="_blank">BioThings SDK</a> and follow the same design pattern of our official BioThings APIs (<a rel="noopener"  class="link" href="https://mygene.info" target="_blank">MyGene.info</a>,
+  					<a rel="noopener" class="link" href="https://myvariant.info" target="_blank">MyVariant.info</a>, <a rel="noopener"  class="link" href="https://mychem.info" target="_blank">MyChem.info</a>, etc). These APIs are also pending to be integrated into the proper official BioThings API based on their entity type.
+  				</p>
+          <div class="text-center p-5 mt-5">
+            <a href="#pending" class="text-dark">
+              <h3>Try Them</h3>
+              <h2><i class="fas fa-chevron-down"></i></h2>
+            </a>
+          </div>
+        </div>
+      </section>
+      <section class="jumbotron fullscreen text-center" id="pending">
+        <h2>Pending APIs</h2>
+        <template v-if="list.length">
+          <div class="d-flex justify-content-center align-items-center flex-wrap">
+            <template v-for="api in list">
+              <div class="p-5 m-4 bg-light text-center" data-aos="zoom-in">
+                <h3 v-text='api["_id"]'></h3>
+                <small>Pending for integration with:</small>
+                <div class="badge badge-dark d-block" v-if="api.config.doc_type">
+                  <a rel="noopener"  v-if="api.config.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.config.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.config.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+                </div>
+                <br />
+                <a class="btn btn-dark d-" role="button" target="_blank" :href="'/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
+              </div>
+            </template>
+          </div>
+        </template>
+        <template v-else>
+          <div class="d-flex justify-content-center align-items-center flex-wrap">
+            <template v-for="api in pending">
+              <div class="p-5 m-4 bg-light text-center" data-aos="zoom-in">
+                <h3 v-text='api'></h3>
+                <a class="btn btn-dark" role="button" target="_blank" href="'/'+api">Try It</a>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <div class="text-center mt-5">
+          <small class="d-block"> Disclaimer: Pending APIs available here are meant for testing purposes. We cannot guarantee the reliability of these APIs. Use at your own risk.</small>
+          <a role="button" class="btn btn-dark m-4" target="_blank" href="/">See More Pending APIs <i class="fas fa-chevron-right"></i></a>
+          <br />
+          <small class="d-block">Do you have an idea for a great API? Let us know!</small>
+          <a role="button" class="btn btn-dark m-4" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/issues/new?assignees=cmungall%2C+tomconlin%2C+newgene%2C+kevinxin90&labels=data+wanted&template=a_data_source_wanted.md">Suggest An API <i class="fas fa-chevron-right"></i></a>
+        </div>
+      </section>
+      <section  class="jumbotron bg-light">
+        <footer id="footer">
+          <div class="copyright text-center">
+            <a rel="noopener"  class="d-inline mr-2" href="http://twitter.com/biothingsapi" target="_blank">
+              </i> Twitter
+            </a>
+            <a rel="noopener"  class="d-inline mr-2" href="https://github.com/biothings/biothings.api" target="_blank">
+              </i> Github
+            </a>
+            <hr />
+            <small>
+              All content copyright <a href="http://biothings.io" class="link">BioThings.io</a> © <span id="year"></span> <br /> All rights reserved.
+              <a rel="noopener"  target="_blank" href="http://biothings.io/terms" class="link">Terms of use.</a>
+              <a rel="noopener"  target="_blank" href="http://biothings.io/citation/" class="link">How To Cite</a>
+            </small>
+          </div>
+        </footer>
+      </section>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+      var app = new Vue({
+        el: '#ncats',
+        data: function(){
+          return {
+             pending:["denovodb","phewas","gwascatalog","biomuta","ccle","kaviar"],
+             list:[]
+          }
+        },
+        methods: {
+          getList(){
+            let self = this;
+            axios.get('https://biothings.ncats.io/api/list').then(res=>{
+              if (res.data.result) {
+                for (var i = 0; i < res.data.result.length; i++) {
+                  switch (res.data.result[i]["_id"]) {
+                    case 'fire':
+                      break;
+                    default:
+                      self.list.push(res.data.result[i])
+                  }
+                }
+                // console.log("LIST: ",self.list)
+              }
+            }).catch(err=>{
+              throw err;
+            })
+          },
+          numberWithCommas(x) {
+              return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          },
+        },
+        mounted: function(){
+          this.getList()
+          var currentTime = new Date()
+          var year = currentTime.getFullYear()
+          var myelement = document.getElementById("year");
+          myelement.innerHTML= year;
+        }
+      });
+
+    </script>
+	</body>
+</html>
