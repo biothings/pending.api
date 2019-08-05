@@ -198,7 +198,17 @@
           numberOfDocs:null,
           validAPI: true,
           type:'',
-          numberOfExamples:6
+          numberOfExamples:8
+        }
+      },
+      watch:{
+        exampleQueries:function(qs){
+          if (qs.length < this.numberOfExamples) {
+            this.generateTestQueriesStart()
+          }
+          if (qs.length > this.numberOfExamples) {
+            this.exampleQueries = this.exampleQueries.slice(0,this.numberOfExamples)
+          }
         }
       },
       methods: {
@@ -214,7 +224,7 @@
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
-                while (i < self.numberOfExamples) {
+                while ( i < self.numberOfExamples) {
                   let doc = res[self.randomNumber(size)]
                   //remove fields that we don't want picked
                   try {
@@ -229,7 +239,8 @@
                 for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
                   let value = self.getStringQuery(picks[picksIndex])
                   let query ='/query?q='+value
-                  if (!self.exampleQueries.includes(query)) {
+                  //excludes duplicates and results with undefined terms
+                  if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
                     self.exampleQueries.push(query)
                   }
                 }
@@ -246,22 +257,28 @@
         getStringQuery(obj){
           let self = this;
           let string = self.randomProperty(obj);
-          if (_.isPlainObject(obj[string])) {
-            string += "."+self.getStringQuery(obj[string])
-          }else if (_.isArray(obj[string])) {
-            string += "."+self.getStringQuery(obj[string][self.randomNumber(obj[string].length)])
+          if (string) {
+            if (_.isPlainObject(obj[string])) {
+              string += "."+self.getStringQuery(obj[string])
+            }else if (_.isArray(obj[string])) {
+              string += "."+self.getStringQuery(obj[string][0])
+            }
+            else if (_.isBoolean(obj[string])) {
+              string += ":"+obj[string]
+            }
+            else if (_.isString(obj[string]) || _.isNumber(obj[string])) {
+              string += ":"+obj[string]
+            }
+            return string
           }
-          else if (_.isBoolean(obj[string])) {
-            string += ":"+obj[string]
-          }
-          else if (_.isString(obj[string]) || _.isNumber(obj[string])) {
-            string += ":"+obj[string]
-          }
-          return string
         },
         randomProperty(obj) {
-          var keys = Object.keys(obj)
-          return keys[ keys.length * Math.random() << 0];
+          if (_.isPlainObject(obj)) {
+            var keys = Object.keys(obj)
+            return keys[ keys.length * Math.random() << 0];
+          }else {
+            return false
+          }
         },
         randomNumber(max) {
           let number = Math.floor(Math.random() * max) + 1
