@@ -1,11 +1,58 @@
 {% extends "main.html" %}
 {% block content %}
 <style type="text/css">
+  .spinner {
+    margin: 100px auto;
+    width: 40px;
+    height: 40px;
+    position: relative;
+  }
 
+  .cube1, .cube2 {
+    background-color: white;
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
+    animation: sk-cubemove 1.8s infinite ease-in-out;
+  }
+
+  .cube2 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
+  }
+
+  @-webkit-keyframes sk-cubemove {
+    25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+    50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+    75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+    100% { -webkit-transform: rotate(-360deg) }
+  }
+
+  @keyframes sk-cubemove {
+    25% {
+      transform: translateX(42px) rotate(-90deg) scale(0.5);
+      -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+    } 50% {
+      transform: translateX(42px) translateY(42px) rotate(-179deg);
+      -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+    } 50.1% {
+      transform: translateX(42px) translateY(42px) rotate(-180deg);
+      -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+    } 75% {
+      transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+      -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+    } 100% {
+      transform: rotate(-360deg);
+      -webkit-transform: rotate(-360deg);
+    }
+  }
 </style>
 <section id="try-app">
   <div v-if="validAPI" class="container mt-5">
-
     <div class="bg-dark">
       <div class="bg-dark jumbotron text-light text-center">
         <div v-if="metadata && metadata.src" class="bg-dark p-5">
@@ -52,9 +99,16 @@
             <hr />
             <small>Pending for integration with:</small>
             <div v-if="metadata.biothing_type">
-              <a rel="noopener" v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="40px"/></a>
-              <a rel="noopener" v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="40px"/></a>
-              <a rel="noopener" v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="40px"/></a>
+              <a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+            </div>
+            <div v-if="metadata.doc_type">
+              <a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+              <a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
             </div>
           </div>
         </div>
@@ -66,11 +120,11 @@
           <h1 class="mb-5">
             Try It
           </h1>
-          <form class="row" @submit.prevent="testQuery()">
-            <div class="form-group col-sm-4">
-              <h4>pending.biothings.io/<span class="text-warning" v-text="api"></span></h4>
+          <form class="d-flex justify-content-around flex-wrap" @submit.prevent="testQuery()">
+            <div class="form-group p-1">
+              <h4>pending.biothings.io/<span class="text-light bold" v-text="api"></span></h4>
             </div>
-            <div class="form-group col-sm-5">
+            <div class="form-group p-1">
               <template v-if="querySelectionType==='example'">
                 <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
                   <template v-for="item in exampleQueries">
@@ -81,7 +135,8 @@
               <template v-if="querySelectionType==='own'">
                 <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
               </template>
-              <label class="text-warning" v-if="!querySelected" for="api">Select a query</label>
+              <button v-if="querySelected" class="btn btn-outline-dark text-light scale-in-center mt-2" type="submit">Submit</button>
+              <label class="text-muted" v-if="!querySelected" for="api">Select a query</label>
               <div class="form-check text-left mt-3">
                 <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
                 <label class="form-check-label" for="exampleRadios1">
@@ -95,15 +150,13 @@
                 </label>
               </div>
             </div>
-            <div class="form-group col-sm-3">
-              <button v-if="querySelected" class="btn btn-outline-dark text-light scale-in-center" type="submit">Submit</button>
-            </div>
           </form>
           <p class="bold" v-if="success && queryString">
             <i  class="fas fa-check text-success"></i> <a rel="noopener" target="_blank" :href="'http:'+queryString" v-text="'http:'+queryString" class="m-auto" :class="[ success ? 'text-success' : 'text-danger']" type="text"></a>
           </p>
-          <div class="progress" v-if="loading">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+          <div v-show='loading' class="spinner">
+            <div class="cube1"></div>
+            <div class="cube2"></div>
           </div>
           <pre id="callResults" class="padding20 text-dark bg-light text-left m-4" style="max-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;box-shadow: inset 0 0 10px #000000;border-radius: 5px;">
 
@@ -125,6 +178,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
   <script src="/static/js/renderjson.js"></script>
+  <script src="/static/js/lodash.js"></script>
   <script>
     var app = new Vue({
       el: '#try-app',
@@ -141,99 +195,82 @@
             '/metadata',
             '/metadata/fields'
           ],
-          fieldsPicked:[],
           numberOfDocs:null,
           validAPI: true,
-          type:''
+          type:'',
+          numberOfExamples:6
         }
       },
       methods: {
-        getAPIFields(){
+        generateTestQueriesStart(){
           let self = this;
-          let fields={};
+          console.log("🤖")
           if (self.numberOfDocs < 250000000) {
-            axios.get('//pending.biothings.io/'+self.api.toLowerCase()+'/metadata/fields').then(res=>{
-              fields = res.data;
-              self.getIndexedFields(fields);
-            }).catch(err=>{
-              throw err;
-            })
+            let limit = Math.floor(Math.random() * 10000);
+            let size = 100;
+            self.loading = true
+            if (limit) {
+              axios.get('//pending.biothings.io/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
+                let res = result.data.hits
+                let i = 0;
+                let picks = []
+                while (i < self.numberOfExamples) {
+                  let doc = res[self.randomNumber(size)]
+                  //remove fields that we don't want picked
+                  try {
+                    delete doc['_id']
+                    delete doc['_score']
+                  } catch (e) {
+                    throw e
+                  }
+                  picks.push(doc)
+                  i++;
+                }
+                for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
+                  let value = self.getStringQuery(picks[picksIndex])
+                  let query ='/query?q='+value
+                  if (!self.exampleQueries.includes(query)) {
+                    self.exampleQueries.push(query)
+                  }
+                }
+                self.loading = false
+              }).catch(err=>{
+                throw err;
+                self.loading = false
+              })
+            }
           }else{
             self.loadExamplesFromMetadata();
           }
-
+        },
+        getStringQuery(obj){
+          let self = this;
+          let string = self.randomProperty(obj);
+          if (_.isPlainObject(obj[string])) {
+            string += "."+self.getStringQuery(obj[string])
+          }else if (_.isArray(obj[string])) {
+            string += "."+self.getStringQuery(obj[string][self.randomNumber(obj[string].length)])
+          }
+          else if (_.isBoolean(obj[string])) {
+            string += ":"+obj[string]
+          }
+          else if (_.isString(obj[string]) || _.isNumber(obj[string])) {
+            string += ":"+obj[string]
+          }
+          return string
+        },
+        randomProperty(obj) {
+          var keys = Object.keys(obj)
+          return keys[ keys.length * Math.random() << 0];
+        },
+        randomNumber(max) {
+          let number = Math.floor(Math.random() * max) + 1
+          return number
         },
         loadExamplesFromMetadata(){
           let self = this;
           if (self.metadata.example_queries) {
             self.exampleQueries = self.metadata.example_queries;
-          }
-        },
-        getIndexedFields(fields){
-          let indexedFields =[]
-          for (var prop in fields) {
-            if (fields[prop].index === true) {
-              if (fields[prop].type !== 'object') {
-                indexedFields.push(prop);
-              }
-            }
-          }
-          this.pickFields(indexedFields,5);
-        },
-        pickFields(indexedFields,number){
-          var picks = [];
-          var self = this;
-          // console.log(indexedFields)
-          if (indexedFields.length>number) {
-            do {
-              picks[picks.length] = indexedFields.splice(Math.floor(Math.random() * indexedFields.length), 1)[0];
-            } while (picks.length < number);
-          }else{
-            picks = indexedFields;
-          }
-          self.fieldsPicked = picks;
-          // console.log('picks',picks)
-          self.getFieldValues();
-        },
-        getFieldValues(){
-          var self = this;
-          let limit = Math.floor(Math.random() * 10000);
-          let size = 100;
-          if (limit) {
-            axios.get('//pending.biothings.io/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(res=>{
-              let result = res.data.hits;
-              // console.log('res', result)
-              if (result.length) {
-                //make query string query
-                self.generateQuery(result[Math.floor(Math.random() * size)]);
-                // make parameter string query
-                for (var i = 0; i < self.fieldsPicked.length; i++) {
-                  // console.log('trying field ',self.fieldsPicked[i]);
-                  try{
-                    let noPrefix = self.fieldsPicked[i].split('.')[1];
-                    let randomIndex = Math.floor(Math.random() * size);
-                    let valuePicked=result[randomIndex][self.api][noPrefix];
-                    self.generateParameterQuery(self.fieldsPicked[i],valuePicked);
-                  }catch(error){
-                    console.log(error);
-                  }
-                }
-              }
-            }).catch(err=>{
-              throw err;
-            });
-          }
-        },
-        generateQuery(dataObject){
-          var self = this;
-          let id= dataObject["_id"];
-          let query ='/'+self.type+"/"+id;
-          self.exampleQueries.push(query);
-        },
-        generateParameterQuery(field,value){
-          if (typeof value !== 'undefined' && typeof value !== 'object') {
-            let query ='/query?q='+field+":"+value;
-            this.exampleQueries.push(query);
           }
         },
         numberWithCommas(x) {
@@ -272,13 +309,12 @@
           let self = this;
           self.pending=[];
           axios.get('//pending.biothings.io/'+self.api+'/metadata').then(res=>{
-            // console.log('meta', res.data)
             self.metadata = res.data;
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
             if (self.metadata.biothing_type) {
               self.type= self.metadata.biothing_type;
             }
-            self.getAPIFields();
+            self.generateTestQueriesStart()
           }).catch(err=>{
             self.validAPI = false;
             throw err;
@@ -297,13 +333,9 @@
                   console.log('Service Worker registration failed');
                 });
               }catch(err){
-                // console.log('failed');
               }
             });
           }
-
-          // console.log(caches)
-
         }
       },
         mounted: function(){

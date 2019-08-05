@@ -52,11 +52,13 @@
                   <a rel="noopener"  v-if="api.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+									<a rel="noopener"  v-if="api.biothing_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
                 </div>
 								<div v-if="api.doc_type">
                   <a rel="noopener"  v-if="api.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
                   <a rel="noopener"  v-if="api.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+									<a rel="noopener"  v-if="api.doc_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
                 </div>
               </div>
               <div class="p-3 mt-4" style="position: relative">
@@ -190,46 +192,18 @@
           }
         },
         methods: {
-          search(query){
-            let self = this;
-            let res=[];
-
-            if (query) {
-              for (var i = 0; i < self.pending.length; i++) {
-                let title = self.getKeyName(self.pending[i].src)
-                if (title.toLowerCase().includes(query.toLowerCase())) {
-                  res.push(self.pending[i]);
-                }
-              }
-              self.pending = res;
-            }else{
-              self.getMetadata();
-            }
-          },
           numberWithCommas(x) {
-              return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           },
           getKeyName(obj){
             for (var key in obj) {
               return key;
             }
           },
-					getList(){
-            let self = this;
-            self.pending=[];
-						axios.get('//pending.biothings.io:20080/api/list').then(res=>{
-							// console.log(res.data.result);
-							self.apiList = res.data.result;
-							self.getMetadata(self.apiList);
-						}).catch(err=>{
-							throw err;
-						});
-          },
 					getMetadata(list){
 						let self = this;
 						for (var i = 0; i < list.length; i++) {
 							axios.get('//pending.biothings.io/'+list[i]["_id"]+'/metadata').then(res=>{
-								// console.log('pending',res.data)
 								self.pending.push(res.data);
 							}).catch(err=>{
 								throw err;
@@ -408,14 +382,12 @@
 							AdobeAn.compositionLoaded(lib.properties.id);
 							fnStartAnimation();
 						}
-
             $( document ).ready(function() {
                 init();
             });
             document.getElementById("animation_container").addEventListener('click', function(){
     					init();
     				})
-
 						let timer = setInterval(function(){
 			        init();
 			      }, 40000);
@@ -423,22 +395,16 @@
 					registerServiceWorker(){
 						// Check that service workers are registered
 						if ('serviceWorker' in navigator) {
-						  // Use the window load event to keep the page load performant
 						  window.addEventListener('load', () => {
 						    try{
 						      navigator.serviceWorker.register('/static/worker.js').then(function(ServiceWorkerRegistration) {
 						        console.log('Service Worker registered');
 						      }).catch(err=>{
-						        console.log('Service Worker registration failed');
 						      });
 						    }catch(err){
-						      // console.log('failed');
 						    }
 						  });
 						}
-
-						// console.log(caches)
-
 					}
 
         },
@@ -446,6 +412,7 @@
 						let self = this;
 						if ({{Context}}) {
 							self.context = {{Context}}
+							console.log("List",self.context.List)
 							self.getMetadata(self.context.List);
 						}
             this.loadAnimation();
