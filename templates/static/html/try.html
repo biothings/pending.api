@@ -120,7 +120,7 @@
           <h1 class="mb-5">
             Try It
           </h1>
-          <form class="d-flex justify-content-around flex-wrap" @submit.prevent="testQuery()">
+          <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
             <div class="form-group p-1">
               <h4>pending.biothings.io/<span class="text-light bold" v-text="api"></span></h4>
             </div>
@@ -191,6 +191,7 @@
           querySelectionType:'example',
           success: false,
           loading: false,
+          loadingExamples: false,
           exampleQueries:[
             '/metadata',
             '/metadata/fields'
@@ -214,11 +215,11 @@
       methods: {
         generateTestQueriesStart(){
           let self = this;
-          console.log("🤖")
+          // console.log("🤖")
           if (self.numberOfDocs < 250000000) {
             let limit = Math.floor(Math.random() * 10000);
             let size = 100;
-            self.loading = true
+            self.loadingExamples = true
             if (limit) {
               axios.get('//pending.biothings.io/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
                 let res = result.data.hits
@@ -226,13 +227,6 @@
                 let picks = []
                 while ( i < self.numberOfExamples) {
                   let doc = res[self.randomNumber(size)]
-                  //remove fields that we don't want picked
-                  try {
-                    delete doc['_id']
-                    delete doc['_score']
-                  } catch (e) {
-                    throw e
-                  }
                   picks.push(doc)
                   i++;
                 }
@@ -244,10 +238,10 @@
                     self.exampleQueries.push(query)
                   }
                 }
-                self.loading = false
+                self.loadingExamples = false
               }).catch(err=>{
                 throw err;
-                self.loading = false
+                self.loadingExamples = false
               })
             }
           }else{
@@ -275,6 +269,18 @@
         randomProperty(obj) {
           if (_.isPlainObject(obj)) {
             var keys = Object.keys(obj)
+            if (keys.includes('_id')) {
+              var index = keys.indexOf('_id');
+              if (index > -1) {
+                keys.splice(index, 1);
+              }
+            }
+            if (keys.includes('_score')) {
+              var index = keys.indexOf('_score');
+              if (index > -1) {
+                keys.splice(index, 1);
+              }
+            }
             return keys[ keys.length * Math.random() << 0];
           }else {
             return false
