@@ -228,6 +228,8 @@
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
+                //make query string query
+                self.generateQuery(res[self.randomNumber(size)]);
                 while ( i < self.numberOfExamples) {
                   let doc = res[self.randomNumber(size)]
                   picks.push(doc)
@@ -268,6 +270,12 @@
             }
             return string
           }
+        },
+        generateQuery(dataObject){
+          var self = this;
+          let id= dataObject["_id"];
+          let query ='/'+self.type+"/"+id;
+          self.exampleQueries.push(query);
         },
         randomProperty(obj) {
           if (_.isPlainObject(obj)) {
