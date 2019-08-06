@@ -76,9 +76,9 @@
                 <h3 v-text='api["_id"]'></h3>
                 <small>Pending for integration with:</small>
                 <div class="badge badge-dark d-block" v-if="api.config.doc_type">
-                  <a rel="noopener"  v-if="api.config.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.config.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.config.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.config.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.config.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
+                  <a rel="noopener"  v-if="api.config.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
                 </div>
                 <br />
                 <a class="btn btn-dark d-" role="button" target="_blank" :href="'/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
