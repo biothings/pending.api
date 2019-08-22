@@ -1,55 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 <style type="text/css">
-  .spinner {
-    margin: 100px auto;
-    width: 40px;
-    height: 40px;
-    position: relative;
-  }
 
-  .cube1, .cube2 {
-    background-color: white;
-    width: 15px;
-    height: 15px;
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
-    animation: sk-cubemove 1.8s infinite ease-in-out;
-  }
-
-  .cube2 {
-    -webkit-animation-delay: -0.9s;
-    animation-delay: -0.9s;
-  }
-
-  @-webkit-keyframes sk-cubemove {
-    25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
-    50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
-    75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
-    100% { -webkit-transform: rotate(-360deg) }
-  }
-
-  @keyframes sk-cubemove {
-    25% {
-      transform: translateX(42px) rotate(-90deg) scale(0.5);
-      -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
-    } 50% {
-      transform: translateX(42px) translateY(42px) rotate(-179deg);
-      -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
-    } 50.1% {
-      transform: translateX(42px) translateY(42px) rotate(-180deg);
-      -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
-    } 75% {
-      transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
-      -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
-    } 100% {
-      transform: rotate(-360deg);
-      -webkit-transform: rotate(-360deg);
-    }
-  }
 </style>
 <section id="try-app">
   <div v-if="validAPI" class="container mt-5">
@@ -57,7 +9,7 @@
       <div class="bg-dark jumbotron text-light text-center">
         <div v-if="metadata && metadata.src" class="bg-dark p-5">
           <div style="position:relative;" class="p-5 mb-3">
-            <h1 class="font-weight-bold reflection" :data-text='getKeyName(metadata.src)' v-text='getKeyName(metadata.src)'></h1>
+            <h1 class="font-weight-bold reflection" :data-text='api' v-text='api'></h1>
           </div>
           <small class="text-light mb-4 lighter" v-text='"Version "+metadata.src[getKeyName(metadata.src)]["version"]'></small>
           <ul class="link-list">
@@ -95,20 +47,28 @@
           <div class="m-5 p-1" style="position: relative">
             <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
           </div>
-          <div>
-            <hr />
+          <div v-if="existingEntity" >
             <small>Pending for integration with:</small>
-            <div v-if="metadata.biothing_type">
+            <div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1 m-2">
               <a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
             </div>
-            <div v-if="metadata.doc_type">
+            <div v-if="metadata.doc_type" class="badge bg-dark d-block p-1 m-2">
               <a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
               <a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+            </div>
+          </div>
+          <div v-if="!existingEntity">
+            <small>Entity Type:</small>
+            <div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1 m-2">
+              <span v-text="metadata.biothing_type"></span>
+            </div>
+            <div v-if="metadata.doc_type" class="badge bg-dark d-block p-1 m-2">
+              <span v-text="metadata.doc_type"></span>
             </div>
           </div>
         </div>
@@ -199,7 +159,8 @@
           numberOfDocs:null,
           validAPI: true,
           type:'',
-          numberOfExamples:8
+          numberOfExamples:8,
+          existingEntity:false
         }
       },
       watch:{
@@ -342,12 +303,25 @@
         getMetadata(){
           let self = this;
           self.pending=[];
+          let safeList = ['gene','chemical','variant','disease']
           axios.get('//pending.biothings.io/'+self.api+'/metadata').then(res=>{
             self.metadata = res.data;
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
             if (self.metadata.biothing_type) {
               self.type= self.metadata.biothing_type;
+            }else if (self.metadata.doc_type) {
+              self.type= self.metadata.doc_type;
             }
+            if (self.metadata.hasOwnProperty('doc_type')) {
+    					if (safeList.includes(self.metadata['doc_type'])) {
+    						self.existingEntity = true
+    					}
+    				}
+    				else if (self.metadata.hasOwnProperty('biothing_type')) {
+    					if (safeList.includes(self.metadata['biothing_type'])) {
+    						self.existingEntity = true
+    					}
+    				}
             self.generateTestQueriesStart()
           }).catch(err=>{
             self.validAPI = false;

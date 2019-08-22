@@ -70,21 +70,14 @@
       <section class="jumbotron fullscreen text-center" id="pending">
         <h2>Pending APIs</h2>
         <template v-if="list.length">
-          <div class="d-flex justify-content-center align-items-center flex-wrap">
-            <template v-for="api in list">
-              <div class="p-5 m-4 bg-light text-center" data-aos="zoom-in">
-                <h3 v-text='api["_id"]'></h3>
-                <small>Pending for integration with:</small>
-                <div class="badge badge-dark d-block" v-if="api.config.doc_type">
-                  <a rel="noopener"  v-if="api.config.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.config.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-                  <a rel="noopener"  v-if="api.config.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-                </div>
-                <br />
-                <a class="btn btn-dark d-" role="button" :href="'https://pending.biothings.io/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
-              </div>
+					<div class="d-flex justify-content-center align-items-center flex-column flex-sm-row flex-wrap">
+            <template v-for="(api,index) in list"  v-if="index < shown">
+							<api-box :api="api" :key="index"></api-box>
             </template>
           </div>
+					<div class="mb-5 w-100 p-3 bg-secondary" v-if="shown < list.length">
+						<button class="btn btn-outline-dark text-light" @click="shown = shown+3">Load More</button>
+					</div>
         </template>
         <template v-else>
           <div class="d-flex justify-content-center align-items-center flex-wrap">
@@ -131,12 +124,109 @@
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
       AOS.init();
+
+			Vue.component('api-box', {
+			data: function(){
+				return{
+					loading:false,
+					metadata:null,
+					existingEntity:false,
+				}
+			},
+			props: ['api'],
+			methods:{
+				getMetadata(name){
+					let self = this;
+					let safeList = ['gene','chemical','variant','disease']
+					self.loading = true;
+					axios.get('//pending.biothings.io/'+name+'/metadata').then(res=>{
+						self.loading = false;
+						self.metadata = res.data
+						if (self.metadata.hasOwnProperty('doc_type')) {
+							if (safeList.includes(self.metadata['doc_type'])) {
+								self.existingEntity = true
+							}
+						}
+						else if (self.metadata.hasOwnProperty('biothing_type')) {
+							if (safeList.includes(self.metadata['biothing_type'])) {
+								self.existingEntity = true
+							}
+						}
+					}).catch(err=>{
+						self.loading = false;
+						throw err;
+					})
+				},
+				numberWithCommas(x) {
+					return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				},
+				getFirstKeyName(obj){
+					return Object.keys(obj)[0]
+				},
+			},
+			watch:{
+			},
+			mounted: function(){
+				let self = this;
+				if (self.api["_id"]) {
+					self.getMetadata(self.api["_id"])
+				}
+			},
+			template: `<div class="bg-light m-2" data-aos="zoom-in" style="max-width:200px !important; flex:1">
+									<div v-show='loading' class="spinner">
+										<div class="cube1"></div>
+										<div class="cube2"></div>
+									</div>
+									<div class="d-none d-md-block">
+										<h3 class="font-weight-bold" v-text='api["_id"]'></h3>
+										<template v-if="metadata">
+											<small class="badge bg-dark text-light" v-text="numberWithCommas(metadata.src[getFirstKeyName(metadata.src)].stats[getFirstKeyName(metadata.src)])+' documents'"></small>
+											<div v-if="existingEntity" >
+												<small>Pending for integration with:</small>
+												<div v-if="metadata.biothing_type" class="badge bg-dark text-light d-block p-1 m-2">
+													<a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link text-light" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+												</div>
+												<div v-if="metadata.doc_type" class="badge bg-dark text-light d-block p-1 m-2">
+													<a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link text-light" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+												</div>
+											</div>
+											<div v-if="!existingEntity" >
+												<small>Entity Type:</small>
+												<div v-if="metadata.biothing_type" class="badge bg-dark text-light d-block p-1 m-2">
+													<span v-text="metadata.biothing_type"></span>
+												</div>
+												<div v-if="metadata.doc_type" class="badge bg-dark text-light d-block p-1 m-2">
+													<span v-text="metadata.doc_type"></span>
+												</div>
+											</div>
+											<div class="p-3 mt-4" >
+												<a class="btn btn-outline-dark" :href="'https://pending.biothings.io/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
+											</div>
+										</template>
+									</div>
+									<div class="d-sm-block d-md-none p-2">
+										<a class="text-dark" :href="'https://pending.biothings.io/'+api['_id']">
+											<h5 class="font-weight-bold">
+												Try <span v-text='api["_id"]'></span> <i class="fas fa-chevron-right"></i>
+											</h5>
+										</a>
+									</div>
+								</div>`
+		});
+
       var app = new Vue({
         el: '#ncats',
         data: function(){
           return {
              pending:["denovodb","phewas","gwascatalog","biomuta","ccle","kaviar"],
-             list:[]
+             list:[],
+						 shown:10
           }
         },
         methods: {
@@ -152,7 +242,6 @@
                       self.list.push(res.data.result[i])
                   }
                 }
-                // console.log("LIST: ",self.list)
               }
             }).catch(err=>{
               throw err;
