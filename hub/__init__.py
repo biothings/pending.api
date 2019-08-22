@@ -1,3 +1,5 @@
-__gitversion__ = "$Id$"
-# don't use key expansion in a regex for instance...
-__version__ = __gitversion__.replace("$","").replace("Id","").replace(":","").strip()
+from standalone.hub import AutoHubServer
+
+class PendingHubServer(AutoHubServer):
+
+    DEFAULT_FEATURES = AutoHubServer.DEFAULT_FEATURES + ["index","api"]

@@ -167,11 +167,6 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 #ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
 
-#BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle,pending-kaviar,pending-fire,pending-biomuta"
-#ES_INDEX_NAME = "pending"
-#ES_DOC_TYPE = None
-#ES_HOST = "localhost:9200"
-
 #STANDALONE_VERSION = "standalone_v2"
 # S3 bucket, root of all biothings releases information
 S3_RELEASE_BUCKET = "biothings-releases"
@@ -211,6 +206,9 @@ LOG_FOLDER = ConfigurationError("Define path to folder which will contain log fi
 
 # When ES repository type is "fs", where snapshot should be stored
 ES_BACKUPS_FOLDER = ConfigurationError("Define path to folder which will contain ES snapshot when type='fs'")
+
+# List of versions.json URLs, Hub will handle these as sources for data releases
+VERSION_URLS = []
 
 # default hub logger
 logger = ConfigurationError("Provider a default hub logger instance (use setup_default_log(name,log_folder)")
