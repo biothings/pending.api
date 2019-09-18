@@ -69,26 +69,26 @@
       </section>
       <section class="jumbotron fullscreen text-center" id="pending">
         <h2>Pending APIs</h2>
-        <template v-if="list.length">
-					<div class="d-flex justify-content-center align-items-center flex-column flex-sm-row flex-wrap">
-            <template v-for="(api,index) in list"  v-if="index < shown">
-							<api-box :api="api" :key="index"></api-box>
-            </template>
-          </div>
-					<div class="mb-5 w-100 p-3 bg-secondary" v-if="shown < list.length">
-						<button class="btn btn-outline-dark text-light" @click="shown = shown+3">Load More</button>
-					</div>
-        </template>
-        <template v-else>
-          <div class="d-flex justify-content-center align-items-center flex-wrap">
-            <template v-for="api in pending">
-              <div class="p-5 m-4 bg-light text-center" data-aos="zoom-in">
-                <h3 v-text='api'></h3>
-                <a class="btn btn-dark" role="button" target="_blank" href="'/'+api">Try It</a>
-              </div>
-            </template>
-          </div>
-        </template>
+				<div style="overflow-x:scroll">
+					<table class="table table-light table-striped table-sm table-hover sortable">
+						<thead class="thead-dark">
+							<tr>
+								<th scope="col">Name</th>
+								<th scope="col">Documents</th>
+								<th scope="col">Pending For | Entity Type</th>
+								<th scope="col">Try It</th>
+							</tr>
+						</thead>
+						<tbody>
+							<template v-for="(api,index) in list"  v-if="index < shown">
+								<api-box :api="api" :key="index"></api-box>
+							</template>
+						</tbody>
+					</table>
+				</div>
+				<div class="mb-5 w-100 p-3 bg-secondary" v-if="shown < list.length">
+					<button class="btn btn-outline-dark text-light" @click="shown = shown+10">Load More</button>
+				</div>
 
         <div class="text-center mt-5">
           <small class="d-block"> Disclaimer: Pending APIs available here are meant for testing purposes. We cannot guarantee the reliability of these APIs. Use at your own risk.</small>
@@ -126,15 +126,15 @@
       AOS.init();
 
 			Vue.component('api-box', {
-			data: function(){
-				return{
+		  data: function(){
+		    return{
 					loading:false,
 					metadata:null,
 					existingEntity:false,
-				}
-			},
-			props: ['api'],
-			methods:{
+		    }
+		  },
+		  props: ['api'],
+		  methods:{
 				getMetadata(name){
 					let self = this;
 					let safeList = ['gene','chemical','variant','disease']
@@ -157,68 +157,105 @@
 						throw err;
 					})
 				},
-				numberWithCommas(x) {
-					return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				numberWithCommas() {
+					let self = this;
+					let x = null
+					if (self.metadata.hasOwnProperty('src')) {
+						for (var key in self.metadata.src) {
+							if (self.metadata.src[key].hasOwnProperty('stats')) {
+								for (var k in self.metadata.src[key]['stats']) {
+									x += self.metadata.src[key]['stats'][k]
+								}
+							}
+						}
+						if (x) {
+							return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+						}else{
+							return 'N/A'
+						}
+
+					}
+				},
+				numberWithNOCommas() {
+					let self = this;
+					let x = null
+					if (self.metadata.hasOwnProperty('src')) {
+						for (var key in self.metadata.src) {
+							if (self.metadata.src[key].hasOwnProperty('stats')) {
+								for (var k in self.metadata.src[key]['stats']) {
+									x += self.metadata.src[key]['stats'][k]
+								}
+							}
+						}
+						if (x) {
+							return x
+						}else{
+							return 'N/A'
+						}
+
+					}
 				},
 				getFirstKeyName(obj){
 					return Object.keys(obj)[0]
 				},
-			},
-			watch:{
-			},
-			mounted: function(){
+		  },
+		  watch:{
+		  },
+		  mounted: function(){
 				let self = this;
 				if (self.api["_id"]) {
 					self.getMetadata(self.api["_id"])
 				}
-			},
-			template: `<div class="bg-light m-2" data-aos="zoom-in" style="max-width:200px !important; flex:1">
-									<div v-show='loading' class="spinner">
-										<div class="cube1"></div>
-										<div class="cube2"></div>
-									</div>
-									<div class="d-none d-md-block">
-										<h3 class="font-weight-bold" v-text='api["_id"]'></h3>
+		  },
+		  template: `<tr data-aos="zoom-in">
+									<td class="text-left">
+										<template v-if='api && api["status"]'>
+											<i class="fas " :title='api["status"]' v-bind:class="[api['status'] === 'running' ? 'text-success fa-check-circle' : 'text-danger fa-exclamation-circle' ]"></i>
+										</template>
+										<h5 class="font-weight-bold apiTitle d-inline" v-text='api["_id"]'></h5>
+										<div v-if='loading' class="d-inline text-warning">
+											Loading ... <i class="fas fa-spinner fa-pulse"></i>
+										</div>
+									</td>
+									<td class="bg-light">
+										<template v-if="metadata && metadata.src">
+											<small class="badge bg-light"  v-text="numberWithCommas()" ></small>
+										</template>
+									</td>
+									<td >
 										<template v-if="metadata">
-											<small class="badge bg-dark text-light" v-text="numberWithCommas(metadata.src[getFirstKeyName(metadata.src)].stats[getFirstKeyName(metadata.src)])+' documents'"></small>
 											<div v-if="existingEntity" >
-												<small>Pending for integration with:</small>
-												<div v-if="metadata.biothing_type" class="badge bg-dark text-light d-block p-1 m-2">
-													<a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link text-light" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+												<div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1">
+												<a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
+												<a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
+												<a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
 												</div>
-												<div v-if="metadata.doc_type" class="badge bg-dark text-light d-block p-1 m-2">
-													<a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link text-light" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
+												<div v-if="metadata.doc_type" class="badge bg-dark d-block p-1">
+												<a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
+												<a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
+												<a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
+													<a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
 												</div>
 											</div>
 											<div v-if="!existingEntity" >
-												<small>Entity Type:</small>
-												<div v-if="metadata.biothing_type" class="badge bg-dark text-light d-block p-1 m-2">
+												<div v-if="metadata.biothing_type" class="badge bg-dark text-muted d-block p-1">
 													<span v-text="metadata.biothing_type"></span>
 												</div>
-												<div v-if="metadata.doc_type" class="badge bg-dark text-light d-block p-1 m-2">
+												<div v-if="metadata.doc_type" class="badge bg-dark text-muted d-block p-1">
 													<span v-text="metadata.doc_type"></span>
 												</div>
 											</div>
-											<div class="p-3 mt-4" >
-												<a class="btn btn-outline-dark" :href="'https://pending.biothings.io/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
-											</div>
 										</template>
-									</div>
-									<div class="d-sm-block d-md-none p-2">
-										<a class="text-dark" :href="'https://pending.biothings.io/'+api['_id']">
-											<h5 class="font-weight-bold">
-												Try <span v-text='api["_id"]'></span> <i class="fas fa-chevron-right"></i>
-											</h5>
-										</a>
-									</div>
-								</div>`
+									</td>
+									<td>
+										<div class="" >
+											<a class="btn btn-outline-secondary" :href="'https://pending.biothings.io/'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
+										</div>
+									</td>
+								</tr>`
 		});
+
 
       var app = new Vue({
         el: '#ncats',

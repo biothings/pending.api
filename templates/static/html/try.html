@@ -297,7 +297,9 @@
         },
         getKeyName(obj){
           for (var key in obj) {
-            return key;
+            if (key !== 'src_version') {
+              return key;
+            }
           }
         },
         getMetadata(){
@@ -306,6 +308,7 @@
           let safeList = ['gene','chemical','variant','disease']
           axios.get('//pending.biothings.io/'+self.api+'/metadata').then(res=>{
             self.metadata = res.data;
+            // console.log('META',res.data)
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
             if (self.metadata.biothing_type) {
               self.type= self.metadata.biothing_type;
