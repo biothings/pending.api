@@ -167,7 +167,6 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 #ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
 
-#STANDALONE_VERSION = "standalone_v2"
 # S3 bucket, root of all biothings releases information
 S3_RELEASE_BUCKET = "biothings-releases"
 # bucket/folder containing releases
