@@ -66,27 +66,13 @@ MONITOR_SNAPSHOT_DELAY = 5 * 60
 HUB_ENV = ""
 
 # Pre-prod/test ES definitions
-ES_CONFIG = {
+INDEX_CONFIG = {
         #"build_config_key" : None, # used to select proper idxr/syncer
         "indexer_select": {
             # default
             #None : "path.to.special.Indexer",
             },
         "env" : {
-            #"prod" : {
-            #    "host" : "prodserver:9200",
-            #    "indexer" : {
-            #        "args" : {
-            #            "timeout" : 300,
-            #            "retry" : True,
-            #            "max_retries" : 10,
-            #            },
-            #        },
-            #    "index" : {
-            #        "index_type1" : [{"index": "index_name1", "doc_type": "doc_type1"}],
-            #        "index_type2" : [{"index": "index_name2", "doc_type": "doc_type2"}],
-            #        },
-            #    },
             "test" : {
                 "host" : "localhost:9200",
                 "indexer" : {
@@ -101,15 +87,9 @@ ES_CONFIG = {
             },
         }
 
-# fill with "token", "roomid" and "from" keys
-# to broadcast message to a Hipchat room
-HIPCHAT_CONFIG = {
-#    'token': '',
-#    "usertoken" : "",
-#    'roomid': '',
-#    'from': '',
-#    'host': '',
-}
+# Snapshot environment configuration
+SNAPSHOT_CONFIG = {}
+RELEASE_CONFIG = {}
 
 # SSH port for hub console
 HUB_SSH_PORT = 19022
@@ -187,12 +167,12 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 #ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
 
-BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle,pending-kaviar,pending-fire,pending-biomuta,pending-gwascatalog,pending-phewas,pending-semmed"
-ES_INDEX_NAME = "pending"
-ES_DOC_TYPE = None
-ES_HOST = "localhost:9200"
+#BIOTHINGS_S3_FOLDER = "pending-denovodb,pending-ccle,pending-kaviar,pending-fire,pending-biomuta"
+#ES_INDEX_NAME = "pending"
+#ES_DOC_TYPE = None
+#ES_HOST = "localhost:9200"
 
-STANDALONE_VERSION = "standalone_v2"
+#STANDALONE_VERSION = "standalone_v2"
 # S3 bucket, root of all biothings releases information
 S3_RELEASE_BUCKET = "biothings-releases"
 # bucket/folder containing releases
@@ -228,6 +208,9 @@ RELEASE_PATH = ConfigurationError("Define path to folder which will contain rele
 LOG_FOLDER = ConfigurationError("Define path to folder which will contain log files")
 # Usually inside DATA_ARCHIVE_ROOT
 #LOG_FOLDER = os.path.join(DATA_ARCHIVE_ROOT,'logs')
+
+# When ES repository type is "fs", where snapshot should be stored
+ES_BACKUPS_FOLDER = ConfigurationError("Define path to folder which will contain ES snapshot when type='fs'")
 
 # default hub logger
 logger = ConfigurationError("Provider a default hub logger instance (use setup_default_log(name,log_folder)")
