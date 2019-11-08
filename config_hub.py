@@ -112,10 +112,6 @@ HUB_PASSWD = {"guest":"9RKfd8gDuNf0Q"}
 # cached data (it None, caches won't be used at all)
 CACHE_FOLDER = None
 
-# Role, when master, hub will publish data (updates, snapshot, etc...) that
-# other instances can use (production, standalones)
-BIOTHINGS_ROLE = "slave"
-
 import logging
 from biothings.utils.loggers import setup_default_log
 
@@ -166,14 +162,6 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 #        }
 
 #ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
-
-# S3 bucket, root of all biothings releases information
-S3_RELEASE_BUCKET = "biothings-releases"
-# bucket/folder containing releases
-S3_DIFF_BUCKET = "biothings-diffs"
-# what sub-folder should be used within diff bucket to upload diff files
-S3_APP_FOLDER = "pending" # actual pending datasource name will be appended
-
 
 TORNADO_SETTINGS = {
     # max 10GiB upload
