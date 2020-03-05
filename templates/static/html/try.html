@@ -82,7 +82,7 @@
           </h1>
           <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
             <div class="form-group p-1">
-              <h4>pending.biothings.io/<span class="text-light bold" v-text="api"></span></h4>
+              <h4 class="text-md-right">pending.biothings.io/<span class="text-light bold" v-text="api"></span></h4>
             </div>
             <div class="form-group p-1">
               <template v-if="querySelectionType==='example'">
@@ -118,7 +118,7 @@
             <div class="cube1"></div>
             <div class="cube2"></div>
           </div>
-          <pre id="callResults" class="padding20 text-dark bg-light text-left m-4" style="max-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;box-shadow: inset 0 0 10px #000000;border-radius: 5px;">
+          <pre v-show="success" id="callResults" class="p-2 text-dark bg-light text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
 
           </pre>
         </div>
@@ -197,7 +197,7 @@
                   i++;
                 }
                 for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
-                  let value = self.getStringQuery(picks[picksIndex])
+                  let value = self.getQueryString(picks[picksIndex])
                   let query ='/query?q='+value
                   //excludes duplicates and results with undefined terms
                   if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
@@ -207,6 +207,7 @@
                 self.loadingExamples = false
               }).catch(err=>{
                 throw err;
+                self.generateTestQueriesStart()
                 self.loadingExamples = false
               })
             }
@@ -214,29 +215,46 @@
             self.loadExamplesFromMetadata();
           }
         },
-        getStringQuery(obj){
+        getQueryString(obj){
           let self = this;
           let string = self.randomProperty(obj);
           if (string) {
             if (_.isPlainObject(obj[string])) {
-              string += "."+self.getStringQuery(obj[string])
+              string += "."+self.getQueryString(obj[string])
             }else if (_.isArray(obj[string])) {
-              string += "."+self.getStringQuery(obj[string][0])
+              string += "."+self.getQueryString(obj[string][0])
             }
             else if (_.isBoolean(obj[string])) {
               string += ":"+obj[string]
             }
             else if (_.isString(obj[string]) || _.isNumber(obj[string])) {
-              string += ":"+obj[string]
+              // sanitize end value if it's a string
+              string += ":"+self.sanitizeStringValue(obj[string])
             }
+            // return string
+            return string
+          }
+        },
+        sanitizeStringValue(string){
+          // checks for spaces and second colons end escapes them
+          if (_.isString(string)) {
+            if (string.indexOf(' ') >= 0) {
+              return '"'+string+'"';
+            }else if (string.indexOf(':') >= 0) {
+              let position = string.indexOf(':')
+              return [string.slice(0, position), "\\", string.slice(position)].join('');
+            }
+          }else {
             return string
           }
         },
         generateQuery(dataObject){
           var self = this;
-          let id= dataObject["_id"];
-          let query ='/'+self.type+"/"+id;
-          self.exampleQueries.push(query);
+          if (dataObject && dataObject.hasOwnProperty("_id")) {
+            let id= dataObject["_id"];
+            let query ='/'+self.type+"/"+id;
+            self.exampleQueries.push(query);
+          }
         },
         randomProperty(obj) {
           if (_.isPlainObject(obj)) {
@@ -352,7 +370,8 @@
         mounted: function(){
           this.api  = window.location.pathname.replace('/','').toLowerCase();
           this.getMetadata();
-          this.registerServiceWorker();
+          // this.registerServiceWorker();
+
         }
     });
   </script>
