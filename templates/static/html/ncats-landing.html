@@ -51,7 +51,7 @@
   </nav>
 	<body class="bg-light">
     <div id="ncats" class="container">
-      <section  class="jumbotron bg-light">
+      <section  class="jumbotron bg-light d-flex justify-content-center align-items-center" style="min-height:100vh;">
         <div class="text-center">
           <h2 class="m-5">National Center for Advancing Translational Sciences <br /><b>Pending APIs</b></h2>
           <p class="w-75 m-auto">
@@ -74,8 +74,8 @@
 						<thead class="thead-dark">
 							<tr>
 								<th scope="col">Name</th>
-								<th scope="col">Documents</th>
-								<th scope="col">Pending For | Entity Type</th>
+								<th scope="col" class=" d-none d-md-table-cell">Documents</th>
+								<th scope="col" class=" d-none d-md-table-cell">Entity Type</th>
 								<th scope="col">Try It</th>
 							</tr>
 						</thead>
@@ -207,44 +207,28 @@
 					self.getMetadata(self.api["_id"])
 				}
 		  },
-		  template: `<tr data-aos="zoom-in">
+		  template: `<tr>
 									<td class="text-left">
 										<template v-if='api && api["status"]'>
 											<i class="fas " :title='api["status"]' v-bind:class="[api['status'] === 'running' ? 'text-success fa-check-circle' : 'text-danger fa-exclamation-circle' ]"></i>
 										</template>
-										<h5 class="font-weight-bold apiTitle d-inline" v-text='api["_id"]'></h5>
+										<span class="font-weight-bold apiTitle d-inline" v-text='api["_id"]'></span>
 										<div v-if='loading' class="d-inline text-warning">
 											Loading ... <i class="fas fa-spinner fa-pulse"></i>
 										</div>
 									</td>
-									<td class="bg-light">
+									<td class="bg-light d-none d-md-table-cell">
 										<template v-if="metadata && metadata.src">
 											<small class="badge bg-light"  v-text="numberWithCommas()" ></small>
 										</template>
 									</td>
-									<td >
+									<td class=" d-none d-md-table-cell">
 										<template v-if="metadata">
-											<div v-if="existingEntity" >
-												<div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1">
-												<a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-												<a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-												<a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-												</div>
-												<div v-if="metadata.doc_type" class="badge bg-dark d-block p-1">
-												<a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-												<a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-												<a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-													<a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-												</div>
+											<div v-if="metadata.biothing_type" class="badge bg-light text-dark d-block p-1">
+												<span v-text="metadata.biothing_type"></span>
 											</div>
-											<div v-if="!existingEntity" >
-												<div v-if="metadata.biothing_type" class="badge bg-dark text-muted d-block p-1">
-													<span v-text="metadata.biothing_type"></span>
-												</div>
-												<div v-if="metadata.doc_type" class="badge bg-dark text-muted d-block p-1">
-													<span v-text="metadata.doc_type"></span>
-												</div>
+											<div v-if="metadata.doc_type" class="badge bg-light text-dark d-block p-1">
+												<span v-text="metadata.doc_type"></span>
 											</div>
 										</template>
 									</td>
@@ -263,7 +247,7 @@
           return {
              pending:["denovodb","phewas","gwascatalog","biomuta","ccle","kaviar"],
              list:[],
-						 shown:10
+						 shown:20
           }
         },
         methods: {
@@ -294,8 +278,47 @@
           var year = currentTime.getFullYear()
           var myelement = document.getElementById("year");
           myelement.innerHTML= year;
+
+
+
         }
       });
+
+			$('a[href*="#"]')
+				// Remove links that don't actually link to anything
+				.not('[href="#"]')
+				.not('[href="#0"]')
+				.click(function(event) {
+					// On-page links
+					if (
+						location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '')
+						&&
+						location.hostname == this.hostname
+					) {
+						// Figure out element to scroll to
+						var target = $(this.hash);
+						target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+						// Does a scroll target exist?
+						if (target.length) {
+							// Only prevent default if animation is actually gonna happen
+							event.preventDefault();
+							$('html, body').animate({
+								scrollTop: target.offset().top
+							}, 1000, function() {
+								// Callback after animation
+								// Must change focus!
+								var $target = $(target);
+								$target.focus();
+								if ($target.is(":focus")) { // Checking if the target was focused
+									return false;
+								} else {
+									$target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
+									$target.focus(); // Set focus again
+								};
+							});
+						}
+					}
+				});
 
     </script>
 	</body>

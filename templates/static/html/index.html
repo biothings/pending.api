@@ -38,16 +38,16 @@
             Pending APIs
           </h1>
           <object  data-aos="fade-in" id="hero1" alt="pending apis" width="70%" type="image/svg+xml" data="static/img/hero-1.svg"></object>
-          <div class="text-muted font-weight-light">
-            <small>(<span v-text="pending.length"></span>) APIs</small>
+          <div class="text-light font-weight-light">
+            <h3>(<span v-text="pending.length"></span>) APIs</h3>
           </div>
 					<div style="overflow-x:scroll">
 						<table class="table table-dark table-striped table-sm table-hover sortable">
 							<thead class="thead-dark">
 						    <tr>
 						      <th scope="col">Name</th>
-						      <th scope="col">Documents</th>
-						      <th scope="col">Pending For | Entity Type</th>
+						      <th scope="col" class="d-none d-md-table-cell">Documents</th>
+						      <th scope="col" class="d-none d-md-table-cell">Entity Type</th>
 						      <th scope="col">Try It</th>
 						    </tr>
 						  </thead>
@@ -74,7 +74,7 @@
           <h1 class="mb-5">
             Contribute
           </h1>
-          <div id="animation_container" style="background-color:rgba(68, 68, 68, 00); width:640px; height:480px; zoom:.5;">
+          <div id="animation_container" style="background-color:rgba(68, 68, 68, 00); width:640px; height:480px; zoom:.5;overflow:hidden;">
         		<canvas id="canvas" width="640" height="480" style="position: absolute; display: block; background-color:rgba(68, 68, 68,0);"></canvas>
         		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:640px; height:480px; position: absolute; left: 0px; top: 0px; display: block;">
         		</div>
@@ -251,50 +251,34 @@
 			self.getMetadata(self.api["_id"])
 		}
   },
-  template: `<tr data-aos="zoom-in">
+  template: `<tr>
 							<td class="text-left">
 								<template v-if='api && api["status"]'>
 									<i class="fas " :title='api["status"]' v-bind:class="[api['status'] === 'running' ? 'text-success fa-check-circle' : 'text-danger fa-exclamation-circle' ]"></i>
 								</template>
-								<h5 class="font-weight-bold apiTitle d-inline" v-text='api["_id"]'></h5>
+								<span class="font-weight-bold apiTitle d-inline" v-text='api["_id"]'></span>
 								<div v-if='loading' class="d-inline text-warning">
 									Loading ... <i class="fas fa-spinner fa-pulse"></i>
 								</div>
 							</td>
-							<td class="bg-dark">
+							<td class="bg-dark d-none d-md-table-cell">
 								<template v-if="metadata && metadata.src">
 									<small class="badge bg-dark"  v-text="numberWithCommas()" ></small>
 								</template>
 							</td>
-							<td >
+							<td class=" d-none d-md-table-cell">
 								<template v-if="metadata">
-									<div v-if="existingEntity" >
-										<div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1">
-										<a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-										<a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-										<a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-											<a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-										</div>
-										<div v-if="metadata.doc_type" class="badge bg-dark d-block p-1">
-										<a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="https://mygene.info/static/img/mygene-text.svg" height="20px"/></a>
-										<a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="https://myvariant.info/static/img/myvariant-text.svg" height="20px"/></a>
-										<a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="https://mychem.info/static/img/mychem-text.svg" height="20px"/></a>
-											<a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link bold text-warning" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-										</div>
+									<div v-if="metadata.biothing_type" class="badge bg-dark text-light d-block p-1">
+										<span v-text="metadata.biothing_type"></span>
 									</div>
-									<div v-if="!existingEntity" >
-										<div v-if="metadata.biothing_type" class="badge bg-dark text-muted d-block p-1">
-											<span v-text="metadata.biothing_type"></span>
-										</div>
-										<div v-if="metadata.doc_type" class="badge bg-dark text-muted d-block p-1">
-											<span v-text="metadata.doc_type"></span>
-										</div>
+									<div v-if="metadata.doc_type" class="badge bg-dark text-light d-block p-1">
+										<span v-text="metadata.doc_type"></span>
 									</div>
 								</template>
 							</td>
 							<td>
-								<div class="" >
-									<a class="btn btn-outline-secondary" :href="'./'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
+								<div>
+									<a class="btn btn-outline-light" :href="'./'+api['_id']">Try It <i class="fas fa-chevron-right"></i></a>
 								</div>
 							</td>
 						</tr>`
@@ -305,7 +289,7 @@
     data: function(){
       return {
          pending:[],
-         shown:10,
+         shown:20,
          query:"",
          apiSelected:'',
          querySelected:'',
