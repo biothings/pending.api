@@ -118,7 +118,7 @@
             <div class="cube1"></div>
             <div class="cube2"></div>
           </div>
-          <pre v-show="success" id="callResults" class="p-2 text-dark bg-light text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
+          <pre v-show="success" id="callResults" class="p-2 text-dark bg-light text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px;min-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
 
           </pre>
         </div>
@@ -371,6 +371,9 @@
           this.api  = window.location.pathname.replace('/','').toLowerCase();
           this.getMetadata();
           // this.registerServiceWorker();
+
+
+
 
         }
     });
