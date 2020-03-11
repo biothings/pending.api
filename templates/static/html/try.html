@@ -95,7 +95,8 @@
               <template v-if="querySelectionType==='own'">
                 <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
               </template>
-              <button v-if="querySelected" class="btn btn-outline-dark text-light scale-in-center mt-2" type="submit">Submit</button>
+              <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-dark text-danger mt-2 mr-2" type="button">Clear</button>
+              <button v-if="querySelected" class="btn btn-outline-dark text-light mt-2" type="submit">Submit</button>
               <label class="text-muted" v-if="!querySelected" for="api">Select a query</label>
               <div class="form-check text-left mt-3">
                 <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
@@ -104,7 +105,7 @@
                 </label>
               </div>
               <div class="form-check text-left">
-                <input @click="querySelected=''" v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
+                <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
                 <label class="form-check-label" for="exampleRadios2">
                   Write My Own Query
                 </label>
