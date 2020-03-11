@@ -315,7 +315,10 @@
         },
         refreshExmaples(){
           var self = this;
-          self.exampleQueries =[];
+          self.exampleQueries =[
+            '/metadata',
+            '/metadata/fields'
+          ];
           self.generateTestQueriesStart();
         },
         callApi(myUrl){
