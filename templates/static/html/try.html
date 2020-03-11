@@ -245,13 +245,23 @@
           // checks for spaces and second colons end escapes them
           if (_.isString(string)) {
             if (string.indexOf(' ') >= 0) {
+              // If strign has spaces
               return '"'+string+'"';
             }else if (string.indexOf(':') >= 0) {
               let position = string.indexOf(':')
-              return [string.slice(0, position), "\\", string.slice(position)].join('');
+              // escape backslashes
+              let res = [string.slice(0, position), "\\", string.slice(position)].join('');
+              if (res.includes('http')) {
+                // if string is a url
+                return '"'+encodeURIComponent(res)+'"';
+              }else {
+                // if string has backslashes
+                return res
+              }
             }
           }else {
-            return string
+            // simple string
+            return encodeURIComponent(string)
           }
         },
         generateQuery(dataObject){
