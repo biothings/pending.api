@@ -82,7 +82,7 @@
           </h1>
           <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
             <div class="form-group p-1">
-              <h4 class="text-md-right">pending.biothings.io/<span class="text-light bold" v-text="api"></span></h4>
+              <h4 class="text-md-right"><span v-text="window.location.origin"></span>/<span class="text-light bold" v-text="api"></span></h4>
             </div>
             <div class="form-group p-1">
               <template v-if="querySelectionType==='example'">
@@ -188,7 +188,7 @@
               if (limit > self.numberOfDocs) {
                 limit = self.numberOfDocs-100;
               }
-              axios.get('//pending.biothings.io/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
+              axios.get('/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
@@ -309,7 +309,7 @@
         testQuery(){
           let self = this;
           if (self.api && self.querySelected) {
-            self.queryString = '//pending.biothings.io/'+self.api.toLowerCase()+self.querySelected
+            self.queryString = '/'+self.api.toLowerCase()+self.querySelected
             self.callApi(self.queryString)
           }
         },
@@ -349,7 +349,7 @@
           let self = this;
           self.pending=[];
           let safeList = ['gene','chemical','variant','disease']
-          axios.get('//pending.biothings.io/'+self.api+'/metadata').then(res=>{
+          axios.get('/'+self.api+'/metadata').then(res=>{
             self.metadata = res.data;
             // console.log('META',res.data)
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
