@@ -94,6 +94,7 @@ RELEASE_CONFIG = {}
 # SSH port for hub console
 HUB_SSH_PORT = 19022
 HUB_API_PORT = 19080
+READONLY_HUB_API_PORT = 19081
 
 # Hub name/icon url/version, for display purpose
 HUB_NAME = "Pending (backend)"

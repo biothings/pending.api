@@ -39,7 +39,7 @@
     },
     "uploader" : {
         "parser" : "parser:load_data",
-        "parallelizer" : "parallelizer:jobs",
+        "parallelizer" : "parallelizer:get_jobs",
         "ignore_duplicates" : false
     }
 }
