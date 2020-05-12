@@ -1,0 +1,7 @@
+
+ES_HOST = 'localhost:9200'
+ES_INDEX = 'pending-ebi_gene2phenotype'
+ES_DOC_TYPE = 'gene'
+
+API_PREFIX = 'ebigene2phenotype'
+API_VERSION = ''
