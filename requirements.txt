@@ -1,6 +1,4 @@
-tornado>=4.5.1
 Jinja2>=2.9.6
-requests>=2.7.0
 elasticsearch==6.3.1
 elasticsearch-dsl==6.3.1
 biothings[hub]==0.7.2
