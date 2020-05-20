@@ -1,54 +1,51 @@
+"""
+    Dynamic Web Pages
+"""
+
 import json
 import logging
-import os
-import sys
 
-import tornado.gen
 import tornado.httpclient
-import tornado.httpserver
-import tornado.ioloop
 import tornado.web
 from jinja2 import Environment, FileSystemLoader
-from tornado.httputil import url_concat
-
-import requests
 
 log = logging.getLogger("pending")
 
-src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-TEMPLATE_PATH = os.path.join(src_path, 'templates/static/html/')
-templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
+templateLoader = FileSystemLoader(searchpath='static/html/')
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
-def get_api_list():
-    r = requests.get('https://biothings.ncats.io/api/list');
-    return r.json()['result']
 
-class BaseHandler(tornado.web.RequestHandler):
-    def return_json(self, data):
-        _json_data = json_encode(data)
-        self.set_header("Content-Type", "application/json; charset=UTF-8")
-        self.write(_json_data)
+class FrontPageHandler(tornado.web.RequestHandler):
 
-class MainHandler(BaseHandler):
+    async def get(self):
+
+        http_client = tornado.httpclient.AsyncHTTPClient()
+        try:
+            response = await http_client.fetch(
+                "https://biothings.ncats.io/api/list")
+            apilist = json.loads(response.body)['result']
+        except Exception as e:
+            log.exception("Error retrieving app list.")
+            raise tornado.web.HTTPError(503, reason=str(e))
+
+        index_file = "index.html" # default page
+        if self.request.host == "biothings.ncats.io":
+            index_file = "ncats-landing.html"
+
+        template = templateEnv.get_template(index_file)
+        output = template.render(Context=json.dumps({"List": apilist}))
+        self.finish(output)
+
+
+class ApiViewHandler(tornado.web.RequestHandler):
+
     def get(self):
-        list = get_api_list()
-        index_file = "index.html"
-        index_template = templateEnv.get_template(index_file)
-        index_output = index_template.render(Context=json.dumps({"List": list}))
-        self.write(index_output)
+        template = templateEnv.get_template("try.html")
+        output = template.render()
+        self.finish(output)
 
-class ApiViewHandler(BaseHandler):
-    def get(self, namespace=None, className=None):
-        view_file = "try.html"
-        view_template = templateEnv.get_template(view_file)
-        view_output = view_template.render()
-        self.write(view_output)
 
-APP_LIST = [
-    (r"/?", MainHandler),
-    (r"/(.+)/?", ApiViewHandler),
+EXTRA_HANDLERS = [
+    (r"/", FrontPageHandler),
+    (r"/[^/]+", ApiViewHandler),
 ]

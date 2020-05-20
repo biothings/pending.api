@@ -3,4 +3,4 @@ Jinja2>=2.9.6
 requests>=2.7.0
 elasticsearch==6.3.1
 elasticsearch-dsl==6.3.1
--e git+http://github.com/biothings/biothings.api.git@490b5d866d6a273cfb959e36f0ccfbd18300892f#egg=biothings[hub]
+biothings[hub]==0.7.2
