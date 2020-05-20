@@ -1,3 +1,8 @@
+"""
+    https://pending.biothings.io/
+    https://biothings.ncats.io/
+"""
+
 from biothings.web.index_base import main
 from web.handlers import EXTRA_HANDLERS
 

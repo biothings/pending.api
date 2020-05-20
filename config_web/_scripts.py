@@ -16,8 +16,8 @@ def create_configs():
             es_host = config["config"]["es_host"]
             es_index = config["config"]["index"]
             es_type = config["config"]["doc_type"]
-            init.write("from . import {}\n".format(api_name.lower()))
-            with open(api_name.lower() + '.py', 'w') as file:
+            init.write("from . import {}\n".format(api_name))
+            with open(api_name + '.py', 'w') as file:
                 file.write("""
 ES_HOST = '{}'
 ES_INDEX = '{}'
@@ -25,7 +25,7 @@ ES_DOC_TYPE = '{}'
 
 API_PREFIX = '{}'
 API_VERSION = ''
-""".format(es_host, es_index, es_type, api_name.lower()))
+""".format(es_host, es_index, es_type, api_name))
         
 
 if __name__ == '__main__':
