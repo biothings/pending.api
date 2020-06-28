@@ -26,7 +26,8 @@ class FrontPageHandler(tornado.web.RequestHandler):
             apilist = json.loads(response.body)['result']
         except Exception as e:
             log.exception("Error retrieving app list.")
-            raise tornado.web.HTTPError(503, reason=str(e))
+            # raise tornado.web.HTTPError(503, reason=str(e))
+            apilist = [] # temporarily silence hub error
 
         index_file = "index.html" # default page
         if self.request.host == "biothings.ncats.io":
