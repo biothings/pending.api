@@ -286,7 +286,11 @@
           },
         },
         mounted: function(){
-          this.getList()
+          // this.getList()
+					if ({{Context}}) {
+						self.context = {{Context}}
+						self.pending = self.context.List
+					}
           var currentTime = new Date()
           var year = currentTime.getFullYear()
           var myelement = document.getElementById("year");
