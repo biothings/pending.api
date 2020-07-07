@@ -27,3 +27,4 @@ from . import cord_cell
 from . import cord_gene
 from . import semmedbp
 from . import cord_cc
+from . import mrcoc
