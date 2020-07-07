@@ -286,7 +286,12 @@
           },
         },
         mounted: function(){
-          this.getList()
+					var self = this;
+          // this.getList()
+					if ({{Context}}) {
+						self.context = {{Context}}
+						self.list = self.context.List
+					}
           var currentTime = new Date()
           var year = currentTime.getFullYear()
           var myelement = document.getElementById("year");
