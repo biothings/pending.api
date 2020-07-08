@@ -14,7 +14,7 @@ from biothings.web.handlers import BaseHandler
 
 log = logging.getLogger("pending")
 
-templateLoader = FileSystemLoader(searchpath='static/html/')
+templateLoader = FileSystemLoader(searchpath='web/templates/')
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
@@ -41,7 +41,7 @@ class FrontPageHandler(BaseHandler):
             "_id": conf.API_PREFIX,
             "status": "running"
         } for conf in confs]
-        
+
         index_file = "index.html"  # default page
         if self.request.host == "biothings.ncats.io":
             index_file = "ncats-landing.html"
