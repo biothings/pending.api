@@ -57,6 +57,36 @@
 				 {% include "footer.html" %}
 			</div>
 		<!-- Scripts -->
+			<script>
+			//script to update meta tags if origin of click is ncats page
+			let ref = document.referrer
+			let trigger = 'ncats'
+			if (window.location.pathname.length > 2 && ref.includes(trigger)) {
+				let headtags = document.querySelectorAll("meta")
+				for (var i = 0; i < headtags.length; i++) {
+					console.log(headtags[i].content)
+					let content = headtags[i].content
+					switch (content) {
+						//desc
+						case 'APIs pending for integration with core BioThings API':
+							headtags[i].content = "Knowledge Provider (KP) APIs made for NCATS Biomedical Data Translator Program"
+							break;
+						case "Pending BioThings APIs":
+							//title
+							headtags[i].content = "Translator KP APIs"
+							break;
+						case "pending.biothings.io":
+							//links
+							headtags[i].content = "biothings.ncats.io"
+							break;
+						default:
+
+					}
+				}
+				let titles = document.querySelectorAll("title")
+				titles[0].text = "Translator KP APIs"
+			}
+			</script>
 			<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/vivus/0.4.4/vivus.min.js"></script>
 			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
