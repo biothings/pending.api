@@ -59,13 +59,14 @@
 		<!-- Scripts -->
 			<script>
 			//script to update meta tags if origin of click is ncats page
-			let ref = document.referrer
-			let trigger = 'ncats'
-			if (window.location.pathname.length > 2 && ref.includes(trigger)) {
+			if (window.location.host == "biothings.ncats.io") {
+				
 				let headtags = document.querySelectorAll("meta")
+
 				for (var i = 0; i < headtags.length; i++) {
-					console.log(headtags[i].content)
+
 					let content = headtags[i].content
+
 					switch (content) {
 						//desc
 						case 'APIs pending for integration with core BioThings API':
@@ -80,7 +81,7 @@
 							headtags[i].content = "biothings.ncats.io"
 							break;
 						default:
-
+							//no change
 					}
 				}
 				let titles = document.querySelectorAll("title")
