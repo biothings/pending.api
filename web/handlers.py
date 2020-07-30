@@ -43,7 +43,10 @@ class FrontPageHandler(BaseHandler):
         } for conf in confs]
 
         index_file = "index.html"  # default page
+        templateEnv.globals['site'] = "pending"
+
         if self.request.host == "biothings.ncats.io":
+            templateEnv.globals['site'] = "ncats"
             index_file = "ncats-landing.html"
 
         template = templateEnv.get_template(index_file)
