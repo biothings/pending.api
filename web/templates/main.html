@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <html class="bg-dark" lang="en-US">
 	<head>
-		<!-- <title>Pending BioThings APIs</title> -->
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="HandheldFriendly" content="True" />
 		<meta property="og:locale" content="en_US" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<!-- Unique for each site -->
 		{% if site == "pending" %}
 			<title>Pending BioThings APIs</title>
@@ -24,13 +25,24 @@
 			<meta property="og:url" content="http://biothings.ncats.io/">
 	    <meta property="og:site_name" content="biothings.ncats.io">
 	    <meta property="og:title" content="Translator KP APIs" />
-	    <meta name="description" content="Knowledge Provider (KP) APIs made for NCATS Biomedical Data Translator Program" />
-			<meta property="og:description" content="Knowledge Provider (KP) APIs made for NCATS Biomedical Data Translator Program">
-			<meta name="twitter:description" content="Knowledge Provider (KP) APIs made for NCATS Biomedical Data Translator Program" />
+	    <meta name="description" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
+			<meta property="og:description" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program">
+			<meta name="twitter:description" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
 			<meta name="twitter:url" content="http://biothings.ncats.io" />
-			<meta name="twitter:card" content="Knowledge Provider (KP) APIs made for NCATS Biomedical Data Translator Program" />
+			<meta name="twitter:card" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
 			<meta name="twitter:title" content="Translator KP APIs" />
-			<meta property="og:image" content="https://i.postimg.cc/Hxf9NMt7/featured.jpg">
+			<meta property="og:image" content="https://i.postimg.cc/NFSzkNhz/featured.jpg">
+	    <link rel="shortcut icon" href="https://ncats.nih.gov/sites/all/themes/ncats-2014/favicon.ico" type="image/vnd.microsoft.icon" />
+	    <meta name="generator" content="Drupal 7 (http://drupal.org)" />
+	    <link rel="canonical" href="https://ncats.nih.gov/" />
+	    <link rel="shortlink" href="https://ncats.nih.gov/" />
+	    <meta property="og:site_name" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
+	    <meta property="og:type" content="website" />
+	    <meta property="og:url" content="https://ncats.nih.gov/" />
+	    <meta property="og:title" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
+	    <meta name="twitter:card" content="summary" />
+	    <meta name="twitter:url" content="https://ncats.nih.gov/" />
+	    <meta name="twitter:title" content="Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program" />
 		{% endif %}
 
     <meta property="og:image:type" content="image/jpg">
@@ -48,7 +60,6 @@
 		<meta name="msapplication-TileColor" content="#000000">
 		<meta name="msapplication-config" content="static/img/browserconfig.xml">
 		<meta name="theme-color" content="#000000">
-
 		<link rel="shortcut icon" type="image/png" href="/static/img/favicon-16x16.png"/>
 		<!-- Styles -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
@@ -65,7 +76,11 @@
 	<body class="bg-dark">
 		<!-- Wrapper -->
 			<div id="wrapper" class="bg-dark noPadding">
-				 {% include "header.html" %}
+				 {% if site == "pending" %}
+				 	{% include "header.html" %}
+				 {% else %}
+				 	{% include "ncats-header.html" %}
+				 {% endif %}
 				 {% block content %}
 				 {% endblock %}
 				 {% include "footer.html" %}

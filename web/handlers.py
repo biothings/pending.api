@@ -47,7 +47,6 @@ class FrontPageHandler(BaseHandler):
 
         if self.request.host == "biothings.ncats.io":
             templateEnv.globals['site'] = "ncats"
-            index_file = "ncats-landing.html"
 
         template = templateEnv.get_template(index_file)
         output = template.render(Context=json.dumps({"List": apilist}))
