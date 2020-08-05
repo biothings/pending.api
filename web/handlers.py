@@ -56,6 +56,10 @@ class FrontPageHandler(BaseHandler):
 class ApiViewHandler(tornado.web.RequestHandler):
 
     def get(self):
+        templateEnv.globals['site'] = "pending"
+
+        if self.request.host == "biothings.ncats.io":
+            templateEnv.globals['site'] = "ncats"
         template = templateEnv.get_template("try.html")
         output = template.render()
         self.finish(output)
