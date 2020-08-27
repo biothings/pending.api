@@ -184,7 +184,8 @@
             if (limit) {
               if (limit > self.numberOfDocs) {
                 limit = self.numberOfDocs-100;
-              }else if (self.numberOfDocs < 100) {
+              }
+              if (self.numberOfDocs < 100) {
                 limit = 0
               }
               axios.get('/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
