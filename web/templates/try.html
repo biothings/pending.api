@@ -194,41 +194,41 @@
                 let picks = []
                 //make query string query
                 self.generateQuery(res[self.randomNumber(size)]);
-                // while ( i < self.numberOfExamples) {
-                //   let doc = res[self.randomNumber(size)]
-                //   picks.push(doc)
-                //   i++;
-                // }
-                // for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
-                //   let value = self.getQueryString(picks[picksIndex])
-                //   let query ='/query?q='+value
-                //   //excludes duplicates and results with undefined terms
-                //   if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
-                //     self.exampleQueries.push(query)
-                //   }
-                // }
-                
-                // with the random picks form queries
-                var currentPickIndex = 0
-
-                while (currentPickIndex < self.numberOfExamples) {
-                  let value = self.getQueryString(picks[currentPickIndex])
-                  let query = '/' + self.name + '/query?q=' + value
+                while ( i < self.numberOfExamples) {
+                  let doc = res[self.randomNumber(size)]
+                  picks.push(doc)
+                  i++;
+                }
+                for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
+                  let value = self.getQueryString(picks[picksIndex])
+                  let query ='/query?q='+value
                   //excludes duplicates and results with undefined terms
-                  if (!self.exampleQueries.includes(query)) {
-                    if (query.includes('undefined')) {
-                      console.warn('Skipped problematic query.',query)
-                      currentPickIndex++;
-                    }else {
-                      // ALL GOOD
-                      self.exampleQueries.push(query)
-                      currentPickIndex++;
-                    }
-                  }else {
-                    console.warn('Skipped duplicate query.',query)
-                    currentPickIndex++;
+                  if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
+                    self.exampleQueries.push(query)
                   }
                 }
+
+                // with the random picks form queries
+                // var currentPickIndex = 0
+                //
+                // while (currentPickIndex < self.numberOfExamples) {
+                //   let value = self.getQueryString(picks[currentPickIndex])
+                //   let query = '/' + self.name + '/query?q=' + value
+                //   //excludes duplicates and results with undefined terms
+                //   if (!self.exampleQueries.includes(query)) {
+                //     if (query.includes('undefined')) {
+                //       console.warn('Skipped problematic query.',query)
+                //       currentPickIndex++;
+                //     }else {
+                //       // ALL GOOD
+                //       self.exampleQueries.push(query)
+                //       currentPickIndex++;
+                //     }
+                //   }else {
+                //     console.warn('Skipped duplicate query.',query)
+                //     currentPickIndex++;
+                //   }
+                // }
                 self.loadingExamples = false
               }).catch(err=>{
                 throw err;
