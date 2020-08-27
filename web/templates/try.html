@@ -194,17 +194,35 @@
                 let picks = []
                 //make query string query
                 self.generateQuery(res[self.randomNumber(size)]);
-                while ( i < self.numberOfExamples) {
-                  let doc = res[self.randomNumber(size)]
-                  picks.push(doc)
-                  i++;
-                }
-                for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
-                  let value = self.getQueryString(picks[picksIndex])
-                  let query ='/query?q='+value
+                // while ( i < self.numberOfExamples) {
+                //   let doc = res[self.randomNumber(size)]
+                //   picks.push(doc)
+                //   i++;
+                // }
+                // for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
+                //   let value = self.getQueryString(picks[picksIndex])
+                //   let query ='/query?q='+value
+                //   //excludes duplicates and results with undefined terms
+                //   if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
+                //     self.exampleQueries.push(query)
+                //   }
+                // }
+                while (currentPickIndex < self.numberOfExamples) {
+                  let value = self.getQueryString(picks[currentPickIndex])
+                  let query = '/' + self.name + '/query?q=' + value
                   //excludes duplicates and results with undefined terms
-                  if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
-                    self.exampleQueries.push(query)
+                  if (!self.exampleQueries.includes(query)) {
+                    if (query.includes('undefined')) {
+                      console.warn('Skipped problematic query.',query)
+                      currentPickIndex++;
+                    }else {
+                      // ALL GOOD
+                      self.exampleQueries.push(query)
+                      currentPickIndex++;
+                    }
+                  }else {
+                    console.warn('Skipped duplicate query.',query)
+                    currentPickIndex++;
                   }
                 }
                 self.loadingExamples = false
@@ -222,26 +240,43 @@
             self.loadingExamplesQueries = false;
           }, 1000);
         },
-        getQueryString(obj){
-          let self = this;
-          let string = self.randomProperty(obj);
-          if (string) {
-            if (_.isPlainObject(obj[string])) {
-              string += "."+self.getQueryString(obj[string])
-            }else if (_.isArray(obj[string])) {
-              string += "."+self.getQueryString(obj[string][0])
+
+        getQueryString(obj) {
+        let self = this;
+        // console.log('getQueryString',obj)
+        let string = self.randomProperty(obj);
+        // console.log('start prop picked',string)
+        if (string) {
+          if (_.isPlainObject(obj[string])) {
+            string += "." + self.getQueryString(obj[string])
+          } else if (_.isArray(obj[string])) {
+            //check if first index doesn't need to be chained
+            if (typeof obj[string][0] == 'string') {
+              string += "." + obj[string][0]
+            }else {
+              if (obj[string].length) {
+                string += "." + self.getQueryString(obj[string][0])
+              }else {
+                console.warn("Can't form query from empty array in field: "+string)
+                self.getQueryString(obj)
+              }
             }
-            else if (_.isBoolean(obj[string])) {
-              string += ":"+obj[string]
-            }
-            else if (_.isString(obj[string]) || _.isNumber(obj[string])) {
-              // sanitize end value if it's a string
-              string += ":"+self.sanitizeStringValue(obj[string])
-            }
-            // return string
-            return string
+          } else if (_.isBoolean(obj[string])) {
+            // console.log('%c BOOLEAN','color:green')
+            string += ":" + obj[string]
+          } else if (_.isNumber(obj[string])) {
+            // console.log('%c NUMBER','color:pink')
+            string += ":" + obj[string]
+          } else if (_.isString(obj[string]) ) {
+            // sanitize end value if it's a string
+            // console.log('%c STRING','color:orange')
+            // console.log('sanitize', self.sanitizeStringValue(obj[string]))
+            string += ":" + self.sanitizeStringValue(obj[string])
           }
-        },
+          return string
+
+        }
+      },
         sanitizeStringValue(string){
           // checks for spaces and second colons end escapes them
           if (_.isString(string)) {
