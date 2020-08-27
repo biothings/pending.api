@@ -207,6 +207,10 @@
                 //     self.exampleQueries.push(query)
                 //   }
                 // }
+                
+                // with the random picks form queries
+                var currentPickIndex = 0
+
                 while (currentPickIndex < self.numberOfExamples) {
                   let value = self.getQueryString(picks[currentPickIndex])
                   let query = '/' + self.name + '/query?q=' + value
