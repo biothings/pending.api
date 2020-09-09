@@ -1,30 +1,7 @@
-# from . import fire
-from . import denovodb
-from . import biomuta
-from . import phewas
-from . import kaviar
-from . import geneset
-from . import pfocr
-from . import cord_genomic_entity
-from . import ccle
-from . import semmedphenotype
-from . import ebigene2phenotype
-from . import mgigene2phenotype
-from . import semmedchemical
-from . import semmed_anatomy
-from . import cord_chemical
-from . import semmed
-from . import gwascatalog
-from . import cord_disease
-from . import cord_anatomy
-from . import cord_protein
-from . import semmedgene
-from . import umlschem
-from . import cord_bp
-from . import cord_ma
-from . import diseases
-from . import cord_cell
-from . import cord_gene
-from . import semmedbp
-from . import cord_cc
-from . import mrcoc
+
+from . import (biggim, biomuta, ccle, cord_anatomy, cord_bp, cord_cc,  # fire,
+               cord_cell, cord_chemical, cord_disease, cord_gene,
+               cord_genomic_entity, cord_ma, cord_protein, denovodb, diseases,
+               ebigene2phenotype, geneset, gwascatalog, kaviar,
+               mgigene2phenotype, mrcoc, pfocr, phewas, semmed, semmed_anatomy,
+               semmedbp, semmedchemical, semmedgene, semmedphenotype, umlschem)
