@@ -1,9 +1,159 @@
-import json
+"""
+WIP
 
-from biothings.web.handlers import ESRequestHandler
+Biothings Enhanced Graph Query Support
+https://github.com/biothings/pending.api/issues/20
+
+"""
+
+import json
+import logging
+from collections import defaultdict
+
 from biothings.utils.common import dotdict
 from biothings.utils.web.es_dsl import AsyncMultiSearch, AsyncSearch
-import logging
+from biothings.web.handlers import ESRequestHandler
+from biothings.web.handlers.exceptions import BadRequest
+from tornado.web import HTTPError
+
+from biothings.web.settings.default import COMMON_KWARGS
+
+class GraphObjectError(Exception):
+    pass
+
+
+class GraphQueryError(GraphObjectError):
+    pass
+
+
+class GraphObject:
+
+    try:  # the mapping is already expanded to both ways
+        with open('predicate_mapping.json') as file:
+            PREDICATE_MAPPING = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        PREDICATE_MAPPING = {}
+
+    def __init__(self, subject, object, association):
+
+        self.subject = subject
+        self.object = object
+        self.associ = association
+
+    @classmethod
+    def from_dict(cls, dic):
+        return cls(**dic)
+
+    def reverse(self):
+
+        self.subject, self.object = self.object, self.subject
+        self.associ["predicate"] = self.PREDICATE_MAPPING[self.associ["predicate"]]
+
+    def to_dict(self):
+        return {
+            "subject": self.subject,
+            "object": self.object,
+            "association": self.associ
+        }
+
+
+class GraphQuery(GraphObject):
+    """
+
+    dotdict serializable, which means no containers under lists.
+    """
+
+    def __init__(self, subject=None, object=None, association=None):
+        # no guarantee which or any field is provided
+        subject = subject or {}
+        object = object or {}
+        association = association or {}
+        self._validate_subject(subject)
+        self._validate_object(object)
+        self._validate_associ(association)
+        super().__init__(subject, object, association)
+
+    def _validate(self, key, val, allow=(int, float, str, dict, list)):
+
+        if not isinstance(val, allow):
+            raise GraphQueryError(f"Unsupported type for key '{key}'.")
+        if isinstance(val, dict):
+            for _key in val:
+                self._validate('.'.join((key, _key)), val[_key], allow)
+        if isinstance(val, list):
+            for item in val:  # no containers under lists
+                self._validate(key, item, (int, float, str))
+
+    def _validate_subject(self, val):
+        self._validate('subject', val)
+
+    def _validate_object(self, val):
+        self._validate('object', val)
+
+    def _validate_associ(self, val):
+        self._validate('association', val)
+        if val.get('predicate') is not None:
+            # predicate, if provided, must be a string or a list of strings.
+            self._validate('association.predicate', val.get('predicate'), (str, list))
+
+    @property
+    def predicate(self):
+        return self.associ.get('predicate')
+
+    @classmethod
+    def from_dict(cls, dic):
+        # support dot dict notation
+        if not isinstance(dic, dict):
+            raise TypeError("expecting 'dict' type.")
+        # expand first level keywords
+        _dic = cls._collapse_dotdict(dic, ('subject', 'object', 'association'))
+        return cls(**_dic)
+
+    @staticmethod
+    def _collapse_dotdict(dic, first_level_keys):
+        """
+        Collapse dic by one level allowing only specified keys.
+        One level is enough for elasticsearch query purpose.
+
+        Example:
+
+        Turning
+        {
+            "subject.id.a": "x",
+            "subject.id.b.c": "x",
+            "object.id": "x",
+            "object.id.d": "x",
+            "association": {}
+        }
+        into
+        {
+            "subject": {'id.a': 'x', 'id.b.c': 'x'},
+            "object": {'id': 'x', 'id.d': 'x'},
+            "association": {}
+        }
+
+        Note this ignores if the dotdict can actually
+        be turned into a valid dictionary recursively.
+
+        """
+        _dic = defaultdict(dict)
+        for key in dic:
+            entry_valid = False
+            for first_level_key in first_level_keys:
+                if key.startswith(first_level_key):
+                    if key == first_level_key:
+                        _dic[first_level_key].update(dic[key])
+                        entry_valid = True
+                    elif key.startswith(first_level_key + '.'):
+                        if key[len(first_level_key) + 1:]:
+                            _dic[first_level_key][key[len(first_level_key) + 1:]] = dic[key]
+                            entry_valid = True
+            if not entry_valid:
+                raise GraphQueryError(f"Invalid key for graph query: '{key}'.")
+        return _dic
+
+    def can_reverse(self):
+        return self.predicate in self.PREDICATE_MAPPING
 
 
 class GraphQueryHandler(ESRequestHandler):
@@ -11,67 +161,45 @@ class GraphQueryHandler(ESRequestHandler):
     https://github.com/biothings/pending.api/issues/20
     '''
     name = 'graph'
-    # kwargs defined in biothing.web.settings.default
-    # kwarg_groups = ('control', 'esqb', 'es', 'transform')
-    # kwarg_methods = ('get', 'post')
-    # kwargs = {
-    #     'POST': {
-    #         'schema': {'type': str, 'default': 'ctsa::bts:CTSADataset'},
-    #         'private': {'type': bool, 'default': False},
-    #     },
-    #     'GET': {
-    #         'user': {'type': str},
-    #         'private': {'type': bool},
-    #     }
-    # }
+    # kwargs = {'*': COMMON_KWARGS.copy() }
+    # kwargs['*']['from'] = {'type': int, 'max': 10000, 'group': 'esqb', 'alias': 'skip'}
 
     # currently only supports json queries
 
-    def _get_mapping(self):
-
-        if hasattr(self, '_predicate_mapping'):
-            return self._predicate_mapping
-
-        try:
-            with open('predicate_mapping.json') as file:
-                mapping = json.load(file)
-            self._predicate_mapping = mapping
-        except (FileNotFoundError, json.JSONDecodeError):
-            self._predicate_mapping = {}
-
-        return self._predicate_mapping
-
     async def execute_pipeline(self, *args, **kwargs):
 
-        q = dict(self.args_json)
-        q_reversed = dict(self.args_json)
-
         try:
-            predicate = q['association']['predicate']
-            q_reversed['association']['predicate'] = self._get_mapping()[predicate]
-        except KeyError:
-            pass
 
-        subject = q_reversed.pop('subject', None)
-        object = q_reversed.pop('object', None)
-        if subject:
-            q_reversed['object'] = subject
-        if object:
-            q_reversed['subject'] = object
+            graph_query = GraphQuery.from_dict(self.args_json)
+            es_query = self._to_es_query(graph_query)
             
-        self.pipeline.result_transform.option_dotfield(q, dotdict())
-        self.pipeline.result_transform.option_dotfield(q_reversed, dotdict())
+            if graph_query.can_reverse():
+                graph_query.reverse()
+                es_query_rev = self._to_es_query(graph_query)
+                es_query = es_query | es_query_rev
 
-        search_1 = self._query_graph(q)
-        search_2 = self._query_graph(q_reversed)
+            # it's sent in one query so that parameters like size is still meaningful
+            _query = AsyncSearch().query(es_query)
+            _res = await self.pipeline.execute(_query, dotdict())
+            res = self.pipeline.transform(_res, dotdict())
 
-        self._query = AsyncSearch().query(search_1.query._proxied | search_2.query._proxied)
-        self._res = await self.pipeline.execute(self._query, dotdict())
-        res = self.pipeline.transform(self._res, dotdict())
+            # TODO additional transformation, like double reversal in result.
+
+        except GraphObjectError as exc:
+            raise BadRequest(reason=str(exc))
+
+        except Exception as exc:
+            raise HTTPError(str(exc))
 
         self.finish(res)
 
-    def _query_graph(self, q):
+    def _to_es_query(self, graph_query):
+        """
+        Takes a GraphQuery object and return an ES query.
+        """
+        assert isinstance(graph_query, GraphQuery)
+        q = graph_query.to_dict()
+        self.pipeline.result_transform.option_dotfield(q, dotdict())
 
         _q = []
         _scopes = []
@@ -85,4 +213,50 @@ class GraphQueryHandler(ESRequestHandler):
                 _q.append(v)
                 _scopes.append(k)
 
-        return self.pipeline.query_builder.default_match_query(_q, _scopes, dotdict())
+        return self.pipeline.query_builder.default_match_query(_q, _scopes, dotdict()).query._proxied
+
+
+def test1():
+    q1 = GraphQuery.from_dict({
+        "subject": {
+            "id": "NCBIGene:1017",
+            "type": "Gene",
+            "taxid": "9606"
+        },
+        "object": {
+            "id": "MONDO:000123",
+            "type": "Disease"
+        },
+        "association": {
+            "predicate": "negatively_regulated_by",
+            "publications": ["PMID:123", "PMID:124"]
+        }
+    })
+    q2 = GraphQuery.from_dict({
+        "subject.id": "NCBIGene:1017",
+        "subject.type": "Gene",
+        "subject.taxid": "9606",
+        "object.id": "MONDO:000123",
+        "object.type": "Disease",
+        "association.predicate": "negatively_regulated_by",
+        "association.publications": ["PMID:123", "PMID:124"]
+    })
+    assert str(q1.to_dict()) == str(q2.to_dict())
+
+def test2():
+
+    q = GraphQuery.from_dict({
+        "subject.id.a": "x",
+        "subject.id.b.c": "x",
+        "object.id": "x",
+        "object.id.d": "x",
+        "association": {}
+    }).to_dict()
+    assert 'subject' in q
+    assert 'object' in q
+    assert 'association' in q
+
+
+if __name__ == '__main__':
+    test1()
+    test2()
