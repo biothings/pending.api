@@ -10,21 +10,21 @@
           </div>
           <small class="text-light mb-4 lighter" v-text='"Version "+metadata.src[getKeyName(metadata.src)]["version"]'></small>
           <ul class="link-list">
-            <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["url"]'>
+            <li class="d-inline" v-if='metadata && metadata.src[getKeyName(metadata.src)]["url"]'>
               <small class="">
                 <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["url"]' target="_blank" class="link">
                   Source
                 </a>
               </small>
             </li>
-            <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["code"]["url"]'>
+            <li class="d-inline" v-if='metadata && metadata.src[getKeyName(metadata.src)]["code"]["url"]'>
               <small class="">
                 <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["code"]["url"]' target="_blank" class="link">
                   Code
                 </a>
               </small>
             </li>
-            <li class="d-inline" v-if='metadata.src[getKeyName(metadata.src)]["license_url"]'>
+            <li class="d-inline" v-if='metadata && metadata.src[getKeyName(metadata.src)]["license_url"]'>
               <small class="">
                 <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["license_url"]' target="_blank" class="link">
                   License
@@ -32,7 +32,7 @@
               </small>
             </li>
           </ul>
-          <template v-if='metadata.src[getKeyName(metadata.src)]["author"]'>
+          <template v-if='metadata && metadata.src[getKeyName(metadata.src)]["author"]'>
             <small class="d-block mt-2">
               Developed by
               <a rel="noopener" :href='metadata.src[getKeyName(metadata.src)]["author"]["url"]' target="_blank" class="link">
