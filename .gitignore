@@ -106,3 +106,5 @@ pendingenv/
 
 # vim
 .sw*
+
+ssh_host_key*
