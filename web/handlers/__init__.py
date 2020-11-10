@@ -12,6 +12,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from biothings.web.handlers import BaseHandler
 
+from .graph import GraphQueryHandler
+
 log = logging.getLogger("pending")
 
 templateLoader = FileSystemLoader(searchpath='web/templates/')
