@@ -170,9 +170,6 @@
           if (qs.length > this.numberOfExamples) {
             this.exampleQueries = this.exampleQueries.slice(0,this.numberOfExamples)
           }
-        },
-        sourceDetails: function(v){
-          console.log('SOURCE DETAILS', v);
         }
       },
       computed:{
@@ -233,7 +230,7 @@
               if (self.numberOfDocs < 100) {
                 limit = 0
               }
-              axios.get('http://pending.biothings.io/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
+              axios.get('/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
@@ -433,7 +430,7 @@
           let self = this;
           self.pending=[];
           let safeList = ['gene','chemical','variant','disease']
-          axios.get('http://pending.biothings.io/'+self.api+'/metadata').then(res=>{
+          axios.get('/'+self.api+'/metadata').then(res=>{
             self.metadata = res.data;
             // console.log('META',res.data)
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
