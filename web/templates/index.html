@@ -143,7 +143,7 @@
 					</div>
 				</div>
 				<div class="api-main-container">
-					<table class="table table-striped w-100 text-left table-dark table-sm">
+					<table class="table table-striped w-100 text-left table-dark table-sm table-hover" id="pending-api-table">
 						<colgroup>
 							<col span="1">
 							<col span="1">
@@ -151,9 +151,9 @@
 						  </colgroup>
 						<thead class="bg-dark">
 						    <tr>
-						      <th scope="col">Name</th>
-							  <th scope="col" class="d-none d-md-table-cell">Documents</th>
-						      <th scope="col">Entity Type</th>
+						      <th scope="col" @click="sortBy(0, false)">Name <i class="fas fa-sort" style="float:right;margin-top:3px"></i></th>
+							  <th scope="col" class="d-none d-md-table-cell" @click="sortBy(1, true)">Documents <i class="fas fa-sort" style="float:right;margin-top:3px"></i></th>
+						      <th scope="col" @click="sortBy(2, false)">Entity Type <i class="fas fa-sort" style="float:right;margin-top:3px"></i></th>
 						    </tr>
 						  </thead>
 						  <tbody>
@@ -749,7 +749,68 @@
 			let self = this;
 			store.commit('toggleType', {'name': name})
 			store.dispatch('filterAPIs', {'query': self.query})
-		}
+		},
+		sortBy(n, numeric) {
+     	  // function based off w3 schools function https://www.w3schools.com/howto/howto_js_sort_table.asp
+		  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+		  table = document.getElementById("pending-api-table");
+		  switching = true;
+		  // Set the sorting direction to ascending:
+		  dir = "asc";
+		  /* Make a loop that will continue until
+		  no switching has been done: */
+		  while (switching) {
+		    // Start by saying: no switching is done:
+		    switching = false;
+		    rows = table.rows;
+		    /* Loop through all table rows (except the
+		    first, which contains table headers): */
+		    for (i = 1; i < (rows.length - 1); i++) {
+		      // Start by saying there should be no switching:
+		      shouldSwitch = false;
+		      /* Get the two elements you want to compare,
+		      one from current row and one from the next: */
+		      x = rows[i].getElementsByTagName("TD")[n];
+		      y = rows[i + 1].getElementsByTagName("TD")[n];
+		      /* Check if the two rows should switch place,
+		      based on the direction, asc or desc: */
+		      value1 = x.innerHTML.toLowerCase()
+		      value2 = y.innerHTML.toLowerCase()
+		      if(numeric){
+		      	value1 = parseInt(value1.replace(/[^0-9]/g, ''))
+				value2 = parseInt(value2.replace(/[^0-9]/g, ''))		      	
+				}
+		      if (dir == "asc") {
+		        if (value1 > value2) {
+		          // If so, mark as a switch and break the loop:
+		          shouldSwitch = true;
+		          break;
+		        }
+		      } else if (dir == "desc") {
+		        if (value1 < value2) {
+		          // If so, mark as a switch and break the loop:
+		          shouldSwitch = true;
+		          break;
+		        }
+		      }
+		    }
+		    if (shouldSwitch) {
+		      /* If a switch has been marked, make the switch
+		      and mark that a switch has been done: */
+		      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+		      switching = true;
+		      // Each time a switch is done, increase this count by 1:
+		      switchcount ++;
+		    } else {
+		      /* If no switching has been done AND the direction is "asc",
+		      set the direction to "desc" and run the while loop again. */
+		      if (switchcount == 0 && dir == "asc") {
+		        dir = "desc";
+		        switching = true;
+		      }
+		    }
+		  }
+		},
 
 	},
 	mounted: function(){
