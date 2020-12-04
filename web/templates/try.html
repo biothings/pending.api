@@ -324,6 +324,9 @@
                 // if string has backslashes
                 return res
               }
+            }else{
+              // simple string
+              return encodeURIComponent(string)
             }
           }else {
             // simple string
