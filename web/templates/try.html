@@ -85,7 +85,7 @@
               <template v-if="querySelectionType==='example'">
                 <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
                   <template v-for="item in exampleQueries">
-                    <option :value="item" v-text="item"></option>
+                    <option :value="item" v-text="item.length > 100 ? item.slice(0,100)+'...' : item"></option>
                   </template>
                 </select>
               </template>
@@ -109,8 +109,8 @@
               </div>
             </div>
           </form>
-          <p class="bold" v-if="success && queryString">
-            <i  class="fas fa-check text-success"></i> <a rel="noopener" target="_blank" :href="queryString" v-text="window.location.origin+queryString" class="m-auto" :class="[ success ? 'text-success' : 'text-danger']" type="text"></a>
+          <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
+            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="queryString" v-text="window.location.origin+queryString" type="text" :style="{'color' : success ? 'limegreen' : 'coral'}"></a>
           </p>
           <div v-show='loading' class="spinner">
             <div class="cube1"></div>
@@ -230,7 +230,8 @@
               if (self.numberOfDocs < 100) {
                 limit = 0
               }
-              axios.get('/'+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
+              let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
+              axios.get(base+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
@@ -241,36 +242,22 @@
                   picks.push(doc)
                   i++;
                 }
+                let problematic = []
                 for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
                   let value = self.getQueryString(picks[picksIndex])
                   let query ='/query?q='+value
                   //excludes duplicates and results with undefined terms
                   if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
                     self.exampleQueries.push(query)
+                  }else{
+                    problematic.push(query)
                   }
                 }
-
-                // with the random picks form queries
-                // var currentPickIndex = 0
-                //
-                // while (currentPickIndex < self.numberOfExamples) {
-                //   let value = self.getQueryString(picks[currentPickIndex])
-                //   let query = '/' + self.name + '/query?q=' + value
-                //   //excludes duplicates and results with undefined terms
-                //   if (!self.exampleQueries.includes(query)) {
-                //     if (query.includes('undefined')) {
-                //       console.warn('Skipped problematic query.',query)
-                //       currentPickIndex++;
-                //     }else {
-                //       // ALL GOOD
-                //       self.exampleQueries.push(query)
-                //       currentPickIndex++;
-                //     }
-                //   }else {
-                //     console.warn('Skipped duplicate query.',query)
-                //     currentPickIndex++;
-                //   }
-                // }
+                if (problematic.length) {
+                  console.warn('Skipped duplicate or undefined queries: ')
+                  console.warn("%c "+JSON.stringify(problematic, null, 2), 'color:hotpink')
+                }
+                
                 self.loadingExamples = false
               }).catch(err=>{
                 throw err;
@@ -286,41 +273,38 @@
             self.loadingExamplesQueries = false;
           }, 1000);
         },
-
         getQueryString(obj) {
         let self = this;
-        // console.log('getQueryString',obj)
         let string = self.randomProperty(obj);
-        // console.log('start prop picked',string)
         if (string) {
           if (_.isPlainObject(obj[string])) {
             string += "." + self.getQueryString(obj[string])
-          } else if (_.isArray(obj[string])) {
-            //check if first index doesn't need to be chained
-            if (typeof obj[string][0] == 'string') {
-              string += "." + obj[string][0]
-            }else {
-              if (obj[string].length) {
-                string += "." + self.getQueryString(obj[string][0])
+          } 
+          else if (_.isArray(obj[string])) {
+            if (obj[string].length > 0) {
+              if (typeof obj[string][0] == 'string') {
+                string += ":" + obj[string][0]
               }else {
-                console.warn("Can't form query from empty array in field: "+string)
-                self.getQueryString(obj)
+                string += "." + self.getQueryString(obj[string][0])
               }
+            } else {
+              console.warn("Can't generate query from empty array in field:")
+              console.warn("%c "+JSON.stringify(obj, null, 2), 'color:orange')
+              // query strings with undefined will be ignored
+              return 'undefined'
             }
-          } else if (_.isBoolean(obj[string])) {
-            // console.log('%c BOOLEAN','color:green')
+          }
+          else if (_.isBoolean(obj[string])) {
             string += ":" + obj[string]
-          } else if (_.isNumber(obj[string])) {
-            // console.log('%c NUMBER','color:pink')
+          } 
+          else if (_.isNumber(obj[string])) {
             string += ":" + obj[string]
-          } else if (_.isString(obj[string]) ) {
+          } 
+          else if (_.isString(obj[string]) ) {
             // sanitize end value if it's a string
-            // console.log('%c STRING','color:orange')
-            // console.log('sanitize', self.sanitizeStringValue(obj[string]))
             string += ":" + self.sanitizeStringValue(obj[string])
           }
           return string
-
         }
       },
         sanitizeStringValue(string){
@@ -390,7 +374,8 @@
         testQuery(){
           let self = this;
           if (self.api && self.querySelected) {
-            self.queryString = '/'+self.api.toLowerCase()+self.querySelected
+            let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
+            self.queryString = base+self.api.toLowerCase()+self.querySelected
             self.callApi(self.queryString)
           }
         },
@@ -430,7 +415,9 @@
           let self = this;
           self.pending=[];
           let safeList = ['gene','chemical','variant','disease']
-          axios.get('/'+self.api+'/metadata').then(res=>{
+          let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
+
+          axios.get(base+self.api+'/metadata').then(res=>{
             self.metadata = res.data;
             // console.log('META',res.data)
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
