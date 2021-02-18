@@ -13,3 +13,4 @@ API_PREFIX = 'text_mining_targeted_association'
 API_VERSION = ''
 
 ES_QUERY_BUILDER = "web.pipeline.PendingQueryBuilder"
+ES_RESULT_TRANSFORM = "web.pipeline.GraphResultTransform"

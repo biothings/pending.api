@@ -22,6 +22,7 @@ class GraphQueryHandler(ESRequestHandler):
     name = "graph"
     kwargs = {"*": copy.deepcopy(COMMON_KWARGS)}
     kwargs["*"]["reverse"] = {"type": bool, "default": False, "group": "esqb"}
+    kwargs["*"]["reversed"] = {"type": bool, "default": True, "group": "transform"}
 
     def pre_query_builder_hook(self, options):
 
@@ -36,6 +37,8 @@ class GraphQueryHandler(ESRequestHandler):
             raise HTTPError(400)
 
         options.esqb.q = q
+        options.transform.q = q
+        options.transform.reverse = options.esqb.reverse
 
         # define multi-query response format
         if isinstance(options.esqb.q, (list, UserList)):

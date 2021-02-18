@@ -5,6 +5,8 @@
     "affected_by": "affects",
     "negatively_regulates_entity_to_entity": "negatively_regulated_by_entity_to_entity",
     "positively_regulates_entity_to_entity": "positively_regulated_by_entity_to_entity",
+    "negatively_regulated_by_entity_to_entity": "negatively_regulates_entity_to_entity",
+    "positively_regulated_by_entity_to_entity": "negatively_regulated_by_entity_to_entity",
     "positively_regulates": "positively_regulated_by",
     "positively_regulated_by": "positively_regulates",
     "negatively_regulates": "negatively_regulated_by",
