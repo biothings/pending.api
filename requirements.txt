@@ -1,4 +1,4 @@
 Jinja2>=2.9.6
 elasticsearch==6.3.1
 elasticsearch-dsl==6.3.1
-biothings[hub]==0.7.2
+biothings[web]==0.9.0

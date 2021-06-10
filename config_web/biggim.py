@@ -5,3 +5,13 @@ ES_DOC_TYPE = 'association'
 
 API_PREFIX = 'biggim'
 API_VERSION = ''
+APP_LIST = [
+    (r"/{pre}/{ver}/query/graph?", 'web.handlers.GraphQueryHandler'),
+    *APP_LIST
+]
+
+API_PREFIX = 'biggim'
+API_VERSION = ''
+
+ES_QUERY_BUILDER = "web.pipeline.PendingQueryBuilder"
+ES_RESULT_TRANSFORM = "web.pipeline.GraphResultTransform"

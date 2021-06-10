@@ -37,7 +37,7 @@
     </style>
 	</head>
   <nav class="navbar navbar-expand-lg navbar-dark" style="background:black;">
-    <a class="navbar-brand" href="#"><img height="50px" alt='logo' src="https://mygene.info/static/img/using-5.png"/></a>
+    <a class="navbar-brand" href="#"><img height="50px" alt='Translator' src="static/img/tr.jpg"/></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -288,10 +288,14 @@
         mounted: function(){
 					var self = this;
           // this.getList()
+					// if (window.location.hostname == "localhost") {
+					// 	self.list = [{"_id": "biomuta", "status": "running"}, {"_id": "ccle", "status": "running"}, {"_id": "cord_anatomy", "status": "running"}, {"_id": "cord_bp", "status": "running"}, {"_id": "cord_cc", "status": "running"}, {"_id": "cord_cell", "status": "running"}, {"_id": "cord_chemical", "status": "running"}, {"_id": "cord_disease", "status": "running"}, {"_id": "cord_gene", "status": "running"}, {"_id": "cord_genomic_entity", "status": "running"}, {"_id": "cord_ma", "status": "running"}, {"_id": "cord_protein", "status": "running"}, {"_id": "denovodb", "status": "running"}, {"_id": "DISEASES", "status": "running"}, {"_id": "ebigene2phenotype", "status": "running"}, {"_id": "geneset", "status": "running"}, {"_id": "gwascatalog", "status": "running"}, {"_id": "kaviar", "status": "running"}, {"_id": "mgigene2phenotype", "status": "running"}, {"_id": "mrcoc", "status": "running"}, {"_id": "pfocr", "status": "running"}, {"_id": "phewas", "status": "running"}, {"_id": "semmed", "status": "running"}, {"_id": "semmed_anatomy", "status": "running"}, {"_id": "semmedbp", "status": "running"}, {"_id": "semmedchemical", "status": "running"}, {"_id": "semmedgene", "status": "running"}, {"_id": "semmedphenotype", "status": "running"}, {"_id": "umlschem", "status": "running"}]
+					// }
 					if ({{Context}}) {
 						self.context = {{Context}}
 						self.list = self.context.List
 					}
+
           var currentTime = new Date()
           var year = currentTime.getFullYear()
           var myelement = document.getElementById("year");

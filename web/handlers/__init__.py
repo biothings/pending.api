@@ -12,9 +12,11 @@ from jinja2 import Environment, FileSystemLoader
 
 from biothings.web.handlers import BaseHandler
 
+from .graph import GraphQueryHandler
+
 log = logging.getLogger("pending")
 
-templateLoader = FileSystemLoader(searchpath='static/html/')
+templateLoader = FileSystemLoader(searchpath='web/templates/')
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
@@ -41,10 +43,12 @@ class FrontPageHandler(BaseHandler):
             "_id": conf.API_PREFIX,
             "status": "running"
         } for conf in confs]
-        
+
         index_file = "index.html"  # default page
+        templateEnv.globals['site'] = "pending"
+
         if self.request.host == "biothings.ncats.io":
-            index_file = "ncats-landing.html"
+            templateEnv.globals['site'] = "ncats"
 
         template = templateEnv.get_template(index_file)
         output = template.render(Context=json.dumps({"List": apilist}))
@@ -54,6 +58,10 @@ class FrontPageHandler(BaseHandler):
 class ApiViewHandler(tornado.web.RequestHandler):
 
     def get(self):
+        templateEnv.globals['site'] = "pending"
+
+        if self.request.host == "biothings.ncats.io":
+            templateEnv.globals['site'] = "ncats"
         template = templateEnv.get_template("try.html")
         output = template.render()
         self.finish(output)

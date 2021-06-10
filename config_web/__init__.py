@@ -37,6 +37,7 @@ from . import go_mf
 from . import cell_ontology
 from . import biggim
 from . import textminingkp
+from . import phenotype
 from . import drug_response_kp
 from . import dgidb
 from . import tcga_mut_freq_kp
