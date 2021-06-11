@@ -1,5 +1,4 @@
 """
-WIP
 
 Biothings Enhanced Graph Query Support
 https://github.com/biothings/pending.api/issues/20

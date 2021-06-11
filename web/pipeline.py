@@ -38,7 +38,10 @@ class PendingQueryBuilder(ESQueryBuilder):
             _q.reverse()
             query = query | self._build_graph_query(_q)
 
-        return AsyncSearch().query(query)
+        search = AsyncSearch().query(query)
+        search = self._apply_extras(search, options)
+
+        return search
 
     def _build_graph_query(self, graph_query):
         """
