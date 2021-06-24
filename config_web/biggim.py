@@ -1,3 +1,4 @@
+from biothings.web.settings.default import APP_LIST
 
 ES_HOST = 'localhost:9200'
 ES_INDEX = 'pending-biggim'
