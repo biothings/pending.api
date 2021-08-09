@@ -17,9 +17,10 @@ COPY --from=builder --chown=pending:pending /build/wheels /home/pending/wheels
 RUN /home/pending/venv/bin/pip install /home/pending/wheels/*.whl && rm -rf /home/pending/wheels
 COPY --from=builder --chown=pending:pending /build/pending.api /home/pending/pending.api
 
-STOPSIGNAL SIGTERM
+STOPSIGNAL SIGINT
 
-EXPOSE 9000
 WORKDIR /home/pending/pending.api
+EXPOSE 9000
+ENV ES_HOST 127.0.0.1:9200
 ENTRYPOINT ["/home/pending/venv/bin/python", "index.py"]
 CMD ["--conf=config_web", "--port=9000"]
