@@ -1,0 +1,17 @@
+{
+  "version": "0.1",
+  "__metadata__": {
+    "url": "https://www.alliancegenome.org/downloads",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license": "CC BY 4.0"
+  },
+  "dumper": {
+    "data_url": "https://download.alliancegenome.org/4.0.0/DISEASE-ALLIANCE/COMBINED/DISEASE-ALLIANCE_COMBINED_47.tsv.gz",
+    "uncompress": false,
+    "release": "version:get_release"
+  },
+  "uploader": {
+    "parser": "parser:load_data",
+    "on_duplicates": "merge"
+  }
+}
