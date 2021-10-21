@@ -53,7 +53,7 @@ class PendingQueryBuilder(ESQueryBuilder):
             _q.reverse()
             query = query | self._build_graph_query(_q)
 
-        search = Search().query(query)
+        search = Search().query(query) if query else Search()
         search = self.apply_extras(search, dotdict(options))
 
         return search

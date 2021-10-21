@@ -7,17 +7,17 @@ https://github.com/biothings/pending.api/issues/20
 
 import copy
 
-from biothings.web.handlers import BaseESRequestHandler
+from biothings.web.handlers import BaseAPIHandler
 from biothings.web.settings.default import COMMON_KWARGS
 from tornado.web import HTTPError
 from web.graph import GraphQueries, GraphQuery
 
 
-class GraphQueryHandler(BaseESRequestHandler):
+class GraphQueryHandler(BaseAPIHandler):
 
     name = "graph"
     kwargs = {"*": copy.deepcopy(COMMON_KWARGS)}
-    kwargs["*"].update(BaseESRequestHandler.kwargs["*"])
+    kwargs["*"].update(BaseAPIHandler.kwargs["*"])
     kwargs["*"]["reverse"] = {"type": bool, "default": False}
     kwargs["*"]["reversed"] = {"type": bool, "default": True}
 
@@ -30,5 +30,5 @@ class GraphQueryHandler(BaseESRequestHandler):
         else:
             raise HTTPError(400)
 
-        result = await self.pipeline.graph_search(q, **self.args)
+        result = await self.biothings.pipeline.graph_search(q, **self.args)
         self.finish(result)
