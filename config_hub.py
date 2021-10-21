@@ -1,7 +1,7 @@
 # ######### #
 # HUB VARS  #
 # ######### #
-from biothings import ConfigurationError
+from biothings.utils.configuration import ConfigurationError
 from biothings.utils.loggers import setup_default_log
 import logging
 import os
@@ -215,4 +215,5 @@ logger = ConfigurationError(
 logging.getLogger("elasticsearch").setLevel(logging.ERROR)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 logging.getLogger("requests").setLevel(logging.ERROR)
-logging.getLogger("boto").setLevel(logging.ERROR)
+logging.getLogger('botocore').setLevel(logging.ERROR)
+logging.getLogger('boto3').setLevel(logging.ERROR)
