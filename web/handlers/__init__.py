@@ -36,7 +36,7 @@ class FrontPageHandler(BaseHandler):
         #     # raise tornado.web.HTTPError(503, reason=str(e))
         #     apilist = [] # temporarily silence hub error
 
-        root = self.web_settings._user
+        root = self.biothings.config._primary
         attrs = [getattr(root, attr) for attr in dir(root)]
         confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
         apilist = [{
