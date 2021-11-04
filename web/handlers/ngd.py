@@ -15,7 +15,7 @@ class SemmedNGDQueryStringParser:
             self.message = message
 
     @classmethod
-    def parse_query_string(cls, q_string):
+    def parse(cls, q_string):
         """
         `get()` is supposed to accept "query string queries", as specified in
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html.
@@ -49,6 +49,10 @@ class SemmedNGDQueryStringParser:
                                                   f"{cls.acceptable_scopes}. Got '{entity_string}' with "
                                                   f"'{entity_match['scope']}' as a scope.")
             return entity_match
+
+        if not q_string:
+            raise cls.ParserException(message="Must input a query string, e.g. "
+                                              "'q=subject.umls:C0684074 AND object.umls:C0003063'.")
 
         q_string_group = q_string.split()  # by default it will split by whitespaces
 
@@ -90,12 +94,8 @@ class SemmedNGDHandler(QueryHandler):
         self.event['value'] = 1
 
         q_string = self.args.q
-        if not q_string:
-            self.write_error(status_code=400, reason="Must input a query string, e.g. "
-                                                     "'q=subject.umls:C0684074 AND object.umls:C0003063'.")
-
         try:
-            q_dict = SemmedNGDQueryStringParser.parse_query_string(q_string)
+            q_dict = SemmedNGDQueryStringParser.parse(q_string)
             terms = [entity["term"] for entity in q_dict["entities"]]
 
             ngd = await self.calculate_ngd(term_x=terms[0], term_y=terms[1])
