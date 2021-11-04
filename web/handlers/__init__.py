@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from biothings.web.handlers import BaseHandler
 
 from .graph import GraphQueryHandler
-from .ngd import SemmedNgdHandler
+from .ngd import SemmedNGDHandler
 
 log = logging.getLogger("pending")
 

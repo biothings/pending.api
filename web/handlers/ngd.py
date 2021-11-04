@@ -1,24 +1,18 @@
-from biothings.web.options import ReqArgs
-from tornado.web import HTTPError
 from biothings.web.handlers.query import QueryHandler, ensure_awaitable, capture_exceptions
 from biothings.web.options import ReqResult
 
-from .utils import normalized_google_distance, LRUCache
+from .utils import normalized_google_distance, LRUCache, NGDZeroCountException, NGDInfinityException, NGDUndefinedException
 
 import re  # to parse query strings
 
 
-class SemmedNgdHandler(QueryHandler):
-    name = "query"
-
+class SemmedNGDQueryStringParser:
     entity_pattern = re.compile(r"(?P<scope>[\w|.]+):(?P<term>[^:]+)")
     acceptable_scopes = set(['subject.umls', 'object.umls'])
 
-    one_term_count_cache = LRUCache(capacity=1024)
-    two_terms_count_cache = LRUCache(capacity=1024)
-    total_count_cache = None  # There is only 1 number to cache, and `LRUCache` is an overkill
-    ngd_cache = LRUCache(capacity=1024)
-
+    class ParserException(Exception):
+        def __init__(self, message):
+            self.message = message
 
     @classmethod
     def parse_query_string(cls, q_string):
@@ -48,23 +42,24 @@ class SemmedNgdHandler(QueryHandler):
         def match_entity(entity_string):
             entity_match = re.fullmatch(cls.entity_pattern, entity_string)
             if entity_match is None:
-                raise ValueError(f"Entity in input query string must have pattern <scope>:<term>. "
-                                 f"Got {entity_string} with {entity_string} as an entity.")
+                raise cls.ParserException(message=f"An entity in input query string must have pattern <scope>:<term>. "
+                                                  f"Got '{entity_string}' as an entity.")
             if entity_match["scope"] not in cls.acceptable_scopes:
-                raise ValueError(f"Entity in input query string must have a scope in {cls.acceptable_scopes}. "
-                                 f"Got {entity_string} with {entity_match['scope']} as an entity scope.")
+                raise cls.ParserException(message=f"An entity in input query string must have a scope in "
+                                                  f"{cls.acceptable_scopes}. Got '{entity_string}' with "
+                                                  f"'{entity_match['scope']}' as a scope.")
             return entity_match
 
         q_string_group = q_string.split()  # by default it will split by whitespaces
 
         if len(q_string_group) != 3:
-            raise ValueError(f"Input query string must have 3 components, 'ENTITY1 AND ENTITY2'. "
-                             f"Got {q_string_group} with only {len(q_string_group)} components.")
+            raise cls.ParserException(message=f"Input query string must have 3 components, 'ENTITY1 AND ENTITY2'. "
+                                              f"Got '{q_string}' with only {len(q_string_group)} component(s).")
 
         operator_str = q_string_group[1]
         if operator_str != "AND":
-            raise ValueError(f"Input query string must use AND operator. "
-                             f"Got {q_string_group} with {operator_str} operator.")
+            raise cls.ParserException(message=f"Input query string must use AND operator. "
+                                              f"Got '{q_string}' with {operator_str} operator.")
 
         entity_1_match = match_entity(q_string_group[0])
         entity_2_match = match_entity(q_string_group[2])
@@ -72,6 +67,15 @@ class SemmedNgdHandler(QueryHandler):
             "operator": operator_str,
             "entities": [entity_1_match, entity_2_match]
         }
+
+
+class SemmedNGDHandler(QueryHandler):
+    name = "query"
+
+    one_term_count_cache = LRUCache(capacity=10240)
+    two_terms_count_cache = LRUCache(capacity=10240)
+    total_count_cache = None  # There is only 1 number to cache, and `LRUCache` is an overkill
+    ngd_cache = LRUCache(capacity=10240)
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
@@ -86,15 +90,30 @@ class SemmedNgdHandler(QueryHandler):
         self.event['value'] = 1
 
         q_string = self.args.q
-        q_dict = self.parse_query_string(q_string)
+        if not q_string:
+            self.write_error(status_code=400, reason="Must input a query string, e.g. "
+                                                     "'q=subject.umls:C0684074 AND object.umls:C0003063'.")
 
-        terms = [entity["term"] for entity in q_dict["entities"]]
-        ngd = await self.calculate_ngd(term_x=terms[0], term_y=terms[1])
+        try:
+            q_dict = SemmedNGDQueryStringParser.parse_query_string(q_string)
+            terms = [entity["term"] for entity in q_dict["entities"]]
 
-        result = {entity["scope"]: entity["term"] for entity in q_dict["entities"]}
-        result["ngd"] = ngd
+            ngd = await self.calculate_ngd(term_x=terms[0], term_y=terms[1])
 
-        self.finish(result)
+            result = {entity["scope"]: entity["term"] for entity in q_dict["entities"]}
+            result["ngd"] = ngd
+
+            self.finish(result)
+        except SemmedNGDQueryStringParser.ParserException as pe:
+            self.write_error(status_code=400, reason=pe.message)
+        except NGDUndefinedException as ue:
+            # Here we assume that `ue.cause` is an NGDZeroCountException, which is the only possibility so far.
+            # If in the future there are other types of `ue.cause`, should check `type(ne.cause)` first in this clause.
+            causative_term = ue.cause.term
+            reason = f"NGD is undefined because the count of term '{causative_term}' is 0 in SemMedDB API."
+
+            # Nevertheless, we still use status code 200 for this type of error
+            self.write_error(status_code=200, reason=reason)
 
     async def count_q(self, q: str):
         """
@@ -162,18 +181,37 @@ class SemmedNgdHandler(QueryHandler):
 
         return count
 
+    async def prepare_counts_for_ngd(self, term_x: str, term_y: str):
+        count_x = await self.count_one_term(term_x)
+        if count_x == 0:
+            raise NGDZeroCountException(term=term_x)
+
+        count_y = await self.count_one_term(term_y)
+        if count_y == 0:
+            raise NGDZeroCountException(term=term_y)
+
+        count_xy = await self.count_two_terms(term_x, term_y)
+        if count_xy == 0:
+            raise NGDInfinityException()
+
+        count_n = await self.count_total()
+        return count_x, count_y, count_xy, count_n
+
     async def calculate_ngd(self, term_x: str, term_y: str):
         cached_ngd = self.ngd_cache.get((term_x, term_y))
         if cached_ngd is not None:
             return cached_ngd
 
-        count_xy = await self.count_two_terms(term_x, term_y)
-        count_x = await self.count_one_term(term_x)
-        count_y = await self.count_one_term(term_y)
-        count_n = await self.count_total()
+        try:
+            count_x, count_y, count_xy, count_n = await self.prepare_counts_for_ngd(term_x, term_y)
+        except NGDZeroCountException as zce:
+            raise NGDUndefinedException(cause=zce)
+        except NGDInfinityException:
+            ngd = float('inf')
+        else:
+            ngd = normalized_google_distance(n=count_n, fx=count_x, fy=count_y, fxy=count_xy)
 
-        ngd = normalized_google_distance(n=count_n, fx=count_x, fy=count_y, fxy=count_xy)
-
+        # Do not wrap the below 2 lines in `finally`,
+        # otherwise they will execute even when an NGDUndefinedException is raised.
         self.ngd_cache.put((term_x, term_y), ngd)
-
         return ngd
