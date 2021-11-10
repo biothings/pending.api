@@ -1,5 +1,8 @@
 import math
 
+# Some JSON libraries cannot parse `float('inf')`, this constant string can be used for such scenarios.
+INFINITY_STR = "Infinity"
+
 
 class NGDZeroCountException(Exception):
     """
