@@ -152,3 +152,6 @@
 [submodule "plugins/upheno_ontology"]
 	path = plugins/upheno_ontology
 	url = https://github.com/kevinxin90/upheno_ontology
+[submodule "plugins/DISEASES"]
+	path = plugins/DISEASES
+	url = https://github.com/kevinxin90/DISEASES
