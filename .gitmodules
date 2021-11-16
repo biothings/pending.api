@@ -11,3 +11,6 @@
 	path = standalone
 	url = https://github.com/biothings/standalone.git
 
+[submodule "plugins/semmed_parser"]
+	path = plugins/semmed_parser
+	url = https://github.com/r76941156/semmed_parser
