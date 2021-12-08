@@ -13,6 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from biothings.web.handlers import BaseHandler
 
 from .graph import GraphQueryHandler
+from .ngd import SemmedNGDHandler
 
 log = logging.getLogger("pending")
 
@@ -36,7 +37,7 @@ class FrontPageHandler(BaseHandler):
         #     # raise tornado.web.HTTPError(503, reason=str(e))
         #     apilist = [] # temporarily silence hub error
 
-        root = self.web_settings._user
+        root = self.biothings.config._primary
         attrs = [getattr(root, attr) for attr in dir(root)]
         confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
         apilist = [{
