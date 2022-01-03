@@ -1,13 +1,12 @@
 FROM python:3.8 AS builder
 
-#ARG PENDING_REPO=https://github.com/biothings/pending.api.git
+ARG PENDING_REPO=https://github.com/biothings/pending.api.git
 #ARG PENDING_BRANCH=master
 
 WORKDIR /build/pending.api
 
-COPY . .
 
-#RUN git clone -b ${PENDING_BRANCH} --recursive ${PENDING_REPO} .
+RUN git clone -b ${PENDING_BRANCH} .
 WORKDIR /build/wheels
 RUN pip wheel -r /build/pending.api/requirements.txt
 
