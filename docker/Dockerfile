@@ -2,6 +2,8 @@ FROM python:3.8 AS builder
 
 #ARG PENDING_REPO=https://github.com/biothings/pending.api.git
 #ARG PENDING_BRANCH=master
+COPY . . 
+
 WORKDIR /build/pending.api
 #RUN git clone -b ${PENDING_BRANCH} --recursive ${PENDING_REPO} .
 WORKDIR /build/wheels
