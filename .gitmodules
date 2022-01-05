@@ -14,6 +14,7 @@
 [submodule "plugins/semmed_parser"]
 	path = plugins/semmed_parser
 	url = https://github.com/r76941156/semmed_parser
+	branch = main
 [submodule "plugins/iDisk"]
 	path = plugins/iDisk
 	url = https://github.com/r76941156/iDisk
@@ -64,10 +65,10 @@
 	url = https://github.com/kevinxin90/cord_protein.git
 [submodule "plugins/drug_response_kp"]
 	path = plugins/drug_response_kp
-	url = https://github.com/Hadlock-Lab/drug_response_kp
+	url = https://github.com/gloriachin/drug_response_kp
 [submodule "plugins/ebi_data_parser"]
 	path = plugins/ebi_data_parser
-	url = https://github.com/kevinxin90/ebi_data_parser.git
+	url = https://github.com/erikyao/ebi_data_parser
 [submodule "plugins/gene_resolver"]
 	path = plugins/gene_resolver
 	url = https://github.com/kevinxin90/gene_resolver
@@ -85,7 +86,7 @@
 	url = https://github.com/kevinxin90/go_mf
 [submodule "plugins/gwascatalog"]
 	path = plugins/gwascatalog
-	url = https://github.com/sirloon/gwascatalog.git
+	url = https://github.com/erikyao/gwascatalog
 [submodule "plugins/hpo"]
 	path = plugins/hpo
 	url = https://github.com/kevinxin90/hpo
@@ -98,6 +99,7 @@
 [submodule "plugins/multiomics_wellness_kp"]
 	path = plugins/multiomics_wellness_kp
 	url = https://github.com/Hadlock-Lab/multiomics_wellness_kp
+	branch = main
 [submodule "plugins/mvcgi"]
 	path = plugins/mvcgi
 	url = https://github.com/sirloon/mvcgi.git
@@ -106,13 +108,14 @@
 	url = https://github.com/kevinxin90/pfocr.git
 [submodule "plugins/phewas"]
 	path = plugins/phewas
-	url = https://github.com/sirloon/phewas.git
+	url = https://github.com/kevinxin90/phewas
 [submodule "plugins/pseudocap_go"]
 	path = plugins/pseudocap_go
 	url = https://github.com/kevinxin90/pseudocap_go
 [submodule "plugins/repoDB"]
 	path = plugins/repoDB
 	url = https://github.com/erikyao/repoDB
+	branch = main
 [submodule "plugins/semmed"]
 	path = plugins/semmed
 	url = https://github.com/kevinxin90/semmed
