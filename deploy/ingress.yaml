@@ -31,4 +31,4 @@ spec:
             service:
               name: pendingapi
               port:
-                number: 9000
+                number: 80
