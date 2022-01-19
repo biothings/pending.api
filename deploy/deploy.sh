@@ -15,7 +15,7 @@ sed -i.bak \
     -e "s/ENVIRONMENT_TAG_VALUE/${ENVIRONMENT_TAG}/g" \
     ingress.yaml
 rm ingress.yaml.bak
-
+export ES_HOST=0.0.0.0
 kubectl apply -f namespace.yaml
 kubectl apply -f deployment.yaml
 kubectl apply -f services.yaml
