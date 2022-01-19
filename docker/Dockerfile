@@ -22,6 +22,6 @@ STOPSIGNAL SIGINT
 
 WORKDIR /home/pending/pending.api
 EXPOSE 9000
-ENV ES_HOST 3.219.143.149:9200
+ENV ES_HOST 127.0.0.1:9200
 ENTRYPOINT ["/home/pending/venv/bin/python", "index.py"]
 CMD ["--conf=config_web", "--port=9000"]
