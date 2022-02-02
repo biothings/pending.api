@@ -1,45 +1,60 @@
 import logging
 from copy import deepcopy
-
 from biothings.utils.common import dotdict, traverse
-from biothings.utils.web.es_dsl import AsyncMultiSearch, AsyncSearch
-from biothings.web.pipeline import ESQueryBuilder, ESResultTransform
+from biothings.web.query import ESQueryBuilder, ESResultFormatter, AsyncESQueryPipeline
+from elasticsearch_dsl import MultiSearch, Search
 
 from web.graph import GraphObject, GraphQueries, GraphQuery
 
 
+class PendingQueryPipeline(AsyncESQueryPipeline):
+
+    async def graph_search(self, q, **options):
+
+        # result formatter will consume this
+        options['_q'] = q
+
+        # define multi-query response format
+        if isinstance(q, GraphQueries):
+            options['templates'] = (dict(query=_q.to_dict()) for _q in q)
+            options['template_miss'] = dict(notfound=True)
+            options['template_hit'] = dict()
+
+        return await super().search(q, **options)
+
+
 class PendingQueryBuilder(ESQueryBuilder):
 
-    def build(self, q, options):
+    def build(self, q, **options):
 
         # NOTE
         # GRAPH QUERY CUSTOMIZATION
 
         # ONE
         if isinstance(q, GraphQuery):
-            return self.build_graph_query(q, options)
+            return self.build_graph_query(q, **options)
 
         # MULTI
         elif isinstance(q, GraphQueries):
-            search = AsyncMultiSearch()
+            search = MultiSearch()
             for _q in q:
-                search = search.add(self.build_graph_query(_q, options))
+                search = search.add(self.build_graph_query(_q, **options))
             return search
 
         else:  # NOT GRAPH
-            return super().build(q, options)
+            return super().build(q, **options)
 
-    def build_graph_query(self, q, options):
+    def build_graph_query(self, q, reverse=False, **options):
 
         query = self._build_graph_query(q)
 
-        if options.reverse and q.reversible():
+        if reverse and q.reversible():
             _q = deepcopy(q)
             _q.reverse()
             query = query | self._build_graph_query(_q)
 
-        search = AsyncSearch().query(query)
-        search = self._apply_extras(search, options)
+        search = Search().query(query) if query else Search()
+        search = self.apply_extras(search, dotdict(options))
 
         return search
 
@@ -62,25 +77,24 @@ class PendingQueryBuilder(ESQueryBuilder):
                 _q.append(v)
                 _scopes.append(k)
 
-        return self.default_match_query(_q, _scopes, dotdict()).query._proxied
+        # query proxy object does not support OR operator, thus using _proxied
+        return self._build_match_query(_q, _scopes, dotdict()).query._proxied
 
 
-class GraphResultTransform(ESResultTransform):
+class GraphResultTransform(ESResultFormatter):
+
     def transform_hit(self, path, doc, options):
+
         if path == '':
-            doc.pop('_index')
-            doc.pop('_type', None)    # not available by default on es7
-            doc.pop('sort', None)     # added when using sort
-            doc.pop('_node', None)    # added when using explain
-            doc.pop('_shard', None)   # added when using explain
 
             if options.reversed and all((  # is reversed query
-                options.q.predicate, options.reverse,
-                options.q.predicate in options.q.PREDICATE_MAPPING
+                options._q.predicate, options.reverse,
+                options._q.predicate in options._q.PREDICATE_MAPPING
             )):
                 try:
                     obj = GraphObject.from_dict(doc)
-                    reversed = obj.predicate == options.q.PREDICATE_MAPPING[options.q.predicate]
+                    _predicate = options._q.PREDICATE_MAPPING[options._q.predicate]
+                    reversed = obj.predicate == _predicate
                     if obj.reversible() and reversed:
                         obj.reverse()
                     doc.update(obj.to_dict())

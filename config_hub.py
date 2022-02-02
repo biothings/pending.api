@@ -1,6 +1,9 @@
 # ######### #
 # HUB VARS  #
 # ######### #
+from biothings.utils.configuration import ConfigurationError
+from biothings.utils.loggers import setup_default_log
+import logging
 import os
 
 DATA_HUB_DB_DATABASE = "biothings_hubdb"   # db containing the following (internal use)
@@ -41,7 +44,7 @@ CACHE_FORMAT = "xz"
 HUB_MAX_MEM_USAGE = None
 
 # Max number of *processes* hub can access to run jobs
-HUB_MAX_WORKERS = max(1,int(os.cpu_count() / 4))
+HUB_MAX_WORKERS = max(1, int(os.cpu_count() / 4))
 # Max number of *threads* hub can use (will default to HUB_MAX_WORKERS if undefined)
 HUB_MAX_THREADS = HUB_MAX_WORKERS
 MAX_SYNC_WORKERS = HUB_MAX_WORKERS
@@ -60,32 +63,32 @@ MONITOR_SNAPSHOT_DELAY = 5 * 60
 
 # Hub environment (like, prod, dev, ...)
 # Used to generate remote metadata file, like "latest.json", "versions.json"
-# If non-empty, this constant will be used to generate those url, as a prefix 
+# If non-empty, this constant will be used to generate those url, as a prefix
 # with "-" between. So, if "dev", we'll have "dev-latest.json", etc...
 # "" means production
 HUB_ENV = ""
 
 # Pre-prod/test ES definitions
 INDEX_CONFIG = {
-        #"build_config_key" : None, # used to select proper idxr/syncer
-        "indexer_select": {
-            # default
-            #None : "path.to.special.Indexer",
-            },
-        "env" : {
-            "test" : {
-                "host" : "localhost:9200",
-                "indexer" : {
-                    "args" : {
-                        "timeout" : 300,
-                        "retry_on_timeout" : True,
-                        "max_retries" : 10,
-                        },
+    # "build_config_key" : None, # used to select proper idxr/syncer
+    "indexer_select": {
+        # default
+        # None : "path.to.special.Indexer",
+    },
+    "env": {
+        "test": {
+            "host": "localhost:9200",
+            "indexer": {
+                    "args": {
+                        "timeout": 300,
+                        "retry_on_timeout": True,
+                        "max_retries": 10,
                     },
-                "index" : [],
-                }
             },
+            "index": [],
         }
+    },
+}
 
 # Snapshot environment configuration
 SNAPSHOT_CONFIG = {}
@@ -101,20 +104,18 @@ HUB_NAME = "Pending (backend)"
 HUB_ICON = "http://biothings.io/static/img/sdk-icon.svg"
 HUB_VERSION = "master"
 
-USE_RELOADER = True # so no need to restart hub when a datasource has changed
+USE_RELOADER = True  # so no need to restart hub when a datasource has changed
 
 ################################################################################
 # HUB_PASSWD
 ################################################################################
 # The format is a dictionary of 'username': 'cryptedpassword'
 # Generate crypted passwords with 'openssl passwd -crypt'
-HUB_PASSWD = {"guest":"9RKfd8gDuNf0Q"}
+HUB_PASSWD = {"guest": "9RKfd8gDuNf0Q"}
 
 # cached data (it None, caches won't be used at all)
 CACHE_FOLDER = None
 
-import logging
-from biothings.utils.loggers import setup_default_log
 
 ########################################
 # APP-SPECIFIC CONFIGURATION VARIABLES #
@@ -129,35 +130,38 @@ from biothings.utils.loggers import setup_default_log
 # any other variables in this file as required. Variables defined as ValueError() exceptions
 # *must* be defined
 #
-from biothings.utils.configuration import ConfigurationError
 
 # Individual source database connection
 DATA_SRC_SERVER = ConfigurationError("Define hostname for source database")
 DATA_SRC_PORT = ConfigurationError("Define port for source database")
 DATA_SRC_DATABASE = ConfigurationError("Define name for source database")
-DATA_SRC_SERVER_USERNAME = ConfigurationError("Define username for source database connection (or None if not needed)")
-DATA_SRC_SERVER_PASSWORD = ConfigurationError("Define password for source database connection (or None if not needed)")
+DATA_SRC_SERVER_USERNAME = ConfigurationError(
+    "Define username for source database connection (or None if not needed)")
+DATA_SRC_SERVER_PASSWORD = ConfigurationError(
+    "Define password for source database connection (or None if not needed)")
 
 # Target (merged collection) database connection
 DATA_TARGET_SERVER = ConfigurationError("Define hostname for target database (merged collections)")
 DATA_TARGET_PORT = ConfigurationError("Define port for target database (merged collections)")
 DATA_TARGET_DATABASE = ConfigurationError("Define name for target database (merged collections)")
-DATA_TARGET_SERVER_USERNAME = ConfigurationError("Define username for target database connection (or None if not needed)")
-DATA_TARGET_SERVER_PASSWORD = ConfigurationError("Define password for target database connection (or None if not needed)")
+DATA_TARGET_SERVER_USERNAME = ConfigurationError(
+    "Define username for target database connection (or None if not needed)")
+DATA_TARGET_SERVER_PASSWORD = ConfigurationError(
+    "Define password for target database connection (or None if not needed)")
 
 HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 # Internal backend. Default to mongodb
 # For now, other options are: mongodb, sqlite3, elasticsearch
-#HUB_DB_BACKEND = {
+# HUB_DB_BACKEND = {
 #        "module" : "biothings.utils.sqlite3",
 #        "sqlite_db_foder" : "./db",
 #        }
-#HUB_DB_BACKEND = {
+# HUB_DB_BACKEND = {
 #        "module" : "biothings.utils.mongo",
 #        "uri" : "mongodb://localhost:27017",
 #        #"uri" : "mongodb://user:passwd@localhost:27017", # mongodb std URI
 #        }
-#HUB_DB_BACKEND = {
+# HUB_DB_BACKEND = {
 #        "module" : "biothings.utils.es",
 #        "host" : "localhost:9200",
 #        }
@@ -166,14 +170,16 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 
 TORNADO_SETTINGS = {
     # max 10GiB upload
-    "max_buffer_size" : 10*1024*1024*1024,
+    "max_buffer_size": 10*1024*1024*1024,
 }
 
 # Path to a folder to store all downloaded files, logs, caches, etc...
-DATA_ARCHIVE_ROOT = ConfigurationError("Define path to folder which will contain all downloaded data, cache files, etc...")
+DATA_ARCHIVE_ROOT = ConfigurationError(
+    "Define path to folder which will contain all downloaded data, cache files, etc...")
 
 # Path to a folder to store all 3rd party parsers, dumpers, etc...
-DATA_PLUGIN_FOLDER = ConfigurationError("Define path to folder which will contain all 3rd party parsers, dumpers, etc...")
+DATA_PLUGIN_FOLDER = ConfigurationError(
+    "Define path to folder which will contain all 3rd party parsers, dumpers, etc...")
 
 DATA_UPLOAD_FOLDER = ConfigurationError("Define path to folder where uploads to API are stored")
 
@@ -193,21 +199,21 @@ LOG_FOLDER = ConfigurationError("Define path to folder which will contain log fi
 #LOG_FOLDER = os.path.join(DATA_ARCHIVE_ROOT,'logs')
 
 # When ES repository type is "fs", where snapshot should be stored
-ES_BACKUPS_FOLDER = ConfigurationError("Define path to folder which will contain ES snapshot when type='fs'")
+ES_BACKUPS_FOLDER = ConfigurationError(
+    "Define path to folder which will contain ES snapshot when type='fs'")
 
 # List of versions.json URLs, Hub will handle these as sources for data releases
 VERSION_URLS = []
 
 # default hub logger
-logger = ConfigurationError("Provider a default hub logger instance (use setup_default_log(name,log_folder)")
+logger = ConfigurationError(
+    "Provider a default hub logger instance (use setup_default_log(name,log_folder)")
 # Usually use default setup
 #logger = setup_default_log("hub", LOG_FOLDER)
 
-import logging
 # shut some mouths...
 logging.getLogger("elasticsearch").setLevel(logging.ERROR)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 logging.getLogger("requests").setLevel(logging.ERROR)
 logging.getLogger('botocore').setLevel(logging.ERROR)
 logging.getLogger('boto3').setLevel(logging.ERROR)
-
