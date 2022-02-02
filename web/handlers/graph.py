@@ -6,27 +6,22 @@ https://github.com/biothings/pending.api/issues/20
 """
 
 import copy
-from collections import UserList
 
-from biothings.utils.common import dotdict
-from biothings.web.handlers import ESRequestHandler
-from biothings.web.handlers.exceptions import BadRequest
-from biothings.web.settings.default import COMMON_KWARGS, QUERY_KWARGS
+from biothings.web.handlers import BaseAPIHandler
+from biothings.web.settings.default import COMMON_KWARGS
 from tornado.web import HTTPError
-from web.graph import GraphObject, GraphQueries, GraphQuery
+from web.graph import GraphQueries, GraphQuery
 
 
-class GraphQueryHandler(ESRequestHandler):
+class GraphQueryHandler(BaseAPIHandler):
 
     name = "graph"
     kwargs = {"*": copy.deepcopy(COMMON_KWARGS)}
-    kwargs["*"]["reverse"] = {"type": bool, "default": False, "group": "esqb"}
-    kwargs["*"]["reversed"] = {"type": bool, "default": True, "group": "transform"}
+    kwargs["*"].update(BaseAPIHandler.kwargs["*"])
+    kwargs["*"]["reverse"] = {"type": bool, "default": False}
+    kwargs["*"]["reversed"] = {"type": bool, "default": True}
 
-    def pre_query_builder_hook(self, options):
-
-        options.es.biothing_type = self.biothing_type
-        options.transform.biothing_type = self.biothing_type
+    async def post(self, *args, **kwargs):
 
         if isinstance(self.args_json, dict):
             q = GraphQuery.from_dict(self.args_json)
@@ -35,15 +30,5 @@ class GraphQueryHandler(ESRequestHandler):
         else:
             raise HTTPError(400)
 
-        options.esqb.q = q
-        options.transform.q = q
-        options.transform.reverse = options.esqb.reverse
-
-        # define multi-query response format
-        if isinstance(options.esqb.q, (list, UserList)):
-            queries = options.esqb.q
-            options.transform.templates = (dict(query=q.to_dict()) for q in queries)
-            options.transform.template_miss = dict(notfound=True)
-            options.transform.template_hit = dict()
-
-        return options
+        result = await self.biothings.pipeline.graph_search(q, **self.args)
+        self.finish(result)

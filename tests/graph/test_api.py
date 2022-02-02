@@ -6,6 +6,8 @@ SHALL SETUP DATA FIXTURES TO PERFORM TESTING
 The following test cases are designed around document
 "_id": "CHEBI:28821-PR:000023452-CPYs48qe6Tu5aq9mphml7Ed_DT4"
 
+API: text_mining_targeted_association
+
 #1
 
 The following query CAN find the document:
