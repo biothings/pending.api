@@ -19,5 +19,8 @@ spec:
         - name: pendingapiserver
           image: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api:DOCKER_VERSION_VALUE
           imagePullPolicy: Always
+          env:
+          - name: ES_HOST
+            value: ES_HOST_VALUE
           ports:
             - containerPort: 9000
