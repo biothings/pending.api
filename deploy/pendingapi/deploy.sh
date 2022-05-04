@@ -10,6 +10,4 @@ sed -i.bak \
     values.yaml
 rm values.yaml.bak
 
-kubectl apply -f namespace.yaml
-
 helm -n ${namespace} upgrade --install ${projectName} -f values.yaml -f values-btepa.yaml ./
