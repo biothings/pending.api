@@ -10,5 +10,4 @@ sed -i.bak \
     values.yaml
 rm values.yaml.bak
 
-helm -n ${namespace} uninstall ${projectName}
 helm -n ${namespace} upgrade --install ${projectName} -f values.yaml -f values-ncats.yaml ./
