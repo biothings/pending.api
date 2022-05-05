@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: ES_HOST
-            values: {{ .Values.containers.es_host }}
+            value: {{ .Values.containers.es_host }}
           ports:
             - name: http
               containerPort: {{ .Values.containers.port }}
