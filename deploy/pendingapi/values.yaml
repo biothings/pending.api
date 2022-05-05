@@ -15,9 +15,6 @@ containers:
   es_host: ES_HOST_VALUE
   port: 9000
 
-
-podAnnotations: {}
-
 service:
   type: NodePort
   port: 80

@@ -11,10 +11,6 @@ spec:
       {{- include "pendingapi.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        configHash: CONFIG_HASH_VALUE
-      {{- end }}
       labels:
         {{- include "pendingapi.selectorLabels" . | nindent 8 }}
     spec:
@@ -24,7 +20,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: ES_HOST
-            values: {{ .Values.containers.ea_host }}
+            values: {{ .Values.containers.es_host }}
           ports:
             - name: http
               containerPort: {{ .Values.containers.port }}
