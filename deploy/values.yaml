@@ -32,4 +32,14 @@ ingress:
     alb.ingress.kubernetes.io/success-codes: '200'
   host: BTEPA_HOSTNAME_VALUE
    
+ncats:
+  labels:
+    gov.nih.ncats.appenv: appenv
+    gov.nih.ncats.appname: bte/pendingapi
+    gov.nih.ncats.appentry: BTEPA_HOSTNAME_VALUE
+    gov.nih.ncats.appentrytype: https
+    gov.nih.ncats.appentryport: tcp
+    gov.nih.ncats.appconnnum: 1
+    gov.nih.ncats.appconn1host: ES_HOST_VALUE
 
+  

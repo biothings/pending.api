@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         {{- include "pendingapi.selectorLabels" . | nindent 8 }}
+        {{- toYaml .Values.ncats.labels | nindent 8 }}
     spec:
       containers:
         - name: {{ .Values.containers.name }}

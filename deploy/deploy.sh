@@ -10,4 +10,4 @@ sed -i.bak \
     values.yaml
 rm values.yaml.bak
 
-helm -n ${namespace} upgrade --install ${projectName} -f values.yaml -f values-btepa.yaml ./
+helm -n ${namespace} upgrade --install ${projectName} -f values.yaml -f values-ncats.yaml ./
