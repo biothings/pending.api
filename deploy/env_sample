@@ -1,4 +1,0 @@
-ENVIRONMENT_TAG=CI
-BTEPA_HOSTNAME=kg2cplover.ci.translator.io
-BTE_ALB_TAG=transltr-eks-ci-blue-ars
-BTE_ALB_SG=translator-ci-alb-http-sg
