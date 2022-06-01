@@ -51,3 +51,4 @@ from . import idisk
 from . import agr
 from . import semmeddb
 from . import rhea
+from . import suppkg
