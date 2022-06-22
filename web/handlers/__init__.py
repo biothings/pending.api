@@ -28,10 +28,10 @@ def hostname_to_site(hostname: str) -> str:
     Currently we have 2 renderings of sites, "pending" and "ncats". They differs in aesthetics, yet sharing the
     same backend.
 
-    Hostname "biothings.ncats.io" and "biothings.ci.transltr.io" use "ncats" rendering, while "pending.biothings.io"
+    Hostname "biothings.ncats.io" and "biothings[|.ci|.test].transltr.io" use "ncats" rendering, while "pending.biothings.io"
     uses "pending".
     """
-    if hostname == "biothings.ncats.io" or hostname == "biothings.ci.transltr.io":
+    if hostname == "biothings.ncats.io" or hostname.endswith("transltr.io"):
         return "ncats"
 
     return "pending"
