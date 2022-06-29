@@ -51,6 +51,6 @@ from . import idisk
 from . import agr
 from . import semmeddb
 from . import rhea
-from . import suppk
+from . import suppkg
 from . import bioplanet_pathway_gene
 from . import bioplanet_pathway_disease
