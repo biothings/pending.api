@@ -54,3 +54,4 @@ from . import rhea
 from . import suppkg
 from . import bioplanet_pathway_gene
 from . import bioplanet_pathway_disease
+from . import foodb
