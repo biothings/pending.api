@@ -46,7 +46,7 @@ from . import text_mining_targeted_association
 from . import upheno_ontology
 from . import repodb
 from . import multiomics_wellness
-from . import clinical_risk_kp
+from . import multiomics_ehr_risk_kp
 from . import idisk
 from . import agr
 from . import semmeddb
