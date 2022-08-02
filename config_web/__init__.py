@@ -56,3 +56,4 @@ from . import bioplanet_pathway_gene
 from . import bioplanet_pathway_disease
 from . import foodb
 from . import bindingdb
+from . import gtrx
