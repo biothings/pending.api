@@ -32,6 +32,9 @@
               </small>
             </li>
           </ul>
+          <template v-if='description'>
+            <small class="d-block mt-2" v-text="description"></small>
+          </template>
           <template v-if='author_url'>
             <small class="d-block mt-2">
               Developed by
@@ -110,7 +113,7 @@
             </div>
           </form>
           <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
-            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="queryString" v-text="window.location.origin+queryString" type="text" :style="{'color' : success ? 'limegreen' : 'coral'}"></a>
+            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
           </p>
           <div v-show='loading' class="spinner">
             <div class="cube1"></div>
@@ -146,8 +149,10 @@
           metadata:{},
           querySelected:'',
           queryString:'',
+          finalURL: '',
           querySelectionType:'example',
           success: false,
+          errorEncountered: false,
           loading: false,
           loadingExamples: false,
           loadingExamplesQueries:false,
@@ -209,6 +214,14 @@
           let self = this;
           if (self.sourceDetails.hasOwnProperty('license_url')) {
             return self.sourceDetails['license_url']
+          } else {
+            return false
+          }
+        },
+        description:function(){
+          let self = this;
+          if (self.sourceDetails.hasOwnProperty('description')) {
+            return self.sourceDetails['description']
           } else {
             return false
           }
@@ -311,7 +324,7 @@
           // checks for spaces and second colons end escapes them
           if (_.isString(string)) {
             if (string.indexOf(' ') >= 0) {
-              // If strign has spaces
+              // If string has spaces
               return '"'+string+'"';
             }else if (string.indexOf(':') >= 0) {
               let position = string.indexOf(':')
@@ -332,6 +345,21 @@
             // simple string
             return encodeURIComponent(string)
           }
+        },
+        escapeCharacters(url){
+          const params = (new URL(url)).searchParams;
+          // Iterating the search parameters
+          for (const [key, value] of params.entries()) {
+            //escape multiple colons except first
+            if (value.split(':').length > 1) {
+              let parts = value.split(':');
+              let x = parts.slice(1).join('\\:');
+              let newValue = [parts[0], x].join(":")
+              url = url.replace(value, newValue);
+            }
+          }
+          this.finalURL = url;
+          return url
         },
         generateQuery(dataObject){
           var self = this;
@@ -378,8 +406,8 @@
           let self = this;
           if (self.api && self.querySelected) {
             let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
-            self.queryString = base+self.api.toLowerCase()+self.querySelected
-            self.callApi(self.queryString)
+            self.queryString = base + self.api.toLowerCase() + self.querySelected
+            self.callApi(self.escapeCharacters(self.queryString))
           }
         },
         refreshExmaples(){
@@ -399,11 +427,15 @@
             renderjson.set_show_to_level(7);
             $('#callResults').html( renderjson(res.data) );
             self.success = true;
-          }).catch(err=>{
+            self.errorEncountered = false;
+          })
+          .catch(err=>{
             self.loading = false;
             renderjson.set_show_to_level(7);
-            $('#callResults').html( err );
-            self.success = false;
+            $('#callResults').html( renderjson(err.response.data) );
+            //needs to be true to show error on UI
+            self.success = true;
+            self.errorEncountered = true;
             throw err;
           });
         },
