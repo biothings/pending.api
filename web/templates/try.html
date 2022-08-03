@@ -33,7 +33,7 @@
             </li>
           </ul>
           <template v-if='description'>
-            <small class="d-block mt-2" v-text="description"></small>
+            <small class="d-block mt-2" v-html="description"></small>
           </template>
           <template v-if='author_url'>
             <small class="d-block mt-2">
