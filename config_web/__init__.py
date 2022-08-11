@@ -58,5 +58,6 @@ from . import foodb
 from . import bindingdb
 from . import gtrx
 from . import innatedb
-from . import clinical_trials
+from . import clinical_trials_aact
+from . import ddinter
 
