@@ -1,10 +1,8 @@
-from elasticsearch_dsl import Search, Q
-
 from biothings.web.handlers.query import BaseAPIHandler
 
-from .utils import normalized_google_distance, LRUCache, INFINITY_STR, \
+from .utils import normalized_google_distance, INFINITY_STR, \
     NGDZeroCountException, NGDInfinityException, NGDUndefinedException
-from .service.ngd_service import NGDService
+from .service.ngd_service import UMLSDocumentService, NGDCache, UMLSDocumentCache
 
 
 class SemmedNGDHandler(BaseAPIHandler):
@@ -29,15 +27,13 @@ class SemmedNGDHandler(BaseAPIHandler):
         }
     }
 
-    one_term_count_cache = LRUCache(capacity=10240)
-    two_terms_count_cache = LRUCache(capacity=10240)
-    total_count_cache = None  # There is only 1 number to cache, and `LRUCache` is an overkill
-    ngd_cache = LRUCache(capacity=10240)
+    document_cache = UMLSDocumentCache(unary_capacity=10240, bipartite_capacity=10240)
+    distance_cache = NGDCache(capacity=10240)
 
     def prepare(self):
         super().prepare()
 
-        self.ngd_service = NGDService(
+        self.doc_service = UMLSDocumentService(
             es_async_client=self.biothings.elasticsearch.async_client,
             es_index_name=self.biothings.config.ES_INDEX
         )
@@ -45,7 +41,7 @@ class SemmedNGDHandler(BaseAPIHandler):
     async def get(self, *args, **kwargs):
         terms = self.args['umls']
         if len(terms) != 2:
-            reason = f"Exact 2 umls are required. Got {len(terms)}."
+            reason = f"Exact 2 UMLS terms are required. Got {terms}, {len(terms)} term(s)."
             self.write_error(status_code=400, reason=reason)
             return
 
@@ -60,7 +56,7 @@ class SemmedNGDHandler(BaseAPIHandler):
             # Here we assume that `ue.cause` is an NGDZeroCountException, which is the only possibility so far.
             # If in the future there are other types of `ue.cause`, should check `type(ne.cause)` first in this clause.
             causative_term = ue.cause.term
-            reason = f"the count of term '{causative_term}' is 0 in SemMedDB API."
+            reason = f"the document frequency of term '{causative_term}' is 0 in SemMedDB API."
             result = {
                 "umls": terms,
                 "ngd": "undefined",
@@ -76,7 +72,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                     yield {
                         "umls": terms,
                         "ngd": "undefined",
-                        "reason": f"A list of 2 umls are required. Got a {type(terms).__name__}"
+                        "reason": f"A list of 2 UMLS terms are required. Got {terms}, a {type(terms).__name__}"
                     }
                     continue
 
@@ -84,7 +80,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                     yield {
                         "umls": terms,
                         "ngd": "undefined",
-                        "reason": f"Exact 2 umls are required. Got {len(terms)}."
+                        "reason": f"Exact 2 UMLS terms are required. Got {terms}, {len(terms)} term(s)."
                     }
                     continue
 
@@ -96,7 +92,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                     }
                 except NGDUndefinedException as ue:
                     causative_term = ue.cause.term
-                    reason = f"the count of term '{causative_term}' is 0 in SemMedDB API."
+                    reason = f"the document frequency of term '{causative_term}' is 0 in SemMedDB API."
                     yield {
                         "umls": terms,
                         "ngd": "undefined",
@@ -106,35 +102,36 @@ class SemmedNGDHandler(BaseAPIHandler):
         results = [res async for res in yield_results()]
         self.finish(results)
 
-    async def count_one_term(self, term: str):
-        cached_count = self.one_term_count_cache.get(term)
-        if cached_count is not None:
-            return cached_count
+    async def unary_doc_freq(self, term: str):
+        cached_doc_freq = self.document_cache.read_unary_doc_freq(term)
+        if cached_doc_freq is not None:
+            return cached_doc_freq
 
-        count = await self.ngd_service.count_one_term(term)
-        self.one_term_count_cache.put(term, count)
+        doc_freq = await self.doc_service.unary_doc_freq(term)
+        self.document_cache.write_unary_doc_freq(term, doc_freq)
 
-        return count
+        return doc_freq
 
-    async def count_two_terms(self, term_x: str, term_y: str):
-        cached_count = self.two_terms_count_cache.get((term_x, term_y))
-        if cached_count is not None:
-            return cached_count
+    async def bipartite_doc_freq(self, term_x: str, term_y: str):
+        cached_doc_freq = self.document_cache.read_bipartite_doc_freq(term_x, term_y)
+        if cached_doc_freq is not None:
+            return cached_doc_freq
 
-        count = await self.ngd_service.count_two_terms(term_x, term_y)
-        self.two_terms_count_cache.put((term_x, term_y), count)
+        doc_freq = await self.doc_service.bipartite_doc_freq(term_x, term_y)
+        self.document_cache.write_bipartite_doc_freq(term_x, term_y, doc_freq)
 
-        return count
+        return doc_freq
 
-    async def count_total(self):
+    async def doc_total(self):
         """
         Get the total number of documents in the index
         """
-        if self.total_count_cache is not None:
-            return self.total_count_cache
+        cached_doc_total = self.document_cache.read_doc_total()
+        if cached_doc_total is not None:
+            return cached_doc_total
 
         # Read from metadata
-        count = self.biothings.metadata.biothing_metadata[self.biothings.config.ES_DOC_TYPE]["stats"]["total"]
+        doc_total = self.biothings.metadata.biothing_metadata[self.biothings.config.ES_DOC_TYPE]["stats"]["total"]
 
         # Read from cat.count()
         # client = self.biothings.elasticsearch.async_client
@@ -142,50 +139,49 @@ class SemmedNGDHandler(BaseAPIHandler):
         # resp = await client.cat.count(index=index, params={"format": "json"})
         # count = int(resp[0]["count"])  # I cannot understand why resp[0]["count"] somehow is a string...
 
-        self.total_count_cache = count
+        self.document_cache.write_doc_total(doc_total)
 
-        return count
+        return doc_total
 
-    async def prepare_counts_for_ngd(self, term_x: str, term_y: str):
+    async def _prepare_stats(self, term_x: str, term_y: str):
         """
-        To find the Normalized Google Distance between term x and term y, 4 queries are going to be performed:
+        To find the Normalized Google Distance between term_x and term_y, 4 queries are going to be performed:
 
-        1. Query for the total number of `x`, which translates to `subject.umls:x OR object.umls:x`
-        2. Query for the total number of `y`, which translates to `subject.umls:y OR object.umls:y`
-        3. Query for the total number of `x and y`, which translates to
-            `(subject.umls:x AND object.umls:y) OR (subject.umls:y AND object.umls:x)`
+        1. Query for the document frequency of term_x, which translates to counting       `subject.umls:<term_x> OR object.umls:<term_x>`
+        2. Query for the document frequency of term_y, which translates to counting `subject.umls:<term_y> OR object.umls:<term_y>`
+        3. Query for the document frequency of term_x and term_y together, which translates to counting `(subject.umls:<term_x> AND object.umls:<term_y>) OR (subject.umls:<term_y> AND object.umls:<term_x>)`
         4. Query for the total number of documents
         """
-        count_x = await self.count_one_term(term_x)
-        if count_x == 0:
+        f_x = await self.unary_doc_freq(term_x)
+        if f_x == 0:
             raise NGDZeroCountException(term=term_x)
 
-        count_y = await self.count_one_term(term_y)
-        if count_y == 0:
+        f_y = await self.unary_doc_freq(term_y)
+        if f_y == 0:
             raise NGDZeroCountException(term=term_y)
 
-        count_xy = await self.count_two_terms(term_x, term_y)
-        if count_xy == 0:
+        f_xy = await self.bipartite_doc_freq(term_x, term_y)
+        if f_xy == 0:
             raise NGDInfinityException()
 
-        count_n = await self.count_total()
-        return count_x, count_y, count_xy, count_n
+        n = await self.doc_total()
+        return f_x, f_y, f_xy, n
 
     async def calculate_ngd(self, term_x: str, term_y: str):
-        cached_ngd = self.ngd_cache.get((term_x, term_y))
-        if cached_ngd is not None:
-            return cached_ngd
+        cached_distance = self.distance_cache.read_distance(term_x, term_y)
+        if cached_distance is not None:
+            return cached_distance
 
         try:
-            count_x, count_y, count_xy, count_n = await self.prepare_counts_for_ngd(term_x, term_y)
+            f_x, f_y, f_xy, n = await self._prepare_stats(term_x, term_y)
         except NGDZeroCountException as zce:
             raise NGDUndefinedException(cause=zce)
         except NGDInfinityException:
-            ngd = INFINITY_STR
+            distance = INFINITY_STR
         else:
-            ngd = normalized_google_distance(n=count_n, fx=count_x, fy=count_y, fxy=count_xy)
+            distance = normalized_google_distance(n=n, f_x=f_x, f_y=f_y, f_xy=f_xy)
 
         # Do not wrap the below 2 lines in `finally`,
         # otherwise they will execute even when an NGDUndefinedException is raised.
-        self.ngd_cache.put((term_x, term_y), ngd)
-        return ngd
+        self.distance_cache.write_distance(term_x, term_y, distance)
+        return distance
