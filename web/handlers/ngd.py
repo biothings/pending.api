@@ -4,6 +4,7 @@ from biothings.web.handlers.query import BaseAPIHandler
 
 from .utils import normalized_google_distance, LRUCache, INFINITY_STR, \
     NGDZeroCountException, NGDInfinityException, NGDUndefinedException
+from .service.ngd_service import NGDService
 
 
 class SemmedNGDHandler(BaseAPIHandler):
@@ -32,6 +33,14 @@ class SemmedNGDHandler(BaseAPIHandler):
     two_terms_count_cache = LRUCache(capacity=10240)
     total_count_cache = None  # There is only 1 number to cache, and `LRUCache` is an overkill
     ngd_cache = LRUCache(capacity=10240)
+
+    def prepare(self):
+        super().prepare()
+
+        self.ngd_service = NGDService(
+            es_async_client=self.biothings.elasticsearch.async_client,
+            es_index_name=self.biothings.config.ES_INDEX
+        )
 
     async def get(self, *args, **kwargs):
         terms = self.args['umls']
@@ -102,39 +111,7 @@ class SemmedNGDHandler(BaseAPIHandler):
         if cached_count is not None:
             return cached_count
 
-        """
-        `match.to_dict()` => 
-            {
-                'bool': {
-                    'should': [
-                        {'match': {'subject.umls': <term>}},
-                        {'match': {'object.umls': <term>}}
-                    ]
-                }
-            }
-            
-        `query.to_dict()` => 
-            {
-                'query':
-                    'bool': {
-                        'should': [
-                            {'match': {'subject.umls': <term>}},
-                            {'match': {'object.umls': <term>}}
-                        ]
-                    }
-                }
-            }
-        """
-        match = Q("match", subject__umls=term) | Q("match", object__umls=term)  # boolean OR match
-        query = Search().query(match)
-
-        client = self.biothings.elasticsearch.async_client
-        index = self.biothings.config.ES_INDEX  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb"
-        # Why did we choose not to use `Search(using=client, index=index).query(match).count()`?
-        # Because elasticsearch-dsl is not compatible with async elasticsearch client yet.
-        resp = await client.count(body=query.to_dict(), index=index)
-        count = resp["count"]
-
+        count = await self.ngd_service.count_one_term(term)
         self.one_term_count_cache.put(term, count)
 
         return count
@@ -144,16 +121,7 @@ class SemmedNGDHandler(BaseAPIHandler):
         if cached_count is not None:
             return cached_count
 
-        # (subject.umls:<term_x> AND object.umls:<term_y>) OR (subject.umls:<term_y> AND object.umls:<term_x>)
-        match = (Q("match", subject__umls=term_x) & Q("match", object__umls=term_y)) | \
-                (Q("match", subject__umls=term_y) & Q("match", object__umls=term_x))
-        query = Search().query(match)
-
-        client = self.biothings.elasticsearch.async_client
-        index = self.biothings.config.ES_INDEX  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb"
-        resp = await client.count(body=query.to_dict(), index=index)
-        count = resp["count"]
-
+        count = await self.ngd_service.count_two_terms(term_x, term_y)
         self.two_terms_count_cache.put((term_x, term_y), count)
 
         return count
