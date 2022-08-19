@@ -9,7 +9,7 @@ class NGDZeroCountException(Exception):
     Raised when the count of a term (i.e. f(x) or f(y) in the wikipedia NGD formula) is 0 in the corpus.
     Normalized Google Distance is not defined in this scenario.
     """
-    def __init__(self, term: str):
+    def __init__(self, term):
         self.term = term
 
 
