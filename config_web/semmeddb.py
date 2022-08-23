@@ -1,8 +1,13 @@
+import os
+from pathlib import Path
 from biothings.web.settings.default import APP_LIST
 from web.handlers.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
 
+
 JSON_RESOURCE_MAP = {
-    "narrower_relationships": "/data/pending/dataupload/mysrc/semmeddb/UMLS_narrower_relationships/umls-parsed.json"
+    # since this module is dynamically imported by the `python index.py --conf=xxx` process,
+    # `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
+    "narrower_relationships": os.path.join(Path.cwd(), "plugins/semmed_parser/UMLS_narrower_relationships/umls-parsed.json")
 }
 
 umls_resource_manager = UMLSResourceManager()
