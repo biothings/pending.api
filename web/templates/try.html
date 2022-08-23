@@ -405,7 +405,7 @@
         testQuery(){
           let self = this;
           if (self.api && self.querySelected) {
-            let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
+            let base = 'http://pending.biothings.io/';
             self.queryString = base + self.api.toLowerCase() + self.querySelected
             self.callApi(self.escapeCharacters(self.queryString))
           }
