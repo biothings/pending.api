@@ -6,13 +6,13 @@ from .service.umls_service import UMLSResourceManager
 from .service.ngd_service import NGDService, DocStatsService, NGDCache, DocStatsCache, Term, TermPair
 
 
-class StarMode(Flag):
+class ExpansionMode(Flag):
     """
-    When a pair of terms is passed in as arguments, this Enum class can be used to indicate which term should be treated as a star graph of terms.
+    When a pair of terms is passed in as arguments, this Enum class can be used to indicate which term should be expanded.
     """
-    NIL = 0              # none of the paired terms should expand into a star
-    LEFT = auto()        # (LEFT == 1) only the left (i.e. 1st) term of the pair should expand into a star
-    RIGHT = auto()       # (RIGHT == 2) only the right (i.e. 2nd) term of the pair should expand into a star
+    NIL = 0              # none of the paired terms should expand 
+    LEFT = auto()        # (LEFT == 1) only the left (i.e. 1st) term of the pair should expand
+    RIGHT = auto()       # (RIGHT == 2) only the right (i.e. 2nd) term of the pair should expand
     BOTH = LEFT | RIGHT  # (BOTH == 3) both terms should expand
 
     @classmethod
@@ -20,7 +20,7 @@ class StarMode(Flag):
         if (value is None) or (not value):
             return cls.NIL
 
-        # E.g. when member_name == "NIL", member is StarMode.NIL
+        # E.g. when member_name == "NIL", member is ExpansionMode.NIL
         for member_name, member in cls.__members__.items():
             if member_name == value.upper():
                 return member
@@ -34,8 +34,8 @@ class ErrorReason:
         return f"Exact 2 UMLS terms are required. Got {terms}, {len(terms)} term(s)."
 
     @classmethod
-    def unknown_star_mode(cls, arg_star_mode: str):
-        return f"star-mode accepts empty string, 'nil, 'left', 'right', and 'both', case-insensitive. Got '{arg_star_mode}'."
+    def unknown_expansion_mode(cls, arg_expand: str):
+        return f"Parameter 'expand' accepts empty string, 'nil, 'left', 'right', and 'both', case-insensitive. Got '{arg_expand}'."
 
     @classmethod
     def zero_document_freq(cls, term: str):
@@ -58,7 +58,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                 # 'max': 2,  # exactly 2 umls are required. Will check the cardinality in get()
                 'required': True
             },
-            'star-mode': {
+            'expand': {
                 'type': str,
                 'required': False
             }
@@ -69,7 +69,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                 'max': 1000,
                 'required': True
             },
-            'star-mode': {
+            'expand': {
                 'type': str,
                 'required': False
             }
@@ -118,7 +118,7 @@ class SemmedNGDHandler(BaseAPIHandler):
             ngd_cache=self.ngd_cache
         )
 
-    def make_star_graph(self, term: Term):
+    def expand_term(self, term: Term):
         prefix = "UMLS:"
 
         root_term = term.root
@@ -131,7 +131,7 @@ class SemmedNGDHandler(BaseAPIHandler):
         if leaf_terms:
             leaf_terms = [term[5:] if term.startswith(prefix) else term for term in leaf_terms]
 
-        term.make_star_graph(leaf_terms)
+        term.expand(leaf_terms)
         return term
 
     async def get(self, *args, **kwargs):
@@ -140,19 +140,19 @@ class SemmedNGDHandler(BaseAPIHandler):
             self.write_error(status_code=400, reason=ErrorReason.wrong_terms_quantity(arg_umls))
             return
 
-        arg_star_mode = self.args.get('star-mode')
+        arg_expand = self.args.get('expand')
         try:
-            star_mode = StarMode.value_of(arg_star_mode)
+            expansion_mode = ExpansionMode.value_of(arg_expand)
         except ValueError:
-            self.write_error(status_code=400, reason=ErrorReason.unknown_star_mode(arg_star_mode))
+            self.write_error(status_code=400, reason=ErrorReason.unknown_expansion_mode(arg_expand))
             return
 
         term_x = Term(root=arg_umls[0])
         term_y = Term(root=arg_umls[1])
-        if star_mode & StarMode.LEFT:  # star_mode is LEFT or BOTH
-            term_x = self.make_star_graph(term_x)
-        if star_mode & StarMode.RIGHT:  # star_mode is RIGHT or BOTH
-            term_y = self.make_star_graph(term_y)
+        if expansion_mode & ExpansionMode.LEFT:  # expansion_mode is LEFT or BOTH
+            term_x = self.expand_term(term_x)
+        if expansion_mode & ExpansionMode.RIGHT:  # expansion_mode is RIGHT or BOTH
+            term_y = self.expand_term(term_y)
         term_pair = TermPair(term_x=term_x, term_y=term_y)
 
         try:
@@ -171,9 +171,9 @@ class SemmedNGDHandler(BaseAPIHandler):
             }
         finally:
             result["umls"] = [term.root for term in term_pair]
-            result["star_mode"] = star_mode.name.lower()
-            if star_mode is not StarMode.NIL:
-                result["leaf_umls"] = [{term.root: term.leaves} for term in term_pair if term.star_graph_mark]
+            result["expand"] = expansion_mode.name.lower()
+            if expansion_mode is not ExpansionMode.NIL:
+                result["leaf_umls"] = [{term.root: term.leaves} for term in term_pair if term.has_expanded]
 
             self.finish(result)
             return
@@ -181,16 +181,17 @@ class SemmedNGDHandler(BaseAPIHandler):
     async def post(self, *args, **kwargs):
         # Step 1: Accept two arguments
         arg_umls = self.args['umls']  # should be a list of 2-termed sublists, e.g. [['a', 'b'], ['c', 'd']]
-        arg_star_mode = self.args.get('star-mode')
+        arg_expand = self.args.get('expand')
 
-        # Step 2: verify argument `star-mode`, raise an error simultaneously if found
+        # Step 2: verify argument `expand`, raise an error simultaneously if found
         try:
-            star_mode = StarMode.value_of(arg_star_mode)
+            expansion_mode = ExpansionMode.value_of(arg_expand)
         except ValueError:
-            self.write_error(status_code=400, reason=ErrorReason.unknown_star_mode(arg_star_mode))
+            self.write_error(status_code=400, reason=ErrorReason.unknown_expansion_mode(arg_expand))
             return
 
-        # Step 3: verify argument `umls` and calculate NGDs. If any pair of terms failed the verification, do not raise an error simultaneously but wrap the error in the response.
+        # Step 3: verify argument `umls` and calculate NGDs. If any pair of terms failed the verification, do not raise an error simultaneously
+        # but wrap the error in the response.
         async def yield_results(arg_umls: list):
             for terms in arg_umls:
                 if not isinstance(terms, list):
@@ -211,10 +212,10 @@ class SemmedNGDHandler(BaseAPIHandler):
 
                 term_x = Term(root=terms[0])
                 term_y = Term(root=terms[1])
-                if star_mode & StarMode.LEFT:  # star_mode is LEFT or BOTH
-                    term_x = self.make_star_graph(term_x)
-                if star_mode & StarMode.RIGHT:  # star_mode is RIGHT or BOTH
-                    term_y = self.make_star_graph(term_y)
+                if expansion_mode & ExpansionMode.LEFT:  # expansion_mode is LEFT or BOTH
+                    term_x = self.expand_term(term_x)
+                if expansion_mode & ExpansionMode.RIGHT:  # expansion_mode is RIGHT or BOTH
+                    term_y = self.expand_term(term_y)
                 term_pair = TermPair(term_x=term_x, term_y=term_y)
 
                 try:
@@ -233,9 +234,9 @@ class SemmedNGDHandler(BaseAPIHandler):
                     }
                 finally:
                     result["umls"] = [term.root for term in term_pair]
-                    result["star_mode"] = star_mode.name.lower()
-                    if star_mode is not StarMode.NIL:
-                        result["leaf_umls"] = [{term.root: term.leaves} for term in term_pair if term.star_graph_mark]
+                    result["expand"] = expansion_mode.name.lower()
+                    if expansion_mode is not ExpansionMode.NIL:
+                        result["leaf_umls"] = [{term.root: term.leaves} for term in term_pair if term.has_expanded]
 
                     yield result
 

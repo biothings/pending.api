@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Iterable, Union
 from functools import reduce  # to concat multiple elasticsearch_dsl.query.Match objects into one
 from operator import or_  # for OR operation on elasticsearch_dsl.query.Match objects
@@ -12,31 +12,40 @@ from ..utils import LRUCache
 from ..utils import normalized_google_distance, INFINITY_STR, NGDZeroCountException, NGDInfinityException, NGDUndefinedException
 
 
-class CacheKeyable(metaclass=ABCMeta):
+class CacheKeyable(ABC):
     @property
     @abstractmethod
     def cache_key(self):
         return NotImplementedError
 
-class Term(CacheKeyable):
+
+class Expandable:
+    def __init__(self, expanded=False):
+        self.expanded = expanded
+
+    def mark_as_expanded(self):
+        self.expanded = True
+
+    @property
+    def has_expanded(self):
+        return self.expanded
+
+
+class Term(Expandable, CacheKeyable):
     def __init__(self, root: str):
+        # call Expandable.__init__(self)
+        # Assuming self.mro() is Term -> Expandable -> CacheKeyable
+        super(Term, self).__init__()
+
         self.root = root
         self.leaves = None
 
-        """
-        A root term with leaf terms scattered around makes a star graph of terms. 
-        See https://en.wikipedia.org/wiki/Star_(graph_theory).
-
-        By setting star_graph_mark, we indicate this object is not a single string term but a potential star graph of terms.
-        """
-        self.star_graph_mark = False
-
-    def make_star_graph(self, leaves):
+    def expand(self, leaves):
         """
         Add leaf terms to the root term, making a star graph of terms.
         """
         self.leaves = leaves
-        self.star_graph_mark = True
+        self.mark_as_expanded()
 
     def all_string_terms_within(self):
         yield self.root
@@ -46,7 +55,7 @@ class Term(CacheKeyable):
 
     @property
     def cache_key(self) -> str:
-        if not self.star_graph_mark:
+        if not self.has_expanded:
             return self.root
 
         return f"{self.root}*"
@@ -197,8 +206,6 @@ class DocStatsService:
     async def unary_doc_freq(self, term: Term) -> int:
         """
         Get the document frequency of all terms within the `term` object (i.e. count of the union of the documents containing any of the term within).
-
-        I.e. given D(t) the set of documents containing term t, the group document frequency of {t1,t2,t3,...,tn} is the size of union{D(t1),D(t2),...,D(tn)}
         """
         match = self._unary_match(term)
         count = await self._count_in_es(match)
@@ -212,7 +219,8 @@ class DocStatsService:
 
     async def bipartite_doc_freq(self, term_pair: TermPair) -> int:
         """
-        Get the document frequency of all the term combinations within the term_pair object (i.e. count of the union of the documents containing any pair of terms within).
+        Get the document frequency of all the term combinations within the term_pair object 
+        (i.e. count of the union of the documents containing any pair of terms within).
         """
         match = self._bipartite_match(term_pair)
         count = await self._count_in_es(match)
@@ -222,7 +230,6 @@ class DocStatsService:
 class NGDCache:
     """
     A cache class to store the normalized google distance.
-    The primary key is two term tuples.
     """
     def __init__(self, capacity):
         self.distance_cache = LRUCache(capacity)
@@ -237,7 +244,7 @@ class NGDCache:
 class DocStatsCache:
     """
     A cache class to store the document frequencies.
-    Two LRU caches are used internally, one for single-term document frequencies, the other for double-term ones
+    Two LRU caches are used internally, one for unary, the other for bipartite
     """
     def __init__(self, unary_capacity, bipartite_capacity):
         self.unary_cache = LRUCache(unary_capacity)
@@ -295,16 +302,17 @@ class NGDService:
         return self.doc_stats_service.doc_total
 
     async def _prepare_stats(self, term_pair: TermPair):
+        """
+        Return the following 4 values for Normalized Google Distance calculation. 
+
+        1. unary document frequency of term_x
+        2. unary document frequency of term_y
+        3. bipartite document frequency of term_x and term_y together
+        4. total number of documents
+        """
+
         term_x, term_y = term_pair[0], term_pair[1]
 
-        """
-        To find the Normalized Google Distance between term_x and term_y, 4 queries are going to be performed:
-
-        1. Query for the document frequency of term_x, which translates to counting `subject.umls:<term_x> OR object.umls:<term_x>`
-        2. Query for the document frequency of term_y, which translates to counting `subject.umls:<term_y> OR object.umls:<term_y>`
-        3. Query for the document frequency of term_x and term_y together, which translates to counting `(subject.umls:<term_x> AND object.umls:<term_y>) OR (subject.umls:<term_y> AND object.umls:<term_x>)`
-        4. Query for the total number of documents
-        """
         f_x = await self.unary_doc_freq(term_x)
         if f_x == 0:
             raise NGDZeroCountException(term=term_x)
