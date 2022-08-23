@@ -219,7 +219,7 @@ class DocStatsService:
 
     async def bipartite_doc_freq(self, term_pair: TermPair) -> int:
         """
-        Get the document frequency of all the term combinations within the term_pair object 
+        Get the document frequency of all the term combinations within the term_pair object
         (i.e. count of the union of the documents containing any pair of terms within).
         """
         match = self._bipartite_match(term_pair)
@@ -303,7 +303,7 @@ class NGDService:
 
     async def _prepare_stats(self, term_pair: TermPair):
         """
-        Return the following 4 values for Normalized Google Distance calculation. 
+        Return the following 4 values for Normalized Google Distance calculation.
 
         1. unary document frequency of term_x
         2. unary document frequency of term_y

@@ -10,7 +10,7 @@ class ExpansionMode(Flag):
     """
     When a pair of terms is passed in as arguments, this Enum class can be used to indicate which term should be expanded.
     """
-    NIL = 0              # none of the paired terms should expand 
+    NIL = 0              # none of the paired terms should expand
     LEFT = auto()        # (LEFT == 1) only the left (i.e. 1st) term of the pair should expand
     RIGHT = auto()       # (RIGHT == 2) only the right (i.e. 2nd) term of the pair should expand
     BOTH = LEFT | RIGHT  # (BOTH == 3) both terms should expand
@@ -79,18 +79,16 @@ class SemmedNGDHandler(BaseAPIHandler):
     doc_stats_cache = DocStatsCache(unary_capacity=10240, bipartite_capacity=10240)
     ngd_cache = NGDCache(capacity=10240)
 
-    def initialize(self, umls_resouce_manager: UMLSResourceManager):
+    def initialize(self, subject_field_name: str, object_field_name: str, umls_resouce_manager: UMLSResourceManager):
         super().initialize()
 
-        # This umls_resouce_manager argument is injected from the URLSpec in config_web/semmeddb.py
+        # The following 3 arguments are injected from the URLSpec in config_web/<plugin_name>.py
+        self.subject_field_name = subject_field_name
+        self.object_field_name = object_field_name
         self.umls_resouce_manager = umls_resouce_manager
 
     def prepare(self):
         super().prepare()
-
-        # TODO inject from URLSpec?
-        self.subject_field_name = "subject.umls"
-        self.object_field_name = "object.umls"
 
         """
         Here `self.biothings.metadata` is a `biothings.web.services.metadata.BiothingsESMetadata` instance, which would include 3 attributes:
@@ -120,6 +118,7 @@ class SemmedNGDHandler(BaseAPIHandler):
 
     def expand_term(self, term: Term):
         prefix = "UMLS:"
+        prefix_len = len(prefix)
 
         root_term = term.root
         if not root_term.startswith(prefix):
@@ -129,7 +128,7 @@ class SemmedNGDHandler(BaseAPIHandler):
         nr_client = self.umls_resouce_manager.get_resource_client("narrower_relationships")
         leaf_terms = nr_client.query(root_term)
         if leaf_terms:
-            leaf_terms = [term[5:] if term.startswith(prefix) else term for term in leaf_terms]
+            leaf_terms = [term[prefix_len:] if term.startswith(prefix) else term for term in leaf_terms]
 
         term.expand(leaf_terms)
         return term
