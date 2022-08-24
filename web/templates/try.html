@@ -347,6 +347,7 @@
           }
         },
         escapeCharacters(url){
+          // needs a FULL valid url to work
           const params = (new URL(url)).searchParams;
           // Iterating the search parameters
           for (const [key, value] of params.entries()) {
@@ -405,7 +406,8 @@
         testQuery(){
           let self = this;
           if (self.api && self.querySelected) {
-            let base = 'http://pending.biothings.io/';
+            // ncats and pending sites are currently deployed with different https protocols
+            let base = window.location.href.includes('https') ? 'https://pending.biothings.io/' : 'http://pending.biothings.io/';
             self.queryString = base + self.api.toLowerCase() + self.querySelected
             self.callApi(self.escapeCharacters(self.queryString))
           }
