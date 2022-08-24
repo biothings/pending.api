@@ -172,7 +172,7 @@ class SemmedNGDHandler(BaseAPIHandler):
             result["umls"] = [term.root for term in term_pair]
             result["expand"] = expansion_mode.name.lower()
             if expansion_mode is not ExpansionMode.NIL:
-                result["leaf_umls"] = [{term.root: term.leaves} for term in term_pair if term.has_expanded]
+                result["leaf_umls"] = {term.root: term.leaves for term in term_pair if term.has_expanded}
 
             self.finish(result)
             return
