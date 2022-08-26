@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import urllib.request
+import shutil
 from biothings.web.settings.default import APP_LIST
 from web.handlers.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
 
@@ -15,10 +17,22 @@ API_VERSION = ''
 # URLSpec kwargs Part 1 #
 #########################
 
+# since this module is dynamically imported by the `python index.py --conf=xxx` process,
+# `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
+# Also note the plugin's name is "semmed_parser", diffferent from the API name "semmeddb"
+narrower_relationships_folder = os.path.join(Path.cwd(), "plugins/semmed_parser/UMLS_narrower_relationships")
+narrower_relationships_filename = "umls-parsed.json"
+narrower_relationships_filepath = os.path.join(narrower_relationships_folder, narrower_relationships_filename)
+narrower_relationships_url = "https://raw.githubusercontent.com/biothings/node-expansion/main/data/umls-parsed.json"
+
+if not os.path.exists(narrower_relationships_folder):
+    os.makedirs(narrower_relationships_folder)
+if not os.path.exists(narrower_relationships_filepath):
+    with urllib.request.urlopen(narrower_relationships_url) as response, open(narrower_relationships_filepath, 'wb') as local_file:
+        shutil.copyfileobj(response, local_file)
+
 JSON_RESOURCE_MAP = {
-    # since this module is dynamically imported by the `python index.py --conf=xxx` process,
-    # `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
-    "narrower_relationships": os.path.join(Path.cwd(), "plugins/semmed_parser/UMLS_narrower_relationships/umls-parsed.json")
+    "narrower_relationships": narrower_relationships_filepath
 }
 
 umls_resource_manager = UMLSResourceManager()

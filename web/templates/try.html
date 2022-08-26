@@ -407,7 +407,7 @@
           let self = this;
           if (self.api && self.querySelected) {
             // ncats and pending sites are currently deployed with different https protocols
-            let base = window.location.href.includes('https') ? 'https://pending.biothings.io/' : 'http://pending.biothings.io/';
+            let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : window.location.origin + '/';
             self.queryString = base + self.api.toLowerCase() + self.querySelected
             self.callApi(self.escapeCharacters(self.queryString))
           }

@@ -375,7 +375,9 @@
 			let api_ids = payload['ids'];
 			commit('setLoading', {'loading': true});
 			api_ids.length ? api_ids.forEach( api =>{
-				axios.get('//pending.biothings.io/'+api['_id']+'/metadata').then(res=>{
+				//use pending prod api for local dev testing, local port for prod
+				let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io' : window.location.origin;
+				axios.get(base + '/' + api['_id'] + '/metadata').then(res=>{
 					let meta = res.data
 					meta['name'] = api['_id'];
 					commit('addAPI', {'api': meta});
