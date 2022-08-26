@@ -61,3 +61,4 @@ from . import innatedb
 from . import multiomics_clinicaltrials_kp
 from . import ddinter
 from . import doid
+from . import go
