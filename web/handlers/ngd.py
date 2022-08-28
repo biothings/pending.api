@@ -16,16 +16,16 @@ class ExpansionMode(Flag):
     BOTH = LEFT | RIGHT  # (BOTH == 3) both terms should expand
 
     @classmethod
-    def value_of(cls, value: str):
-        if (value is None) or (not value):
+    def mode_of(cls, name: str):
+        if (name is None) or (not name):
             return cls.NIL
 
         # E.g. when member_name == "NIL", member is ExpansionMode.NIL
         for member_name, member in cls.__members__.items():
-            if member_name == value.upper():
+            if member_name == name.upper():
                 return member
         else:
-            raise ValueError(f"'{cls.__name__}' enum not found for '{value}'")
+            raise ValueError(f"'{cls.__name__}' enum not found for '{name}'")
 
 
 class ErrorReason:
@@ -83,8 +83,12 @@ class SemmedNGDHandler(BaseAPIHandler):
         super().initialize()
 
         # The following 3 arguments are injected from the URLSpec in config_web/<plugin_name>.py
+
+        # Note that only {"type": "keyword"} fields are supported for NGD calculation
+        # (since we are going to use ES "terms" filter)
         self.subject_field_name = subject_field_name
         self.object_field_name = object_field_name
+        
         self.umls_resouce_manager = umls_resouce_manager
 
     def prepare(self):
@@ -133,6 +137,16 @@ class SemmedNGDHandler(BaseAPIHandler):
         term.expand(leaf_terms)
         return term
 
+    def pair_two_terms(self, term_x_root: str, term_y_root: str, expansion_mode: ExpansionMode) -> TermPair:
+        term_x = Term(root=term_x_root)
+        term_y = Term(root=term_y_root)
+        if expansion_mode & ExpansionMode.LEFT:  # expansion_mode is LEFT or BOTH
+            term_x = self.expand_term(term_x)
+        if expansion_mode & ExpansionMode.RIGHT:  # expansion_mode is RIGHT or BOTH
+            term_y = self.expand_term(term_y)
+        term_pair = TermPair(term_x=term_x, term_y=term_y)
+        return term_pair
+
     async def get(self, *args, **kwargs):
         arg_umls = self.args['umls']
         if len(arg_umls) != 2:
@@ -141,19 +155,12 @@ class SemmedNGDHandler(BaseAPIHandler):
 
         arg_expand = self.args.get('expand')
         try:
-            expansion_mode = ExpansionMode.value_of(arg_expand)
+            expansion_mode = ExpansionMode.mode_of(arg_expand)
         except ValueError:
             self.write_error(status_code=400, reason=ErrorReason.unknown_expansion_mode(arg_expand))
             return
 
-        term_x = Term(root=arg_umls[0])
-        term_y = Term(root=arg_umls[1])
-        if expansion_mode & ExpansionMode.LEFT:  # expansion_mode is LEFT or BOTH
-            term_x = self.expand_term(term_x)
-        if expansion_mode & ExpansionMode.RIGHT:  # expansion_mode is RIGHT or BOTH
-            term_y = self.expand_term(term_y)
-        term_pair = TermPair(term_x=term_x, term_y=term_y)
-
+        term_pair = self.pair_two_terms(term_x_root=arg_umls[0], term_y_root=arg_umls[1], expansion_mode=expansion_mode)
         try:
             ngd = await self.ngd_service.calculate_ngd(term_pair)
             result = {
@@ -184,13 +191,13 @@ class SemmedNGDHandler(BaseAPIHandler):
 
         # Step 2: verify argument `expand`, raise an error simultaneously if found
         try:
-            expansion_mode = ExpansionMode.value_of(arg_expand)
+            expansion_mode = ExpansionMode.mode_of(arg_expand)
         except ValueError:
             self.write_error(status_code=400, reason=ErrorReason.unknown_expansion_mode(arg_expand))
             return
 
-        # Step 3: verify argument `umls` and calculate NGDs. If any pair of terms failed the verification, do not raise an error simultaneously
-        # but wrap the error in the response.
+        # Step 3: verify argument `umls` and calculate NGDs.
+        # If any pair of terms failed the verification, do not raise an error simultaneously but wrap the error in the response.
         async def yield_results(arg_umls: list):
             for terms in arg_umls:
                 if not isinstance(terms, list):
@@ -209,14 +216,7 @@ class SemmedNGDHandler(BaseAPIHandler):
                     }
                     continue
 
-                term_x = Term(root=terms[0])
-                term_y = Term(root=terms[1])
-                if expansion_mode & ExpansionMode.LEFT:  # expansion_mode is LEFT or BOTH
-                    term_x = self.expand_term(term_x)
-                if expansion_mode & ExpansionMode.RIGHT:  # expansion_mode is RIGHT or BOTH
-                    term_y = self.expand_term(term_y)
-                term_pair = TermPair(term_x=term_x, term_y=term_y)
-
+                term_pair = self.pair_two_terms(term_x_root=terms[0], term_y_root=terms[1], expansion_mode=expansion_mode)
                 try:
                     ngd = await self.ngd_service.calculate_ngd(term_pair)
                     result = {
@@ -241,3 +241,4 @@ class SemmedNGDHandler(BaseAPIHandler):
 
         results = [res async for res in yield_results(arg_umls)]
         self.finish(results)
+        return
