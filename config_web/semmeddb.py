@@ -3,7 +3,7 @@ from pathlib import Path
 import urllib.request
 import shutil
 from biothings.web.settings.default import APP_LIST
-from web.handlers.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
+from web.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
 
 
 ES_HOST = 'localhost:9200'

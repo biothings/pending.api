@@ -1,9 +1,9 @@
 from enum import Flag, auto
 from biothings.web.handlers.query import BaseAPIHandler
 
-from .utils import NGDUndefinedException, UNDEFINED_STR
-from .service.umls_service import UMLSResourceManager
-from .service.ngd_service import NGDService, DocStatsService, NGDCache, DocStatsCache, Term, TermPair
+from web.utils import NGDUndefinedException, UNDEFINED_STR
+from web.service.umls_service import UMLSResourceManager
+from web.service.ngd_service import NGDService, DocStatsService, NGDCache, DocStatsCache, Term, TermPair
 
 
 class ExpansionMode(Flag):
@@ -88,7 +88,7 @@ class SemmedNGDHandler(BaseAPIHandler):
         # (since we are going to use ES "terms" filter)
         self.subject_field_name = subject_field_name
         self.object_field_name = object_field_name
-        
+
         self.umls_resouce_manager = umls_resouce_manager
 
     def prepare(self):

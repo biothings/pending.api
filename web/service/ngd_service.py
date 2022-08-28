@@ -5,8 +5,8 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.query import Match
 
-from ..utils import LRUCache
-from ..utils import normalized_google_distance, INFINITY_STR, NGDZeroCountException, NGDInfinityException, NGDUndefinedException
+from web.utils import LRUCache
+from web.utils import normalized_google_distance, INFINITY_STR, NGDZeroCountException, NGDInfinityException, NGDUndefinedException
 
 
 class CacheKeyable(ABC):
