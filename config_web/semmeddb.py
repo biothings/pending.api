@@ -3,7 +3,7 @@ from pathlib import Path
 import urllib.request
 import shutil
 from biothings.web.settings.default import APP_LIST
-from web.handlers.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
+from web.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
 
 
 ES_HOST = 'localhost:9200'
@@ -45,8 +45,9 @@ umls_resource_manager.open_resources()
 # URLSpec kwargs Part 2 #
 #########################
 
-# the target fields in semmeddb documents to match during document frequency calculation
-# necessary to web.handlers.service.ngd_service.DocStatsService
+# The target fields in semmeddb documents to match during document frequency calculation
+# They are necessary to web.handlers.service.ngd_service.DocStatsService
+# Note that only {"type": "keyword"} fields are supported for NGD calculation
 subject_field_name = "subject.umls"
 object_field_name = "object.umls"
 
