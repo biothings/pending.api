@@ -83,12 +83,8 @@ class SemmedNGDHandler(BaseAPIHandler):
         super().initialize()
 
         # The following 3 arguments are injected from the URLSpec in config_web/<plugin_name>.py
-
-        # Note that only {"type": "keyword"} fields are supported for NGD calculation
-        # (since we are going to use ES "terms" filter)
         self.subject_field_name = subject_field_name
         self.object_field_name = object_field_name
-
         self.umls_resouce_manager = umls_resouce_manager
 
     def prepare(self):

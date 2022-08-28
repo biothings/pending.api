@@ -82,9 +82,6 @@ class DocStatsService:
                  subject_field_name: str, object_field_name: str, doc_total: int):
         self.es_async_client = es_async_client
         self.es_index_name = es_index_name  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb"
-
-        # Note that only {"type": "keyword"} fields are supported for NGD calculation
-        # (since we are going to use ES "terms" filter)
         self.subject_field_name = subject_field_name  # e.g. "subject.umls"
         self.object_field_name = object_field_name  # e.g. "object.umls"
 
