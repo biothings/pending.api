@@ -47,7 +47,6 @@ umls_resource_manager.open_resources()
 
 # The target fields in semmeddb documents to match during document frequency calculation
 # They are necessary to web.handlers.service.ngd_service.DocStatsService
-# Note that only {"type": "keyword"} fields are supported for NGD calculation
 subject_field_name = "subject.umls"
 object_field_name = "object.umls"
 
