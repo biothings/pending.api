@@ -62,4 +62,4 @@ from . import multiomics_clinicaltrials_kp
 from . import ddinter
 from . import doid
 from . import go
-from . import node-expansion
+from . import node_expansion
