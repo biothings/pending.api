@@ -1,2 +1,3 @@
-biothings[web_extra]==0.10.0
+# biothings[web_extra]==0.10.0
+git+https://github.com/biothings/biothings.api@0.11.x#egg=biothings[web_extra]
 Jinja2>=2.9.6
