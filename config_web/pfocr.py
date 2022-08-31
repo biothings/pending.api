@@ -10,7 +10,8 @@ API_VERSION = ''
 
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)
 QUERY_KWARGS['POST'].update({
-    'minimum_should_match': {'type': int}
+    'minimum_should_match': {'type': int},
+    'operator': {'type': str}
 })
 
 ES_QUERY_BUILDER = "web.query_builders.PfocrQueryBuilder"
