@@ -11,27 +11,32 @@
 	path = standalone
 	url = https://github.com/biothings/standalone.git
 
-[submodule "plugins/semmed_parser"]
-	path = plugins/semmed_parser
-	url = https://github.com/r76941156/semmed_parser
-	branch = main
-	ignore = dirty
-[submodule "plugins/iDisk"]
-	path = plugins/iDisk
-	url = https://github.com/r76941156/iDisk
-	ignore = dirty
+
 [submodule "plugins/biggim_kp"]
 	path = plugins/biggim_kp
 	url = https://github.com/Hadlock-Lab/biggim_kp
+	branch = main
 	ignore = dirty
-[submodule "plugins/DGIdb"]
-	path = plugins/DGIdb
-	url = https://github.com/kevinxin90/DGIdb
+[submodule "plugins/BindingDB"]
+	path = plugins/BindingDB
+	url = https://github.com/biothings/BindingDB
+	ignore = dirty
+[submodule "plugins/bioplanet_pathway_disease"]
+	path = plugins/bioplanet_pathway_disease
+	url = https://github.com/rjawesome/bioplanet_pathway_disease.git
+	branch = main
+	ignore = dirty
+[submodule "plugins/bioplanet_pathway_gene"]
+	path = plugins/bioplanet_pathway_gene
+	url = https://github.com/rjawesome/bioplanet_pathway_gene.git
+	branch = main
 	ignore = dirty
 [submodule "plugins/bte_filter"]
 	path = plugins/bte_filter
 	url = https://github.com/kevinxin90/bte_filter
 	ignore = dirty
+
+
 [submodule "plugins/cell_ontology"]
 	path = plugins/cell_ontology
 	url = https://github.com/kevinxin90/cell_ontology
@@ -80,21 +85,57 @@
 	path = plugins/cord_protein
 	url = https://github.com/kevinxin90/cord_protein.git
 	ignore = dirty
+
+
+[submodule "plugins/DDInter"]
+	path = plugins/DDInter
+	url = https://github.com/biothings/DDInter
+	branch = main
+	ignore = dirty
+[submodule "plugins/DGIdb"]
+	path = plugins/DGIdb
+	url = https://github.com/biothings/DGIdb
+	ignore = dirty
+[submodule "plugins/DISEASES"]
+	path = plugins/DISEASES
+	url = https://github.com/kevinxin90/DISEASES
+	ignore = dirty
+[submodule "plugins/doid"]
+	path = plugins/doid
+	url = https://github.com/ericz1803/doid
+	branch = main
+	ignore = dirty
 [submodule "plugins/drug_response_kp"]
 	path = plugins/drug_response_kp
 	url = https://github.com/gloriachin/drug_response_kp
 	ignore = dirty
+
+
 [submodule "plugins/ebi_data_parser"]
 	path = plugins/ebi_data_parser
 	url = https://github.com/erikyao/ebi_data_parser
+	ignore = dirty
+
+
+[submodule "plugins/foodb_json"]
+	path = plugins/foodb_json
+	url = https://github.com/yichuanma95/foodb_json
+	branch = main
+	ignore = dirty
+
+
+[submodule "plugins/geneset1"]
+	path = plugins/geneset1
+	url = https://github.com/kevinxin90/geneset1
 	ignore = dirty
 [submodule "plugins/gene_resolver"]
 	path = plugins/gene_resolver
 	url = https://github.com/kevinxin90/gene_resolver
 	ignore = dirty
-[submodule "plugins/geneset1"]
-	path = plugins/geneset1
-	url = https://github.com/kevinxin90/geneset1
+[submodule "plugins/go"]
+	path = plugins/go
+	url = https://github.com/ericz1803/go
+	branch = main
 	ignore = dirty
 [submodule "plugins/go_bp"]
 	path = plugins/go_bp
@@ -108,14 +149,34 @@
 	path = plugins/go_mf
 	url = https://github.com/kevinxin90/go_mf
 	ignore = dirty
+[submodule "plugins/GTRx"]
+	path = plugins/GTRx
+	url = https://github.com/biothings/GTRx
+	branch = main
+	ignore = dirty
 [submodule "plugins/gwascatalog"]
 	path = plugins/gwascatalog
 	url = https://github.com/erikyao/gwascatalog
 	ignore = dirty
+
+
 [submodule "plugins/hpo"]
 	path = plugins/hpo
 	url = https://github.com/kevinxin90/hpo
 	ignore = dirty
+
+
+[submodule "plugins/iDisk"]
+	path = plugins/iDisk
+	url = https://github.com/r76941156/iDisk
+	ignore = dirty
+[submodule "plugins/InnateDB_parser"]
+	path = plugins/GTRx
+	url = https://github.com/ericz1803/InnateDB_parser
+	branch = main
+	ignore = dirty
+
+
 [submodule "plugins/mgi_gene2phenotype"]
 	path = plugins/mgi_gene2phenotype
 	url = https://github.com/kevinxin90/mgi_gene2phenotype.git
@@ -123,6 +184,11 @@
 [submodule "plugins/mp"]
 	path = plugins/mp
 	url = https://github.com/kevinxin90/mp
+	ignore = dirty
+[submodule "plugins/Multiomics_ClinicalTrials_KP"]
+	path = plugins/Multiomics_ClinicalTrials_KP
+	url = https://github.com/Hadlock-Lab/Multiomics_ClinicalTrials_KP
+	branch = main
 	ignore = dirty
 [submodule "plugins/multiomics_wellness_kp"]
 	path = plugins/multiomics_wellness_kp
@@ -133,6 +199,8 @@
 	path = plugins/mvcgi
 	url = https://github.com/sirloon/mvcgi.git
 	ignore = dirty
+
+
 [submodule "plugins/pfocr"]
 	path = plugins/pfocr
 	url = https://github.com/kevinxin90/pfocr.git
@@ -145,11 +213,19 @@
 	path = plugins/pseudocap_go
 	url = https://github.com/kevinxin90/pseudocap_go
 	ignore = dirty
+
+
 [submodule "plugins/repoDB"]
 	path = plugins/repoDB
 	url = https://github.com/erikyao/repoDB
 	branch = main
 	ignore = dirty
+[submodule "plugins/Rhea"]
+	path = plugins/Rhea
+	url = https://github.com/biothings/Rhea
+	ignore = dirty
+
+
 [submodule "plugins/semmed"]
 	path = plugins/semmed
 	url = https://github.com/kevinxin90/semmed
@@ -174,6 +250,18 @@
 	path = plugins/semmedphen
 	url = https://github.com/kevinxin90/semmedphen
 	ignore = dirty
+[submodule "plugins/semmed_parser"]
+	path = plugins/semmed_parser
+	url = https://github.com/r76941156/semmed_parser
+	branch = main
+	ignore = dirty
+[submodule "plugins/SuppKG"]
+	path = plugins/SuppKG
+	url = https://github.com/biothings/SuppKG
+	branch = main
+	ignore = dirty
+
+
 [submodule "plugins/tcga_mut_freq_kp"]
 	path = plugins/tcga_mut_freq_kp
 	url = https://github.com/kevinxin90/tcga_mut_freq_kp
@@ -186,10 +274,17 @@
 	path = plugins/text_mining_targeted_association
 	url = https://github.com/UCDenver-ccp/text_mining_targeted_association
 	ignore = dirty
+[submodule "plugins/TISSUES"]
+	path = plugins/TISSUES
+	url = https://github.com/NikkiBytes/TISSUES
+	branch = main
+	ignore = dirty
 [submodule "plugins/translator_clinical_risk_kp"]
 	path = plugins/translator_clinical_risk_kp
 	url = https://github.com/Hadlock-Lab/translator_clinical_risk_kp.git
 	ignore = dirty
+
+
 [submodule "plugins/uberon"]
 	path = plugins/uberon
 	url = https://github.com/kevinxin90/uberon
@@ -201,8 +296,4 @@
 [submodule "plugins/upheno_ontology"]
 	path = plugins/upheno_ontology
 	url = https://github.com/kevinxin90/upheno_ontology
-	ignore = dirty
-[submodule "plugins/DISEASES"]
-	path = plugins/DISEASES
-	url = https://github.com/kevinxin90/DISEASES
 	ignore = dirty
