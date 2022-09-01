@@ -171,7 +171,7 @@
 	url = https://github.com/r76941156/iDisk
 	ignore = dirty
 [submodule "plugins/InnateDB_parser"]
-	path = plugins/GTRx
+	path = plugins/InnateDB_parser
 	url = https://github.com/ericz1803/InnateDB_parser
 	branch = main
 	ignore = dirty
