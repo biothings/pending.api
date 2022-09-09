@@ -38,7 +38,7 @@ from . import cell_ontology
 from . import biggim
 # from . import textminingkp
 from . import phenotype
-from . import drug_response_kp
+from . import biggim_drugresponse_kp
 from . import dgidb
 from . import tcga_mut_freq_kp
 from . import text_mining_co_occurrence_kp
