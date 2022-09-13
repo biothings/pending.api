@@ -64,3 +64,4 @@ from . import doid
 from . import go
 from . import node_expansion
 from . import mondo
+from . import chebi
