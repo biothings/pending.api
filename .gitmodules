@@ -12,6 +12,11 @@
 	url = https://github.com/biothings/standalone.git
 
 
+[submodule "plugins/BigGIM_Parser"]
+	path = plugins/BigGIM_Parser
+	url = https://github.com/gloriachin/BigGIM_Parser
+	branch = main
+	ignore = dirty
 [submodule "plugins/biggim_kp"]
 	path = plugins/biggim_kp
 	url = https://github.com/Hadlock-Lab/biggim_kp
@@ -40,6 +45,11 @@
 [submodule "plugins/cell_ontology"]
 	path = plugins/cell_ontology
 	url = https://github.com/kevinxin90/cell_ontology
+	ignore = dirty
+[submodule "plugins/chebi"]
+	path = plugins/chebi
+	url = https://github.com/ericz1803/chebi
+	ranch = main
 	ignore = dirty
 [submodule "plugins/clinical_risk_kp"]
 	path = plugins/clinical_risk_kp
@@ -104,10 +114,6 @@
 	path = plugins/doid
 	url = https://github.com/ericz1803/doid
 	branch = main
-	ignore = dirty
-[submodule "plugins/drug_response_kp"]
-	path = plugins/drug_response_kp
-	url = https://github.com/gloriachin/drug_response_kp
 	ignore = dirty
 
 
@@ -180,6 +186,11 @@
 [submodule "plugins/mgi_gene2phenotype"]
 	path = plugins/mgi_gene2phenotype
 	url = https://github.com/kevinxin90/mgi_gene2phenotype.git
+	ignore = dirty
+[submodule "plugins/mondo"]
+	path = plugins/mondo
+	url = https://github.com/ericz1803/mondo
+	branch = main
 	ignore = dirty
 [submodule "plugins/mp"]
 	path = plugins/mp
