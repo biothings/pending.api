@@ -1,5 +1,8 @@
 import abc
 import json
+from typing import List
+
+from .ngd_service import TermExpansionService
 
 
 class UMLSResourceClient(metaclass=abc.ABCMeta):
@@ -14,11 +17,6 @@ class UMLSResourceClient(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def query(self, keyword: str):
         raise NotImplementedError
-
-    # No need to implement a context manager
-    # Guess the file/client handler would be open like a daemon
-
-    # if RAM usage of UMLSJsonFileClient is high, we can consider sqlite, redis, or mongodb
 
 
 class UMLSJsonFileClient(UMLSResourceClient):
@@ -44,33 +42,49 @@ class UMLSJsonFileClient(UMLSResourceClient):
     def query(self, keyword: str):
         return self.data.get(keyword, None)
 
+    # No need to implement a context manager
+    # The handler would be open like a daemon
+    # if RAM usage is high, we can consider sqlite, redis, or mongodb
 
-class UMLSResourceManager:
-    def __init__(self):
-        # <resource_name: str, resource_obj: UMLSResource>
-        self.client_map = dict()
 
-    def register(self, resource_name: str, resource_client: UMLSResourceClient):
-        self.client_map[resource_name] = resource_client
+class NarrowerRelationshipService(TermExpansionService):
+    """
+    This service class is tailored to read the "umls-parsed.json" from "node-expansion" project.
+    (See https://github.com/biothings/node-expansion/blob/main/data/umls-parsed.json)
 
-    def open_resources(self):
-        for client in self.client_map.values():
-            client.open_resource()
+    Currently this "umls-parsed.json" has a fixed structure that:
+    (1) each key is a prefixed UMLS term, like "UMLS:C0000052"
+    (2) each value is a list of prefixed UMLS terms, like "['UMLS:C5150408', 'UMLS:C5150409']"
 
-    def close_resources(self):
-        for client in self.client_map.values():
-            client.close_resource()
+    If the structure of this file changed, we must change this service class accordingly
+    """
+    term_prefix = "UMLS:"
 
-    def resource_names(self):
-        return list(self.client_map)
+    def __init__(self, umls_resource_client: UMLSResourceClient, add_input_prefix: bool, remove_output_prefix: bool):
+        self.umls_resource_client = umls_resource_client
 
-    def get_resource_client(self, resource_name: str) -> UMLSResourceClient:
-        return self.client_map.get(resource_name, None)
+        self.add_input_prefix = add_input_prefix  # if true, add prefix to the term before querying
+        self.remove_output_prefix = remove_output_prefix  # if true, remove the prefix for each output
 
-    def query(self, resource_name: str, keyword: str):
-        client = self.get_resource_client(resource_name)
-        if client is None:
-            raise ValueError(f"Cannot find client for resource '{resource_name}'.")
+    def query_narrower_terms(self, term: str) -> List[str]:
+        return self.umls_resource_client.query(term)
 
-        resp = client.query(keyword)
-        return resp
+    def add_prefix(self, term: str) -> str:
+        return self.term_prefix + term
+
+    def remove_prefix(self, term: str) -> str:
+        return term[len(self.term_prefix):]
+
+    def expand(self, term: str) -> List[str]:
+        if self.add_input_prefix:
+            term = self.add_prefix(term)
+
+        narrower_terms = self.query_narrower_terms(term)
+
+        if narrower_terms is None:
+            return []
+
+        if self.remove_output_prefix:
+            narrower_terms = [self.remove_prefix(t) for t in narrower_terms]
+
+        return narrower_terms
