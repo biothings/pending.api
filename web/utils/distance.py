@@ -5,21 +5,20 @@ INFINITY_STR = "Infinity"
 UNDEFINED_STR = "undefined"
 
 
-class NGDZeroCountException(Exception):
-    """
-    Raised when the count of a term (i.e. f(x) or f(y) in the wikipedia NGD formula) is 0 in the corpus.
-    Normalized Google Distance is not defined in this scenario.
-    """
-    def __init__(self, term):
-        self.term = term
-
-
 class NGDUndefinedException(Exception):
     """
     Raised when Normalized Google Distance cannot be computed for the input two terms.
     """
-    def __init__(self, cause: Exception):
-        self.cause = cause
+    pass
+
+
+class NGDZeroDocFreqException(NGDUndefinedException):
+    """
+    Raised when the document frequency of a term (i.e. f(x) or f(y) in the wikipedia NGD formula) is 0 in the corpus.
+    Normalized Google Distance is not defined in this scenario.
+    """
+    def __init__(self, term):
+        self.term = term  # the term that causes this exception
 
 
 class NGDInfinityException(Exception):
