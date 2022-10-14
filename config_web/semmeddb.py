@@ -3,7 +3,7 @@ from pathlib import Path
 import urllib.request
 import shutil
 from biothings.web.settings.default import APP_LIST
-from web.service.umls_service import UMLSResourceManager, UMLSJsonFileClient
+from web.service.umls_service import UMLSJsonFileClient, NarrowerRelationshipService
 
 
 ES_HOST = 'localhost:9200'
@@ -19,7 +19,7 @@ API_VERSION = ''
 
 # since this module is dynamically imported by the `python index.py --conf=xxx` process,
 # `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
-# Also note the plugin's name is "semmed_parser", diffferent from the API name "semmeddb"
+# Also note the plugin's name is "semmed_parser", different from the API name "semmeddb"
 narrower_relationships_folder = os.path.join(Path.cwd(), "plugins/semmed_parser/UMLS_narrower_relationships")
 narrower_relationships_filename = "umls-parsed.json"
 narrower_relationships_filepath = os.path.join(narrower_relationships_folder, narrower_relationships_filename)
@@ -31,15 +31,11 @@ if not os.path.exists(narrower_relationships_filepath):
     with urllib.request.urlopen(narrower_relationships_url) as response, open(narrower_relationships_filepath, 'wb') as local_file:
         shutil.copyfileobj(response, local_file)
 
-JSON_RESOURCE_MAP = {
-    "narrower_relationships": narrower_relationships_filepath
-}
+narrower_relationships_client = UMLSJsonFileClient(filepath=narrower_relationships_filepath)
+narrower_relationships_client.open_resource()
+term_expansion_service = NarrowerRelationshipService(umls_resource_client=narrower_relationships_client,
+                                                     add_input_prefix=True, remove_output_prefix=True)
 
-umls_resource_manager = UMLSResourceManager()
-for resource_name, filepath in JSON_RESOURCE_MAP.items():
-    umls_resource_manager.register(resource_name=resource_name,
-                                   resource_client=UMLSJsonFileClient(filepath=filepath))
-umls_resource_manager.open_resources()
 
 #########################
 # URLSpec kwargs Part 2 #
@@ -54,7 +50,7 @@ object_field_name = "object.umls"
 # URLSpec kwargs composition #
 ##############################
 
-urlspec_kwargs = dict(subject_field_name=subject_field_name, object_field_name=object_field_name, umls_resouce_manager=umls_resource_manager)
+urlspec_kwargs = dict(subject_field_name=subject_field_name, object_field_name=object_field_name, term_expansion_service=term_expansion_service)
 
 APP_LIST = [
     (r"/{pre}/{ver}/query/ngd?", 'web.handlers.SemmedNGDHandler', urlspec_kwargs),
