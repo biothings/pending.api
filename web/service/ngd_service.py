@@ -1,61 +1,70 @@
+from typing import Union, List
 from abc import ABC, abstractmethod
-from typing import Union
 
 from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Search, Q
-from elasticsearch_dsl.query import Match
 
 from web.utils import LRUCache
-from web.utils import normalized_google_distance, INFINITY_STR, NGDZeroCountException, NGDInfinityException, NGDUndefinedException
+from web.utils import normalized_google_distance, INFINITY_STR, NGDZeroDocFreqException, NGDInfinityException
 
 
-class CacheKeyable(ABC):
+class CacheKeyable:
+    def __init__(self, cache_key):
+        self._cache_key = cache_key
+
     @property
-    @abstractmethod
     def cache_key(self):
-        return NotImplementedError
+        return self._cache_key
 
 
-class Expandable:
-    def __init__(self, expanded=False):
-        self.expanded = expanded
+class Term(CacheKeyable):
+    def __init__(self, root: str, expandable: bool):
+        self._root = root
+        self._leaves = None
+        self._expandable = expandable
+        self._expanded = False
 
-    def mark_as_expanded(self):
-        self.expanded = True
+        cache_key = f"{self._root}*" if self._expandable else self._root
+        super(Term, self).__init__(cache_key)  # call CacheKeyable.__init__(cache_key)
 
     @property
-    def has_expanded(self):
-        return self.expanded
+    def root(self):
+        return self._root
 
+    @property
+    def leaves(self):
+        if not self._expandable:
+            raise ValueError(f"Term {self._root} has no leaves since it is not expandable.")
 
-class Term(Expandable, CacheKeyable):
-    def __init__(self, root: str):
-        # call Expandable.__init__(self)
-        # Assuming self.mro() is Term -> Expandable -> CacheKeyable
-        super(Term, self).__init__()
+        if not self._expanded:
+            raise ValueError(f"Term {self._root} has no leaves since it is not expanded yet.")
 
-        self.root = root
-        self.leaves = None
+        return self._leaves
+
+    @property
+    def expandable(self):
+        return self._expandable
+
+    @property
+    def expanded(self):
+        return self._expanded
 
     def expand(self, leaves):
         """
-        Add leaf terms to the root term, making a star graph of terms.
+        Expand the current term by adding associated leaf-terms
         """
-        self.leaves = leaves
-        self.mark_as_expanded()
+        if not self._expandable:
+            raise ValueError(f"Term {self._root} is not expandable.")
+
+        self._leaves = leaves
+        self._expanded = True
 
     def all_string_terms_within(self):
-        yield self.root
+        yield self._root
 
-        if self.leaves is not None:
-            yield from self.leaves
-
-    @property
-    def cache_key(self) -> str:
-        if not self.has_expanded:
-            return self.root
-
-        return f"{self.root}*"
+        if self._expandable and self._expanded:
+            if self._leaves:
+                yield from self._leaves
 
 
 class TermPair(CacheKeyable):
@@ -64,17 +73,25 @@ class TermPair(CacheKeyable):
     def __init__(self, term_x: Term, term_y: Term):
         self.pair = tuple([term_x, term_y])
 
-    @property
-    def cache_key(self) -> str:
-        keys = [self.pair[0].cache_key, self.pair[1].cache_key]
-        keys.sort()  # in-place operation
-        return self.cache_key_delimiter.join(keys)
+        term_keys = [self.pair[0].cache_key, self.pair[1].cache_key]
+        term_keys.sort()  # in-place operation
+        pair_key = self.cache_key_delimiter.join(term_keys)
+        super(TermPair, self).__init__(pair_key)  # call CacheKeyable.__init__(cache_key)
 
     def __getitem__(self, index) -> Term:
         return self.pair[index]
 
     def __iter__(self):
         return iter(self.pair)
+
+
+class TermExpansionService(ABC):
+    @abstractmethod
+    def expand(self, term: str) -> List[str]:
+        """
+        Expand from the input term, returning all associated terms in a list
+        """
+        raise NotImplementedError
 
 
 class DocStatsService:
@@ -85,8 +102,8 @@ class DocStatsService:
         self.subject_field_name = subject_field_name  # e.g. "subject.umls"
         self.object_field_name = object_field_name  # e.g. "object.umls"
 
-        # Handler can access the total number of documents easily from the API"s metadata
-        # so we choose to let the handler"s intance to initialize this value.
+        # Handler can access the total number of documents easily from the API's metadata,
+        # so we choose to let the handler's instance to initialize this value.
         self.doc_total = doc_total
 
     async def _count_in_es(self, search: Search) -> int:
@@ -96,7 +113,7 @@ class DocStatsService:
 
     def _unary_search(self, term: Term) -> Search:
         """
-        Make an unary Search object with `terms` filter. The returned Search object is equivalent to
+        Make a unary Search object with `terms` filter. The returned Search object is equivalent to
 
         {
             "query": {
@@ -136,7 +153,7 @@ class DocStatsService:
         count = await self._count_in_es(search)
         return count
 
-    def _bipartite_match(self, term_pair: TermPair) -> Match:
+    def _bipartite_search(self, term_pair: TermPair) -> Search:
         """
         Make a bipartite Search object with `terms` filter. The returned Search object is equivalent to
 
@@ -201,14 +218,14 @@ class DocStatsService:
         Get the document frequency of all the term combinations within the term_pair object
         (i.e. count of the union of the documents containing any pair of terms within).
         """
-        search = self._bipartite_match(term_pair)
+        search = self._bipartite_search(term_pair)
         count = await self._count_in_es(search)
         return count
 
 
 class NGDCache:
     """
-    A cache class to store the normalized google distance.
+    A cache class to store the normalized Google distance.
     """
     def __init__(self, capacity):
         self.distance_cache = LRUCache(capacity)
@@ -243,11 +260,21 @@ class DocStatsCache:
 
 
 class NGDService:
-    def __init__(self, doc_stats_service: DocStatsService, doc_stats_cache: DocStatsCache, ngd_cache: NGDCache):
+    def __init__(self, doc_stats_service: DocStatsService, term_expansion_service: TermExpansionService,
+                 doc_stats_cache: DocStatsCache, ngd_cache: NGDCache):
         self.doc_stats_service = doc_stats_service
-
+        self.term_expansion_service = term_expansion_service
         self.doc_stats_cache = doc_stats_cache
         self.ngd_cache = ngd_cache
+
+    def expand_term(self, term: Term):
+        if term.expandable and (not term.expanded):
+            leaves = self.term_expansion_service.expand(term.root)
+            term.expand(leaves)
+
+    def expand_term_pair(self, term_pair: TermPair):
+        for term in term_pair:
+            self.expand_term(term)
 
     async def unary_doc_freq(self, term: Term, read_cache=True):
         if read_cache:
@@ -255,22 +282,21 @@ class NGDService:
             if cached_doc_freq is not None:
                 return cached_doc_freq
 
+        self.expand_term(term)
         doc_freq = await self.doc_stats_service.unary_doc_freq(term)
         self.doc_stats_cache.write_unary_doc_freq(term.cache_key, doc_freq)
 
         return doc_freq
 
     async def bipartite_doc_freq(self, term_pair: TermPair, read_cache=True):
-        cache_key = term_pair.cache_key
-
         if read_cache:
-            cached_doc_freq = self.doc_stats_cache.read_bipartite_doc_freq(cache_key)
+            cached_doc_freq = self.doc_stats_cache.read_bipartite_doc_freq(term_pair.cache_key)
             if cached_doc_freq is not None:
                 return cached_doc_freq
 
+        self.expand_term_pair(term_pair)
         doc_freq = await self.doc_stats_service.bipartite_doc_freq(term_pair)
-
-        self.doc_stats_cache.write_bipartite_doc_freq(cache_key, doc_freq)
+        self.doc_stats_cache.write_bipartite_doc_freq(term_pair.cache_key, doc_freq)
 
         return doc_freq
 
@@ -294,11 +320,11 @@ class NGDService:
 
         f_x = await self.unary_doc_freq(term_x)
         if f_x == 0:
-            raise NGDZeroCountException(term=term_x)
+            raise NGDZeroDocFreqException(term=term_x)
 
         f_y = await self.unary_doc_freq(term_y)
         if f_y == 0:
-            raise NGDZeroCountException(term=term_y)
+            raise NGDZeroDocFreqException(term=term_y)
 
         f_xy = await self.bipartite_doc_freq(term_pair)
         if f_xy == 0:
@@ -308,17 +334,15 @@ class NGDService:
         return f_x, f_y, f_xy, n
 
     async def calculate_ngd(self, term_pair: TermPair, read_cache=True):
-        cache_key = term_pair.cache_key
-
         if read_cache:
-            cached_distance = self.ngd_cache.read_distance(cache_key)
+            cached_distance = self.ngd_cache.read_distance(term_pair.cache_key)
             if cached_distance is not None:
                 return cached_distance
 
         try:
             f_x, f_y, f_xy, n = await self._prepare_stats(term_pair)
-        except NGDZeroCountException as zce:
-            raise NGDUndefinedException(cause=zce)
+        except NGDZeroDocFreqException as e:
+            raise e
         except NGDInfinityException:
             distance = INFINITY_STR
         else:
@@ -326,5 +350,5 @@ class NGDService:
 
         # Do not wrap the below 2 lines in `finally`,
         # otherwise they will execute even when an NGDUndefinedException is raised.
-        self.ngd_cache.write_distance(cache_key, distance)
+        self.ngd_cache.write_distance(term_pair.cache_key, distance)
         return distance
