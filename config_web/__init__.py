@@ -67,3 +67,4 @@ from . import mondo
 from . import chebi
 from . import tissues
 from . import hmdb
+from . import fooddata
