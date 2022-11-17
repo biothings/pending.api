@@ -314,36 +314,19 @@
             string += ":" + obj[string]
           } 
           else if (_.isString(obj[string]) ) {
-            // sanitize end value if it's a string
             string += ":" + self.sanitizeStringValue(obj[string])
           }
           return string
         }
       },
         sanitizeStringValue(string){
-          // checks for spaces and second colons end escapes them
-          if (_.isString(string)) {
-            if (string.indexOf(' ') >= 0) {
-              // If string has spaces
-              return '"'+string+'"';
-            }else if (string.indexOf(':') >= 0) {
-              let position = string.indexOf(':')
-              // escape backslashes
-              let res = [string.slice(0, position), "\\", string.slice(position)].join('');
-              if (res.includes('http')) {
-                // if string is a url
-                return '"'+encodeURIComponent(res)+'"';
-              }else {
-                // if string has backslashes
-                return res
-              }
-            }else{
-              // simple string
-              return encodeURIComponent(string)
-            }
-          }else {
-            // simple string
-            return encodeURIComponent(string)
+          // will add quotes if it's a URL or has spaces
+          //enclose in parenthesis to not have to escape \ or :
+          if (string.indexOf(' ') >= 0 || string.includes('http') 
+          || string.includes("\\") || string.includes(":")) {
+            return `("${string}")`;
+          }else{
+            return string
           }
         },
         escapeCharacters(url){
@@ -407,12 +390,13 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
         testQuery(){
-          let self = this;
-          if (self.api && self.querySelected) {
-            // ncats and pending sites are currently deployed with different https protocols
+          if (this.api && this.querySelected) {
+            // NCATS and pending sites are currently deployed with different https protocols
             let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : window.location.origin + '/';
-            self.queryString = base + self.api.toLowerCase() + self.querySelected
-            self.callApi(self.escapeCharacters(self.queryString))
+            this.queryString = base + this.api.toLowerCase() + this.querySelected
+            // self.callApi(self.escapeCharacters(self.queryString))
+            this.finalURL = this.queryString;
+            this.callApi(this.queryString)
           }
         },
         refreshExmaples(){
