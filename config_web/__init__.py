@@ -37,7 +37,7 @@ from . import go_mf
 from . import cell_ontology
 from . import biggim
 # from . import textminingkp
-from . import phenotype
+# from . import phenotype  # replaced by hpo. See https://github.com/biothings/pending.api/issues/84
 from . import biggim_drugresponse_kp
 from . import dgidb
 from . import tcga_mut_freq_kp
