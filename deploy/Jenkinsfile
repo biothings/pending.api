@@ -60,6 +60,7 @@ pipeline {
                 label 'translator && ci && deploy'
             }
             steps {
+                checkout scm
                 configFileProvider([
                     configFile(fileId: 'values-ci.yaml', targetLocation: 'deploy/values-ncats.yaml')
                 ]){
