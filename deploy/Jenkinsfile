@@ -46,26 +46,27 @@ pipeline {
             steps {
                 dir(env.PACKAGE_DIR) {
                    script {
+                       sh '''
+                          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 853771734544.dkr.ecr.us-east-1.amazonaws.com
+                          '''
                        docker.build(env.DOCKER_REPO_NAME, "--build-arg SOURCE_FOLDER=./${BUILD_VERSION} --no-cache ./")
-
-                       docker.withRegistry('https://853771734544.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-ifx-deploy') {
-                           docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
-                        }
+                          docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
                     }
                 }
             }
         }
         stage('Deploy to AWS EKS Blue') {
+            agent {
+                label 'translator && ci && deploy'
+            }
             steps {
                 configFileProvider([
                     configFile(fileId: 'values-ci.yaml', targetLocation: 'deploy/values-ncats.yaml')
                 ]){
-                    withAWS(credentials:'aws-ifx-deploy') {
-                        sh '''
+                    sh '''
                         aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
                         cd deploy/ && /bin/bash deploy.sh
-                        '''
-                    }
+                       '''
                 }
             }
         }
