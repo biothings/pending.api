@@ -3,6 +3,7 @@
 projectName="pendingapi"
 namespace="bte"
 
+set +x
 export $(egrep -v '^#' .env)
 
 sed -i.bak \
