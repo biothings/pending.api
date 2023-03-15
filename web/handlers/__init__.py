@@ -14,6 +14,8 @@ from biothings.web.handlers import BaseHandler
 
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
+from .normalizer import NormalizerHandler
+
 
 log = logging.getLogger("pending")
 
@@ -86,4 +88,5 @@ class ApiViewHandler(tornado.web.RequestHandler):
 EXTRA_HANDLERS = [
     (r"/", FrontPageHandler),
     (r"/[^/]+", ApiViewHandler),
+    (r"/normalizer/?", NormalizerHandler),
 ]
