@@ -45,13 +45,12 @@ def list2dict(li, key):
     return out
 
 
-class NormalizerHandler(BaseAPIHandler):
-    name = "normalizer"
+class Normalizer:
     normalizer_clients = {
         "gene": {
             "client": biothings_client.get_client("gene"),
-            "fields": ["name", "symbol", "summary"],
-            "scopes": ["entrezgene", "ensemblgene", "uniprot", "panther.uniprot_kb"],
+            "fields": ["name", "symbol", "summary", "type_of_gene", "MIM"],
+            "scopes": ["entrezgene", "ensemblgene", "uniprot", "accession", "retired"],
         },
         "chem": {
             "client": biothings_client.get_client("chem"),
@@ -59,11 +58,13 @@ class NormalizerHandler(BaseAPIHandler):
                 "drugbank.id",
                 "chebi.id",
                 "chebi.iupac",
+                "chembl.smiles",
                 "chembl.first_approval",
                 "chembl.first_in_class",
                 "chembl.unii",
                 "pubchem.molecular_weight",
                 "pubchem.molecular_formula",
+                "drugcentral.approval",
             ],
             "scopes": ["_id", "chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
         },
@@ -93,7 +94,7 @@ class NormalizerHandler(BaseAPIHandler):
         elif return_id:
             return _id
 
-    def _get_annotations(self, trapi_input):
+    def get_annotations(self, trapi_input, append=False):
         try:
             node_d = get_dotfield_value("message.knowledge_graph.nodes", trapi_input)
             assert isinstance(node_d, dict)
@@ -141,14 +142,25 @@ class NormalizerHandler(BaseAPIHandler):
                     "attribute_type_id": "biothings_annnotations",
                     "value": res,
                 }
-                # node_d[orig_node_id]["attributes"].append(res)
-                node_d[orig_node_id]["attributes"] = [res]
+                if append:
+                    # append annotations to existing "attributes" field
+                    node_d[orig_node_id]["attributes"].append(res)
+                else:
+                    # return annotations only
+                    node_d[orig_node_id]["attributes"] = [res]
 
         return node_d
 
+
+class NormalizerHandler(BaseAPIHandler):
+    name = "normalizer"
+    kwargs = {"POST": {"append": {"type": bool, "default": False}}}
+
     async def post(self, *args, **kwargs):
+        normalizer = Normalizer()
+        append = self.args.append or False
         try:
-            annotated_node_d = self._get_annotations(self.args_json)
+            annotated_node_d = normalizer.get_annotations(self.args_json, append=append)
         except TRAPIInputError as e:
             raise HTTPError(400, str(e))
         self.finish(annotated_node_d)
