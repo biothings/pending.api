@@ -50,6 +50,7 @@ from . import pfocr
 from . import phewas
 # from . import phenotype  # replaced by hpo. See https://github.com/biothings/pending.api/issues/84
 from . import pseudocap_go
+from . import rare_source
 from . import repodb
 from . import rhea
 from . import semmed
