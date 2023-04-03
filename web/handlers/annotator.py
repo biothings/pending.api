@@ -1,5 +1,5 @@
 """
-Translator Node Normalizer Service Handler
+Translator Node Annotator Service Handler
 """
 import logging
 
@@ -45,8 +45,8 @@ def list2dict(li, key):
     return out
 
 
-class Normalizer:
-    normalizer_clients = {
+class Annotator:
+    annotator_clients = {
         "gene": {
             "client": biothings_client.get_client("gene"),
             "fields": ["name", "symbol", "summary", "type_of_gene", "MIM"],
@@ -99,9 +99,9 @@ class Normalizer:
 
     def query_biothings(self, node_type, query_list, fields=None):
         """Query biothings client based on node_type for a list of ids"""
-        client = self.normalizer_clients[node_type]["client"]
-        fields = fields or self.normalizer_clients[node_type]["fields"]
-        scopes = self.normalizer_clients[node_type]["scopes"]
+        client = self.annotator_clients[node_type]["client"]
+        fields = fields or self.annotator_clients[node_type]["fields"]
+        scopes = self.annotator_clients[node_type]["scopes"]
         logger.info("Querying annotations for %s %ss...", len(query_list), node_type)
         res = client.querymany(query_list, scopes=scopes, fields=fields)
         logger.info("Done. %s annotation objects returned.", len(res))
@@ -123,7 +123,7 @@ class Normalizer:
         return res
 
     def annotate_trapi(self, trapi_input, append=False, raw=False, fields=None):
-        """Annotate a TRAPI input message with node normalizer annotations"""
+        """Annotate a TRAPI input message with node annotator annotations"""
         try:
             node_d = get_dotfield_value("message.knowledge_graph.nodes", trapi_input)
             assert isinstance(node_d, dict)
@@ -141,7 +141,7 @@ class Normalizer:
                 else:
                     node_list_by_type[node_type].append(node_id)
         for node_type in node_list_by_type:
-            if node_type not in self.normalizer_clients or not node_list_by_type[node_type]:
+            if node_type not in self.annotator_clients or not node_list_by_type[node_type]:
                 # skip for now
                 continue
             # this is the list of original node ids like NCBIGene:1017, should be a unique list
@@ -176,8 +176,8 @@ class Normalizer:
         return node_d
 
 
-class NormalizerHandler(BaseAPIHandler):
-    name = "normalizer"
+class AnnotatorHandler(BaseAPIHandler):
+    name = "annotator"
     kwargs = {
         "*": {
             "raw": {"type": bool, "default": False},
@@ -189,18 +189,18 @@ class NormalizerHandler(BaseAPIHandler):
     }
 
     async def get(self, *args, **kwargs):
-        normalizer = Normalizer()
+        annotator = Annotator()
         curie = args[0] if args else None
         if curie:
-            annotated_node = normalizer.annotate_curie(curie, raw=self.args.raw, fields=self.args.fields)
+            annotated_node = annotator.annotate_curie(curie, raw=self.args.raw, fields=self.args.fields)
             self.finish(annotated_node)
         else:
             raise HTTPError(404, reason="missing required input curie id")
 
     async def post(self, *args, **kwargs):
-        normalizer = Normalizer()
+        annotator = Annotator()
         try:
-            annotated_node_d = normalizer.annotate_trapi(
+            annotated_node_d = annotator.annotate_trapi(
                 self.args_json,
                 append=self.args.append,
                 raw=self.args.raw,
