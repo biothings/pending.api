@@ -21,8 +21,8 @@ BIOLINK_PREFIX_to_BioThings = {
     },
     "PUBCHEM.COMPOUND": {"type": "chem", "field": "pubchem.cid"},
     "CHEBI": {"type": "chem", "field": "chebi.id", "keep_prefix": True},
-    "MONDO": {"type": "disease", "field": "mondo.mondo"},
-    "DOID": {"type": "disease", "field": "doid.doid"},
+    "MONDO": {"type": "disease", "field": "mondo.mondo", "keep_prefix": True},
+    "DOID": {"type": "disease", "field": "disease_ontology.doid", "keep_prefix": True},
 }
 
 
@@ -49,32 +49,73 @@ class Annotator:
     annotator_clients = {
         "gene": {
             "client": biothings_client.get_client("gene"),
-            "fields": ["name", "symbol", "summary", "type_of_gene", "MIM"],
+            "fields": ["name", "symbol", "summary", "type_of_gene", "MIM", "HGNC", "MGI", "RGD", "alias", "interpro"],
             "scopes": ["entrezgene", "ensemblgene", "uniprot", "accession", "retired"],
         },
         "chem": {
             "client": biothings_client.get_client("chem"),
             "fields": [
+                # IDs
+                "pubchem.cid",
+                "pubchem.inchikey",
+                "chembl.molecule_chembl_id",
                 "drugbank.id",
                 "chebi.id",
+                "unii.unii",
+                # "chembl.unii",
+                # Names
+                "chebi.name",
+                "chembl.pref_name",
+                # Structure
                 "chebi.iupac",
-                "chebi.relationship",
                 "chembl.smiles",
-                "chembl.first_approval",
-                "chembl.first_in_class",
-                "chembl.unii",
-                "chembl.drug_indications",
-                "chembl.drug_mechanisms",
-                "pubchem.molecular_weight",
+                "pubchem.inchi",
                 "pubchem.molecular_formula",
+                "pubchem.molecular_weight",
+                # chemical types
+                "chembl.molecule_type",
+                "chembl.structure_type",
+                # chebi roles etc
+                "chebi.relationship",
+                # drug info
+                "unichem.rxnorm",  # drug name
+                "pharmgkb.trade_names",  # drug name
+                # "chembl.drug_indications",
+                "chembl.drug_mechanisms",
+                "chembl.atc_classifications",
+                "chembl.max_phase",
+                "chembl.first_approval",
                 "drugcentral.approval",
+                "chembl.first_in_class",
+                "chembl.inorganic_flag",
+                "chembl.prodrug",
+                "chembl.therapeutic_flag",
+                "cheml.withdrawn_flag",
+                "drugcentral.drug_dosage",
+                "ndc.routename",
             ],
             "scopes": ["chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
         },
         "disease": {
             "client": biothings_client.get_client("disease"),
-            "fields": ["mondo.mondo", "mondo.label", "mondo.definition", "umls.umls"],
-            "scopes": ["mondo.mondo", "doid.doid", "umls.umls"],
+            "fields": [
+                # IDs
+                "disease_ontology.doid" "mondo.mondo",
+                "umls.umls",
+                # Names
+                "disease_ontology.name",
+                "mondo.label"
+                # Description
+                "mondo.definition",
+                "disease_ontology.def",
+                # Xrefs
+                "mondo.xrefs",
+                "disease_ontology.xrefs",
+                # Synonyms
+                "mondo.synonym",
+                "disease_ontology.synonyms",
+            ],
+            "scopes": ["mondo.mondo", "disease_ontology.doid", "umls.umls"],
         },
     }
 
