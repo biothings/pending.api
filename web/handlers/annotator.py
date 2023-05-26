@@ -204,7 +204,7 @@ class Annotator:
                     else:
                         res = self.transform(res)
                 res = {
-                    "attribute_type_id": "biothings_annnotations",
+                    "attribute_type_id": "biothings_annotations",
                     "value": res,
                 }
                 if append:
