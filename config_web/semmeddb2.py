@@ -21,15 +21,14 @@ API_VERSION = ''
 
 # since this module is dynamically imported by the `python index.py --conf=xxx` process,
 # `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
-# Also note the plugin's name is "semmed_parser", different from the API name "semmeddb"
-_narrower_relationships_folder = os.path.join(Path.cwd(), f"plugins/semmed_parser/UMLS_narrower_relationships")
+_narrower_relationships_folder = os.path.join(Path.cwd(), "assets/UMLS_narrower_relationships")
 _narrower_relationships_filepath = os.path.join(_narrower_relationships_folder, "umls-parsed.json")
 _narrower_relationships_url = "https://raw.githubusercontent.com/biothings/node-expansion/main/data/umls-parsed.json"
 
 if not os.path.exists(_narrower_relationships_folder):
     os.makedirs(_narrower_relationships_folder)
 if not os.path.exists(_narrower_relationships_filepath):
-    with urllib.request.urlopen(_narrower_relationships_url) as response, open(_narrower_relationships_filepath, 'wb') as local_file:
+    with urllib.request.urlopen(_narrower_relationships_url) as response, open(_narrower_relationships_filepath, "wb") as local_file:
         shutil.copyfileobj(response, local_file)
 
 _narrower_relationships_client = UMLSJsonFileClient(filepath=_narrower_relationships_filepath)
@@ -64,7 +63,7 @@ _doc_freq_agg_name = "sum_of_predication_counts"
 _es_temp_client = Elasticsearch(hosts=[ES_HOST])
 
 _doc_total_search = Search(using=_es_temp_client, index=ES_INDEX).extra(size=0)
-_doc_total_search.aggs.metric(_doc_freq_agg_name, A('sum', field='predication_count'))
+_doc_total_search.aggs.metric(_doc_freq_agg_name, A("sum", field="predication_count"))
 _doc_total_resp = _doc_total_search.execute()
 _doc_total = int(_doc_total_resp["aggregations"][_doc_freq_agg_name]["value"])
 
@@ -81,6 +80,6 @@ urlspec_kwargs = dict(subject_field_name=_subject_field_name,
                       term_expansion_service=_term_expansion_service)
 
 APP_LIST = [
-    (r"/{pre}/{ver}/query/ngd?", 'web.handlers.SemmedNGDHandler', urlspec_kwargs),
+    (r"/{pre}/{ver}/query/ngd?", "web.handlers.SemmedNGDHandler", urlspec_kwargs),
     *APP_LIST
 ]
