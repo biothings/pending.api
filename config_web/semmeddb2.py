@@ -22,9 +22,8 @@ API_VERSION = ''
 # since this module is dynamically imported by the `python index.py --conf=xxx` process,
 # `Path.cwd()` is actually the cwd of `index.py`, i.e. the "pending.api" folder
 # Also note the plugin's name is "semmed_parser", different from the API name "semmeddb"
-_narrower_relationships_folder = os.path.join(Path.cwd(), "plugins/semmed_parser/UMLS_narrower_relationships")
-_narrower_relationships_filename = "umls-parsed.json"
-_narrower_relationships_filepath = os.path.join(_narrower_relationships_folder, _narrower_relationships_filename)
+_narrower_relationships_folder = os.path.join(Path.cwd(), f"plugins/semmed_parser/UMLS_narrower_relationships")
+_narrower_relationships_filepath = os.path.join(_narrower_relationships_folder, "umls-parsed.json")
 _narrower_relationships_url = "https://raw.githubusercontent.com/biothings/node-expansion/main/data/umls-parsed.json"
 
 if not os.path.exists(_narrower_relationships_folder):
@@ -60,11 +59,16 @@ _doc_freq_agg_name = "sum_of_predication_counts"
 # URLSpec kwargs Part 4 #
 #########################
 
-_doc_total_search = Search(using=Elasticsearch(hosts=[ES_HOST]), index=ES_INDEX).extra(size=0)
-_doc_total_agg = A('sum', field='predication_count')
-_doc_total_search.aggs.metric(_doc_freq_agg_name, _doc_total_agg)
+# Get the total number of predications (as the new "total number of documents")
+
+_es_temp_client = Elasticsearch(hosts=[ES_HOST])
+
+_doc_total_search = Search(using=_es_temp_client, index=ES_INDEX).extra(size=0)
+_doc_total_search.aggs.metric(_doc_freq_agg_name, A('sum', field='predication_count'))
 _doc_total_resp = _doc_total_search.execute()
 _doc_total = int(_doc_total_resp["aggregations"][_doc_freq_agg_name]["value"])
+
+_es_temp_client.close()
 
 ##############################
 # URLSpec kwargs composition #
