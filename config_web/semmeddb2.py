@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-import urllib.request
-import shutil
+import requests
+import json
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, A
 from biothings.web.settings.default import APP_LIST
@@ -27,9 +27,12 @@ _narrower_relationships_url = "https://raw.githubusercontent.com/biothings/node-
 
 if not os.path.exists(_narrower_relationships_folder):
     os.makedirs(_narrower_relationships_folder)
+
 if not os.path.exists(_narrower_relationships_filepath):
-    with urllib.request.urlopen(_narrower_relationships_url) as response, open(_narrower_relationships_filepath, "wb") as local_file:
-        shutil.copyfileobj(response, local_file)
+    _response = requests.get(_narrower_relationships_url)
+    _response.raise_for_status()
+    with open(_narrower_relationships_filepath, "w") as _local_file:
+        json.dump(_response.json(), _local_file)
 
 _narrower_relationships_client = UMLSJsonFileClient(filepath=_narrower_relationships_filepath)
 _narrower_relationships_client.open_resource()
