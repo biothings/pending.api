@@ -106,11 +106,11 @@ class DocStatsService:
         self.doc_total = doc_total
 
     async def _query_doc_freq_in_es(self, search: Search) -> int:
-        resp = await self.es_async_client.search(body=search.to_dict(), index=self.es_index_name)
-
         """
+        Query the search object to ES and parse the aggregation value in the response as the document frequency.
+
         The response structure is like:
-        
+
             {
                 'took': 2,
                 'timed_out': False,
@@ -125,6 +125,8 @@ class DocStatsService:
                 }
             }
         """
+        resp = await self.es_async_client.search(body=search.to_dict(), index=self.es_index_name)
+
         if "aggregations" not in resp:
             raise ValueError(f"No aggregation result in response. Got {search.to_dict()} to index {self.es_index_name}, response being {resp}")
         doc_freq = resp["aggregations"][self.doc_freq_agg_name]["value"]
