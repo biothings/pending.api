@@ -43,7 +43,7 @@ class ErrorReason:
 
     @classmethod
     def terms_not_a_list(cls, terms):
-        return f"A list of 2 UMLS terms are required. Got {terms}, a {type(terms).__name__}."
+        return f"A list of 2 UMLS terms is required. Got {terms}, a {type(terms).__name__}."
 
 
 class SemmedNGDHandler(BaseAPIHandler):
@@ -88,34 +88,25 @@ class SemmedNGDHandler(BaseAPIHandler):
     doc_stats_cache = DocStatsCache(unary_capacity=102400, bipartite_capacity=102400)
     ngd_cache = NGDCache(capacity=102400)
 
-    def initialize(self, subject_field_name: str, object_field_name: str, term_expansion_service: TermExpansionService):
+    def initialize(self, subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, doc_total: int, term_expansion_service: TermExpansionService):
         super().initialize()
 
-        # The following 3 arguments are injected from the URLSpec in config_web/<plugin_name>.py
+        # The following 5 arguments are injected from the URLSpec in config_web/<plugin_name>.py
         self.subject_field_name = subject_field_name
         self.object_field_name = object_field_name
+        self.doc_freq_agg_name = doc_freq_agg_name
+        self.doc_total = doc_total
         self.term_expansion_service = term_expansion_service
 
     def prepare(self):
         super().prepare()
-
-        """
-        Here `self.biothings.metadata` is a `biothings.web.services.metadata.BiothingsESMetadata` instance, which would include 3 attributes:
-
-        - `biothing_mappings`, enriched ES mappings for this API
-        - `biothing_licenses`, transformed license info for this API
-        - `biothing_metadata`, transformed from "_meta" field stored in ES mapping
-
-        E.g. for pending-semmeddb, the `self.biothings.metadata.biothing_metadata[self.biothings.config.ES_DOC_TYPE]` content covers
-        <mapping_json>["pending-semmeddb"]["mappings"]["_meta"]
-        """
-        self.doc_total = self.biothings.metadata.biothing_metadata[self.biothings.config.ES_DOC_TYPE]["stats"]["total"]
 
         self.doc_stats_service = DocStatsService(
             es_async_client=self.biothings.elasticsearch.async_client,  # injected by handler's application instance (created by APILauncher)
             es_index_name=self.biothings.config.ES_INDEX,  # injected by handler's application instance (created by APILauncher)
             subject_field_name=self.subject_field_name,
             object_field_name=self.object_field_name,
+            doc_freq_agg_name=self.doc_freq_agg_name,
             doc_total=self.doc_total
         )
 
@@ -188,11 +179,11 @@ class SemmedNGDHandler(BaseAPIHandler):
 
     async def post(self, *args, **kwargs):
         # Step 1: Accept two arguments
-        arg_umls = self.args['umls']  # should be a list of 2-termed sublists, e.g. [['a', 'b'], ['c', 'd']]
+        arg_umls = self.args['umls']  # should be a list of 2-termed sublists, e.g. [['a', 'b'], ['c', 'd'], ...]
         arg_expand = self.args.get('expand')
         arg_show_leaves = self.args['show-leaves']
 
-        # Step 2: verify argument `expand`, raise an error simultaneously if found
+        # Step 2: verify argument `expand`, raise an error simultaneously if invalid
         try:
             expansion_mode = ExpansionMode.mode_of(arg_expand)
         except ValueError:

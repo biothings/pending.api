@@ -2,7 +2,7 @@ from typing import Union, List
 from abc import ABC, abstractmethod
 
 from elasticsearch import AsyncElasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Search, Q, A
 
 from web.utils import LRUCache
 from web.utils import normalized_google_distance, INFINITY_STR, NGDZeroDocFreqException, NGDInfinityException
@@ -96,20 +96,41 @@ class TermExpansionService(ABC):
 
 class DocStatsService:
     def __init__(self, es_async_client: AsyncElasticsearch, es_index_name: str,
-                 subject_field_name: str, object_field_name: str, doc_total: int):
+                 subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, doc_total: int):
+        # SemmedNGDHandler will receive configuration values from config_web/xxx.py, and initialize DocStatsService accordingly
         self.es_async_client = es_async_client
-        self.es_index_name = es_index_name  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb"
+        self.es_index_name = es_index_name  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb" (from `ES_INDEX` in config_web/xxx.py)
         self.subject_field_name = subject_field_name  # e.g. "subject.umls"
         self.object_field_name = object_field_name  # e.g. "object.umls"
-
-        # Handler can access the total number of documents easily from the API's metadata,
-        # so we choose to let the handler's instance to initialize this value.
+        self.doc_freq_agg_name = doc_freq_agg_name  # e.g. "sum_of_predication_counts"
         self.doc_total = doc_total
 
-    async def _count_in_es(self, search: Search) -> int:
-        resp = await self.es_async_client.count(body=search.to_dict(), index=self.es_index_name)
-        count = resp["count"]
-        return count
+    async def _query_doc_freq_in_es(self, search: Search) -> int:
+        """
+        Query the search object to ES and parse the aggregation value in the response as the document frequency.
+
+        The response structure is like:
+
+            {
+                'took': 2,
+                'timed_out': False,
+                '_shards': {'total': 1, 'successful': 1, 'skipped': 0, 'failed': 0},
+                'hits': {
+                    'total': {'value': 10000, 'relation': 'gte'},
+                    'max_score': None,
+                    'hits': []
+                },
+                'aggregations': {
+                    '<agg_name>': {'value': 89340012.0}
+                }
+            }
+        """
+        resp = await self.es_async_client.search(body=search.to_dict(), index=self.es_index_name)
+
+        if "aggregations" not in resp:
+            raise ValueError(f"No aggregation result in response. Got {search.to_dict()} to index {self.es_index_name}, response being {resp}")
+        doc_freq = resp["aggregations"][self.doc_freq_agg_name]["value"]
+        return int(doc_freq)  # ES will return this aggregation value as a float; convert to int here
 
     def _unary_search(self, term: Term) -> Search:
         """
@@ -122,27 +143,25 @@ class DocStatsService:
                         {
                             "bool": {
                                 "should": [
-                                    {
-                                        "terms": {
-                                            "subject.umls": [ <all_terms> ]
-                                        }
-                                    },
-                                    {
-                                        "terms": {
-                                            "object.umls": [ <all_terms> ]
-                                        }
-                                    }
+                                    { "terms": { "subject.umls": [ <all_terms> ] } },
+                                    { "terms": { "object.umls": [ <all_terms> ] } }
                                 ]
                             }
                         }
                     ]
                 }
-            }
+            },
+            "aggs": { <doc_freq_agg_name>: { "sum": { "field": "predication_count" } } },
+            "size": 0
         }
         """
         all_terms = list(term.all_string_terms_within())
         _filter = Q("terms", **{self.subject_field_name: all_terms}) | Q("terms", **{self.object_field_name: all_terms})
-        search = Search().query("bool", filter=_filter)
+        # size=0 means the query result will include 0 hits (so only the aggregation value will be returned)
+        search = Search().query("bool", filter=_filter).extra(size=0)
+
+        _agg = A("sum", field="predication_count")
+        search.aggs.metric(self.doc_freq_agg_name, _agg)  # attach the aggregation with its name to the search object
         return search
 
     async def unary_doc_freq(self, term: Term) -> int:
@@ -150,8 +169,8 @@ class DocStatsService:
         Get the document frequency of all terms within the `term` object (i.e. count of the union of the documents containing any of the term within).
         """
         search = self._unary_search(term)
-        count = await self._count_in_es(search)
-        return count
+        doc_freq = await self._query_doc_freq_in_es(search)
+        return doc_freq
 
     def _bipartite_search(self, term_pair: TermPair) -> Search:
         """
@@ -167,32 +186,16 @@ class DocStatsService:
                                     {
                                         "bool": {
                                             "must": [
-                                                {
-                                                    "terms": {
-                                                        "subject.umls": [ <all_terms_x> ]
-                                                    }
-                                                },
-                                                {
-                                                    "terms": {
-                                                        "object.umls": [ <all_terms_y> ]
-                                                    }
-                                                }
+                                                { "terms": { "subject.umls": [ <all_terms_x> ] } },
+                                                { "terms": { "object.umls": [ <all_terms_y> ] } }
                                             ]
                                         }
                                     },
                                     {
                                         "bool": {
                                             "must": [
-                                                {
-                                                    "terms": {
-                                                        "subject.umls": [ <all_terms_y> ]
-                                                    }
-                                                },
-                                                {
-                                                    "terms": {
-                                                        "object.umls": [ <all_terms_x> ]
-                                                    }
-                                                }
+                                                { "terms": { "subject.umls": [ <all_terms_y> ] } },
+                                                { "terms": { "object.umls": [ <all_terms_x> ] } }
                                             ]
                                         }
                                     }
@@ -201,16 +204,20 @@ class DocStatsService:
                         }
                     ]
                 }
-            }
+            },
+            "aggs": { <doc_freq_agg_name>: { "sum": { "field": "predication_count" } } },
+            "size": 0
         }
         """
         all_terms_x = list(term_pair[0].all_string_terms_within())
         all_terms_y = list(term_pair[1].all_string_terms_within())
-
         filter_xy = Q("terms", **{self.subject_field_name: all_terms_x}) & Q("terms", **{self.object_field_name: all_terms_y})
         filter_yx = Q("terms", **{self.subject_field_name: all_terms_y}) & Q("terms", **{self.object_field_name: all_terms_x})
+        # size=0 means the query result will include 0 hits (so only the aggregation value will be returned)
+        search = Search().query("bool", filter=filter_xy | filter_yx).extra(size=0)
 
-        search = Search().query("bool", filter=filter_xy | filter_yx)
+        _agg = A("sum", field="predication_count")
+        search.aggs.metric(self.doc_freq_agg_name, _agg)  # attach the aggregation with its name to the search object
         return search
 
     async def bipartite_doc_freq(self, term_pair: TermPair) -> int:
@@ -219,8 +226,8 @@ class DocStatsService:
         (i.e. count of the union of the documents containing any pair of terms within).
         """
         search = self._bipartite_search(term_pair)
-        count = await self._count_in_es(search)
-        return count
+        doc_freq = await self._query_doc_freq_in_es(search)
+        return doc_freq
 
 
 class NGDCache:
