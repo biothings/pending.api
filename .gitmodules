@@ -55,46 +55,6 @@
 	path = plugins/clinical_risk_kp
 	url = https://github.com/Hadlock-Lab/clinical_risk_kp
 	ignore = dirty
-[submodule "plugins/cord_anatomy"]
-	path = plugins/cord_anatomy
-	url = https://github.com/kevinxin90/cord_anatomy.git
-	ignore = dirty
-[submodule "plugins/cord_bp"]
-	path = plugins/cord_bp
-	url = https://github.com/kevinxin90/cord_bp.git
-	ignore = dirty
-[submodule "plugins/cord_cc"]
-	path = plugins/cord_cc
-	url = https://github.com/kevinxin90/cord_cc.git
-	ignore = dirty
-[submodule "plugins/cord_cell"]
-	path = plugins/cord_cell
-	url = https://github.com/kevinxin90/cord_cell.git
-	ignore = dirty
-[submodule "plugins/cord_chemical"]
-	path = plugins/cord_chemical
-	url = https://github.com/kevinxin90/cord_chemical
-	ignore = dirty
-[submodule "plugins/cord_disease"]
-	path = plugins/cord_disease
-	url = https://github.com/kevinxin90/cord_disease.git
-	ignore = dirty
-[submodule "plugins/cord_gene"]
-	path = plugins/cord_gene
-	url = https://github.com/kevinxin90/cord_gene.git
-	ignore = dirty
-[submodule "plugins/cord_genomic_entity"]
-	path = plugins/cord_genomic_entity
-	url = https://github.com/kevinxin90/cord_genomic_entity.git
-	ignore = dirty
-[submodule "plugins/cord_ma"]
-	path = plugins/cord_ma
-	url = https://github.com/kevinxin90/cord_ma.git
-	ignore = dirty
-[submodule "plugins/cord_protein"]
-	path = plugins/cord_protein
-	url = https://github.com/kevinxin90/cord_protein.git
-	ignore = dirty
 
 
 [submodule "plugins/DDInter"]
@@ -128,15 +88,15 @@
 	url = https://github.com/yichuanma95/foodb_json
 	branch = main
 	ignore = dirty
+[submodule "plugins/FoodData_parser"]
+	path = plugins/FoodData_parser
+	url = https://github.com/rjawesome/FoodData_parser
+	ignore = dirty
 
 
 [submodule "plugins/geneset1"]
 	path = plugins/geneset1
 	url = https://github.com/kevinxin90/geneset1
-	ignore = dirty
-[submodule "plugins/gene_resolver"]
-	path = plugins/gene_resolver
-	url = https://github.com/kevinxin90/gene_resolver
 	ignore = dirty
 [submodule "plugins/go"]
 	path = plugins/go
@@ -192,10 +152,6 @@
 	url = https://github.com/ericz1803/mondo
 	branch = main
 	ignore = dirty
-[submodule "plugins/mp"]
-	path = plugins/mp
-	url = https://github.com/kevinxin90/mp
-	ignore = dirty
 [submodule "plugins/Multiomics_ClinicalTrials_KP"]
 	path = plugins/Multiomics_ClinicalTrials_KP
 	url = https://github.com/Hadlock-Lab/Multiomics_ClinicalTrials_KP
@@ -205,10 +161,6 @@
 	path = plugins/multiomics_wellness_kp
 	url = https://github.com/Hadlock-Lab/multiomics_wellness_kp
 	branch = main
-	ignore = dirty
-[submodule "plugins/mvcgi"]
-	path = plugins/mvcgi
-	url = https://github.com/sirloon/mvcgi.git
 	ignore = dirty
 
 
@@ -237,35 +189,7 @@
 	ignore = dirty
 
 
-[submodule "plugins/semmed"]
-	path = plugins/semmed
-	url = https://github.com/kevinxin90/semmed
-	ignore = dirty
-[submodule "plugins/semmedana"]
-	path = plugins/semmedana
-	url = https://github.com/kevinxin90/semmedana
-	ignore = dirty
-[submodule "plugins/semmedbp"]
-	path = plugins/semmedbp
-	url = https://github.com/kevinxin90/semmedbp
-	ignore = dirty
-[submodule "plugins/semmedchemical"]
-	path = plugins/semmedchemical
-	url = https://github.com/kevinxin90/semmedchemical
-	ignore = dirty
-[submodule "plugins/semmedgene"]
-	path = plugins/semmedgene
-	url = https://github.com/kevinxin90/semmedgene
-	ignore = dirty
-[submodule "plugins/semmedphen"]
-	path = plugins/semmedphen
-	url = https://github.com/kevinxin90/semmedphen
-	ignore = dirty
-[submodule "plugins/semmed_parser"]
-	path = plugins/semmed_parser
-	url = https://github.com/r76941156/semmed_parser
-	branch = main
-	ignore = dirty
+
 [submodule "plugins/SuppKG"]
 	path = plugins/SuppKG
 	url = https://github.com/biothings/SuppKG
@@ -277,10 +201,6 @@
 	path = plugins/tcga_mut_freq_kp
 	url = https://github.com/kevinxin90/tcga_mut_freq_kp
 	ignore = dirty
-[submodule "plugins/text_mining_cooccurrence_kp"]
-	path = plugins/text_mining_cooccurrence_kp
-	url = https://github.com/UCDenver-ccp/text_mining_cooccurrence_kp
-	ignore = dirty
 [submodule "plugins/text_mining_targeted_association"]
 	path = plugins/text_mining_targeted_association
 	url = https://github.com/UCDenver-ccp/text_mining_targeted_association
@@ -289,10 +209,6 @@
 	path = plugins/TISSUES
 	url = https://github.com/NikkiBytes/TISSUES
 	branch = main
-	ignore = dirty
-[submodule "plugins/translator_clinical_risk_kp"]
-	path = plugins/translator_clinical_risk_kp
-	url = https://github.com/Hadlock-Lab/translator_clinical_risk_kp.git
 	ignore = dirty
 
 
