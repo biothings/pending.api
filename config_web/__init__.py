@@ -53,18 +53,18 @@ from . import pseudocap_go
 from . import rare_source
 from . import repodb
 from . import rhea
-from . import semmed
-from . import semmed_anatomy
-from . import semmedbp
-from . import semmedchemical
+# from . import semmed
+# from . import semmed_anatomy
+# from . import semmedbp
+# from . import semmedchemical
 from . import semmeddb
 from . import semmeddb2
-from . import semmedgene
-from . import semmedphenotype
+# from . import semmedgene
+# from . import semmedphenotype
 from . import suppkg
 from . import tcga_mut_freq_kp
 # from . import textminingkp
-from . import text_mining_co_occurrence_kp
+# from . import text_mining_co_occurrence_kp
 from . import text_mining_targeted_association
 from . import tissues
 from . import uberon
