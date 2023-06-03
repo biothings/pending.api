@@ -63,7 +63,6 @@ from . import semmeddb2
 # from . import semmedphenotype  # use plugin "semmedphen"
 from . import suppkg
 from . import tcga_mut_freq_kp
-# from . import textminingkp
 # from . import text_mining_co_occurrence_kp
 from . import text_mining_targeted_association
 from . import tissues
