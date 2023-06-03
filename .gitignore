@@ -113,6 +113,9 @@ pendingenv/
 # vim
 .sw*
 
+# Folder for data files required by services/handlers
+assets/
+
 ssh_host_key*
 
 config.py
