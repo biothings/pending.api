@@ -23,29 +23,29 @@ from . import denovodb
 from . import dgidb
 from . import diseases
 from . import doid
-from . import ebigene2phenotype
+from . import ebigene2phenotype  # use plugin "ebi_data_parser"
 # from . import fire
 from . import foodb
 from . import fooddata
-from . import geneset
+from . import geneset  # use plugin "geneset1"
 from . import go
 from . import go_bp
 from . import go_cc
 from . import go_mf
 from . import gtrx
 from . import gwascatalog
-from . import hmdb
+from . import hmdb  # use plugin "prot_meta_assc_hmdb"
 from . import hpo
 from . import idisk
 from . import innatedb
 from . import kaviar
 from . import mgigene2phenotype
 from . import mondo
-from . import mrcoc
+from . import mrcoc  # use plugin "bte_filter"
 from . import multiomics_clinicaltrials_kp
-from . import multiomics_ehr_risk_kp
+from . import multiomics_ehr_risk_kp  # use plugin "clinical_risk_kp"
 from . import multiomics_wellness
-from . import node_expansion
+from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 'pending-mondo', 'pending-chebi'
 from . import pfocr
 from . import phewas
 # from . import phenotype  # replaced by hpo. See https://github.com/biothings/pending.api/issues/84
@@ -54,13 +54,13 @@ from . import rare_source
 from . import repodb
 from . import rhea
 # from . import semmed
-# from . import semmed_anatomy
+# from . import semmed_anatomy  # use plugin "semmedana"
 # from . import semmedbp
 # from . import semmedchemical
 from . import semmeddb
 from . import semmeddb2
 # from . import semmedgene
-# from . import semmedphenotype
+# from . import semmedphenotype  # use plugin "semmedphen"
 from . import suppkg
 from . import tcga_mut_freq_kp
 # from . import textminingkp
