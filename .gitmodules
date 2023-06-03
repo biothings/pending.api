@@ -172,12 +172,21 @@
 	path = plugins/phewas
 	url = https://github.com/kevinxin90/phewas
 	ignore = dirty
+[submodule "plugins/prot_meta_assc_hmdb"]
+        path = plugins/prot_meta_assc_hmdb
+        url = https://github.com/NikkiBytes/prot_meta_assc_hmdb
+        ignore = dirty
+        branch = main
 [submodule "plugins/pseudocap_go"]
 	path = plugins/pseudocap_go
 	url = https://github.com/kevinxin90/pseudocap_go
 	ignore = dirty
 
-
+[submodule "plugins/rare_source"]
+        path = plugins/rare_source
+        url = https://github.com/biothings/rare_source
+        ignore = dirty
+        branch = main
 [submodule "plugins/repoDB"]
 	path = plugins/repoDB
 	url = https://github.com/erikyao/repoDB
@@ -224,3 +233,4 @@
 	path = plugins/upheno_ontology
 	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
+
