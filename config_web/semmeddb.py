@@ -63,7 +63,11 @@ _doc_freq_agg_name = "sum_of_predication_counts"
 
 # Get the total number of predications (as the new "total number of documents")
 
-_es_temp_client = Elasticsearch(hosts=[ES_HOST])
+# Suggested by ITRB: read ES_HOME environment variable first which will take precedence, and fall back to localhost if env value is null or empty
+if "ES_HOME" in os.environ:
+    _es_temp_client = Elasticsearch(hosts=[os.environ["ES_HOME"]])
+else:
+    _es_temp_client = Elasticsearch(hosts=[ES_HOST])
 
 _doc_total_search = Search(using=_es_temp_client, index=ES_INDEX).extra(size=0)
 _doc_total_search.aggs.metric(_doc_freq_agg_name, A("sum", field="predication_count"))
