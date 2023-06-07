@@ -80,7 +80,8 @@ class Annotator:
                 # drug info
                 "unichem.rxnorm",  # drug name
                 "pharmgkb.trade_names",  # drug name
-                # "chembl.drug_indications",
+                "chembl.drug_indications",
+                "aeolus.indications",
                 "chembl.drug_mechanisms",
                 "chembl.atc_classifications",
                 "chembl.max_phase",
