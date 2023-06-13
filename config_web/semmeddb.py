@@ -63,9 +63,9 @@ _doc_freq_agg_name = "sum_of_predication_counts"
 
 # Get the total number of predications (as the new "total number of documents")
 
-# Suggested by ITRB: read ES_HOME environment variable first which will take precedence, and fall back to localhost if env value is null or empty
-if "ES_HOME" in os.environ:
-    _es_temp_client = Elasticsearch(hosts=[os.environ["ES_HOME"]])
+# Suggested by ITRB: read ES_HOST environment variable first which will take precedence, and fall back to localhost if env value is null or empty
+if "ES_HOST" in os.environ:
+    _es_temp_client = Elasticsearch(hosts=[os.environ["ES_HOST"]])
 else:
     _es_temp_client = Elasticsearch(hosts=[ES_HOST])
 
