@@ -77,9 +77,9 @@
 	ignore = dirty
 
 
-[submodule "plugins/ebi_data_parser"]
-	path = plugins/ebi_data_parser
-	url = https://github.com/erikyao/ebi_data_parser
+[submodule "plugins/ebi_gene2phenotype"]
+	path = plugins/ebi_gene2phenotype
+	url = https://github.com/erikyao/ebi_gene2phenotype
 	ignore = dirty
 
 
