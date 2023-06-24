@@ -58,7 +58,7 @@ from . import rhea
 # from . import semmedbp
 # from . import semmedchemical
 from . import semmeddb
-from . import semmeddb2
+# from . import semmeddb2
 # from . import semmedgene
 # from . import semmedphenotype  # use plugin "semmedphen"
 from . import suppkg
