@@ -1,7 +1,7 @@
 from . import agr
-from . import biggim
-from . import biggim_drugresponse_kp
-from . import bindingdb
+from . import biggim  # use plugin "biggim_kp"
+from . import biggim_drugresponse_kp  # use plugin "BigGIM_Parser"
+from . import bindingdb  # use plugin "BindingDB"
 from . import biomuta
 from . import bioplanet_pathway_disease
 from . import bioplanet_pathway_gene
@@ -20,13 +20,13 @@ from . import chebi
 # from . import cord_protein
 from . import ddinter
 from . import denovodb
-from . import dgidb
+from . import dgidb  # use plugin "DGIdb"
 from . import diseases
 from . import doid
-from . import ebigene2phenotype  # use plugin "ebi_data_parser"
+from . import ebigene2phenotype  # use plugin "ebi_gene2phenotype"
 # from . import fire
-from . import foodb
-from . import fooddata
+from . import foodb  # use plugin "foodb_json"
+from . import fooddata  # use plugin "FoodData_parser"
 from . import geneset  # use plugin "geneset1"
 from . import go
 from . import go_bp
@@ -39,7 +39,7 @@ from . import hpo
 from . import idisk
 from . import innatedb
 from . import kaviar
-from . import mgigene2phenotype
+from . import mgigene2phenotype  # use plugin "mgi_gene2phenotype"
 from . import mondo
 from . import mrcoc  # use plugin "bte_filter"
 from . import multiomics_clinicaltrials_kp
