@@ -48,7 +48,6 @@ from . import multiomics_wellness
 from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 'pending-mondo', 'pending-chebi'
 from . import pfocr
 from . import phewas
-# from . import phenotype  # replaced by hpo. See https://github.com/biothings/pending.api/issues/84
 from . import pseudocap_go
 from . import rare_source
 from . import repodb
@@ -58,7 +57,6 @@ from . import rhea
 # from . import semmedbp
 # from . import semmedchemical
 from . import semmeddb
-# from . import semmeddb2
 # from . import semmedgene
 # from . import semmedphenotype  # use plugin "semmedphen"
 from . import suppkg
