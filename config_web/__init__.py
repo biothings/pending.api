@@ -65,6 +65,7 @@ from . import tcga_mut_freq_kp
 # from . import text_mining_co_occurrence_kp
 from . import text_mining_targeted_association
 from . import tissues
+from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
