@@ -250,6 +250,6 @@ class AnnotatorHandler(BaseAPIHandler):
                 raw=self.args.raw,
                 fields=self.args.fields,
             )
-        except TRAPIInputError as e:
-            raise HTTPError(400, str(e))
+        except ValueError as e:
+            raise HTTPError(400, reason=str(e))
         self.finish(annotated_node_d)
