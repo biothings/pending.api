@@ -14,6 +14,7 @@ BIOLINK_PREFIX_to_BioThings = {
     "NCBIGene": {"type": "gene", "field": "entrezgene"},
     "ENSEMBL": {"type": "gene", "field": "ensembl.gene"},
     "UniProtKB": {"type": "gene", "field": "uniprot.Swiss-Prot"},
+    "INCHIKEY": {"type": "chem"},
     "CHEMBL.COMPOUND": {
         "type": "chem",
         "field": "chembl.molecule_chembl_id",
@@ -97,7 +98,7 @@ class Annotator:
                 "ndc.producttypename",
                 "ndc.pharm_classes",
             ],
-            "scopes": ["chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
+            "scopes": ["_id", "chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
         },
         "disease": {
             "client": biothings_client.get_client("disease"),
