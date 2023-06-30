@@ -179,7 +179,7 @@ class Annotator:
         for node_id in node_d:
             node_type = self.parse_curie(node_id, return_type=True, return_id=False)
             if not node_type:
-                logger.info("%s - %s", node_type, node_id)
+                logger.warning(" Unsupported Curie prefix: %s. Skipped!", node_id)
             if node_type:
                 if node_type not in node_list_by_type:
                     node_list_by_type[node_type] = [node_id]
@@ -237,7 +237,10 @@ class AnnotatorHandler(BaseAPIHandler):
         annotator = Annotator()
         curie = args[0] if args else None
         if curie:
-            annotated_node = annotator.annotate_curie(curie, raw=self.args.raw, fields=self.args.fields)
+            try:
+                annotated_node = annotator.annotate_curie(curie, raw=self.args.raw, fields=self.args.fields)
+            except ValueError as e:
+                raise HTTPError(400, reason=repr(e))
             self.finish(annotated_node)
         else:
             raise HTTPError(404, reason="missing required input curie id")
@@ -252,5 +255,5 @@ class AnnotatorHandler(BaseAPIHandler):
                 fields=self.args.fields,
             )
         except ValueError as e:
-            raise HTTPError(400, reason=str(e))
+            raise HTTPError(400, reason=repr(e))
         self.finish(annotated_node_d)
