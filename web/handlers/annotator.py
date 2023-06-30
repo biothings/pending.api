@@ -156,6 +156,8 @@ class Annotator:
     def annotate_curie(self, curie, raw=False, fields=None):
         """Annotate a single curie id"""
         node_type, _id = self.parse_curie(curie)
+        if not node_type:
+            raise InvalidCurieError(f"Unsupported Curie prefix: {curie}")
         res = self.query_biothings(node_type, [_id], fields=fields)
         if not raw:
             res = [self.transform(r) for r in res[_id]]
