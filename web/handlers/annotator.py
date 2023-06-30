@@ -35,17 +35,32 @@ BIOLINK_PREFIX_to_BioThings = {
 
 class ResponseTransformer:
     def _transform_chembl_drug_indications(self, res):
-        xli = res.get("chembl", {}).get("drug_indications", [])
-        for doc in xli:
-            if "mesh_id" in doc:
-                doc["mesh_id"] = append_prefix(doc["mesh_id"], "MESH")
+        def _append_mesh_prefix(chembl):
+            xli = chembl.get("drug_indications", [])
+            for doc in xli:
+                if "mesh_id" in doc:
+                    # Add MESH prefix to chembl.drug_indications.mesh_id field
+                    doc["mesh_id"] = append_prefix(doc["mesh_id"], "MESH")
+
+        chembl = res.get("chembl", {})
+        if chembl:
+            if isinstance(chembl, list):
+                # in case returned chembl is a list, rare but still possible
+                for c in chembl:
+                    _append_mesh_prefix(c)
+            else:
+                _append_mesh_prefix(chembl)
+
         return res
 
     def transform(self, res):
         """transform the response from biothings client"""
-        for transform_fn in inspect.getmembers(self, predicate=inspect.ismethod):
-            if transform_fn[0].startswith("_transform_"):
-                res = transform_fn[1](res)
+        for fn_name, fn in inspect.getmembers(self, predicate=inspect.ismethod):
+            if fn_name.startswith("_transform_"):
+                if isinstance(res, list):
+                    res = [fn(r) for r in res]
+                else:
+                    res = fn(res)
         return res
 
 
