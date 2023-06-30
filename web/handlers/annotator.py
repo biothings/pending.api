@@ -1,6 +1,7 @@
 """
 Translator Node Annotator Service Handler
 """
+import inspect
 import logging
 
 import biothings_client
@@ -27,6 +28,26 @@ BIOLINK_PREFIX_to_BioThings = {
     "DOID": {"type": "disease", "field": "disease_ontology.doid", "keep_prefix": True},
 }
 
+# ANNOTAION_FIELD_TRANSFORMATION = {
+#     "chembl.drug_indications.mesh_id": lambda x: append_prefix(x, "MESH"),
+# }
+
+
+class ResponseTransformer:
+    def _transform_chembl_drug_indications(self, res):
+        xli = res.get("chembl", {}).get("drug_indications", [])
+        for doc in xli:
+            if "mesh_id" in doc:
+                doc["mesh_id"] = append_prefix(doc["mesh_id"], "MESH")
+        return res
+
+    def transform(self, res):
+        """transform the response from biothings client"""
+        for transform_fn in inspect.getmembers(self, predicate=inspect.ismethod):
+            if transform_fn[0].startswith("_transform_"):
+                res = transform_fn[1](res)
+        return res
+
 
 class TRAPIInputError(ValueError):
     pass
@@ -45,6 +66,13 @@ def list2dict(li, key):
         else:
             out[k].append(d)
     return out
+
+
+def append_prefix(id, prefix):
+    """append prefix to id if not already present to make it a valid Curie ID
+    Note that prefix parameter should not include the trailing colon
+    """
+    return f"{prefix}:{id}" if not id.startswith(prefix) else id
 
 
 class Annotator:
@@ -168,6 +196,14 @@ class Annotator:
         """perform any transformation on the annotation object, but in-place also returned object"""
         res.pop("query", None)
         res.pop("_score", None)
+        # now doing field specific transformation
+        transformer = ResponseTransformer()
+        transformer.transform(res)
+        # for path, value in traverse_keys(res):
+        #     if path in ANNOTAION_FIELD_TRANSFORMATION:
+        #         fn = ANNOTAION_FIELD_TRANSFORMATION[path]
+        #         new_value = fn(value)
+        #         set_key_value(res, path, new_value)
         return res
 
     def annotate_trapi(self, trapi_input, append=False, raw=False, fields=None):
