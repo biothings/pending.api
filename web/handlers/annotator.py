@@ -206,13 +206,25 @@ class Annotator:
         #         set_key_value(res, path, new_value)
         return res
 
-    def annotate_trapi(self, trapi_input, append=False, raw=False, fields=None):
+    def annotate_trapi(self, trapi_input, append=False, raw=False, fields=None, limit=None):
         """Annotate a TRAPI input message with node annotator annotations"""
         try:
             node_d = get_dotfield_value("message.knowledge_graph.nodes", trapi_input)
             assert isinstance(node_d, dict)
         except (KeyError, ValueError, AssertionError):
             raise TRAPIInputError("Invalid input format")
+
+        # if limit is set, we truncate the node_d to that size
+        if limit:
+            _node_d = {}
+            i = 0
+            for node_id in node_d:
+                i += 1
+                if i > limit:
+                    break
+                _node_d[node_id] = node_d[node_id]
+            node_d = _node_d
+            del i, _node_d
 
         node_list_by_type = {}
         for node_id in node_d:
@@ -268,7 +280,10 @@ class AnnotatorHandler(BaseAPIHandler):
             "fields": {"type": str, "default": None},
         },
         "POST": {
+            # If True, append annotations to existing "attributes" field
             "append": {"type": bool, "default": False},
+            # If set, limit the number of nodes to annotate
+            "limit": {"type": int, "default": None},
         },
     }
 
@@ -292,6 +307,7 @@ class AnnotatorHandler(BaseAPIHandler):
                 append=self.args.append,
                 raw=self.args.raw,
                 fields=self.args.fields,
+                limit=self.args.limit,
             )
         except ValueError as e:
             raise HTTPError(400, reason=repr(e))
