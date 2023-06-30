@@ -18,7 +18,7 @@ BIOLINK_PREFIX_to_BioThings = {
     "CHEMBL.COMPOUND": {
         "type": "chem",
         "field": "chembl.molecule_chembl_id",
-        "converter": lambda x: x.replace("CHEMBL.COMPOUND:", "CHEMBL"),
+        # "converter": lambda x: x.replace("CHEMBL.COMPOUND:", "CHEMBL"),
     },
     "PUBCHEM.COMPOUND": {"type": "chem", "field": "pubchem.cid"},
     "CHEBI": {"type": "chem", "field": "chebi.id", "keep_prefix": True},
