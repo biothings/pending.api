@@ -128,7 +128,7 @@
 
 [submodule "plugins/hpo"]
 	path = plugins/hpo
-	url = https://github.com/kevinxin90/hpo
+	url = https://github.com/yichuanma95/hpo
 	ignore = dirty
 
 
