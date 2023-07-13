@@ -96,14 +96,13 @@ class TermExpansionService(ABC):
 
 class DocStatsService:
     def __init__(self, es_async_client: AsyncElasticsearch, es_index_name: str,
-                 subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, doc_total: int):
+                 subject_field_name: str, object_field_name: str, doc_freq_agg_name: str):
         # SemmedNGDHandler will receive configuration values from config_web/xxx.py, and initialize DocStatsService accordingly
         self.es_async_client = es_async_client
         self.es_index_name = es_index_name  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb" (from `ES_INDEX` in config_web/xxx.py)
         self.subject_field_name = subject_field_name  # e.g. "subject.umls"
         self.object_field_name = object_field_name  # e.g. "object.umls"
         self.doc_freq_agg_name = doc_freq_agg_name  # e.g. "sum_of_predication_counts"
-        self.doc_total = doc_total
 
     async def _query_doc_freq_in_es(self, search: Search) -> int:
         """
@@ -229,6 +228,14 @@ class DocStatsService:
         doc_freq = await self._query_doc_freq_in_es(search)
         return doc_freq
 
+    async def doc_total(self) -> int:
+        # This search is essentially a doc_freq search without any filter on terms
+        search = Search().extra(size=0)
+        _agg = A("sum", field="predication_count")
+        search.aggs.metric(self.doc_freq_agg_name, _agg)
+        total = await self._query_doc_freq_in_es(search)
+        return total
+
 
 class NGDCache:
     """
@@ -246,12 +253,23 @@ class NGDCache:
 
 class DocStatsCache:
     """
-    A cache class to store the document frequencies.
-    Two LRU caches are used internally, one for unary, the other for bipartite
+    A cache class to store the document frequencies, which include:
+
+    1. An integer cache for total number of docs.
+    2. An LRU cache for unary doc frequencies.
+    3. An LRU cache for bipartite doc frequencies.
     """
     def __init__(self, unary_capacity, bipartite_capacity):
+        self.total_cache: int = None
+
         self.unary_cache = LRUCache(unary_capacity)
         self.bipartite_cache = LRUCache(bipartite_capacity)
+
+    def read_doc_total(self):
+        return self.total_cache
+
+    def write_doc_total(self, total):
+        self.total_cache = total
 
     def read_unary_doc_freq(self, key) -> int:
         return self.unary_cache.get(key)
@@ -271,6 +289,7 @@ class NGDService:
                  doc_stats_cache: DocStatsCache, ngd_cache: NGDCache):
         self.doc_stats_service = doc_stats_service
         self.term_expansion_service = term_expansion_service
+
         self.doc_stats_cache = doc_stats_cache
         self.ngd_cache = ngd_cache
 
@@ -307,11 +326,19 @@ class NGDService:
 
         return doc_freq
 
-    async def doc_total(self):
+    async def doc_total(self, read_cache=True):
         """
-        Get the total number of documents in the index. This value will not be cached since it will be saved as an attribute of self.doc_stats_service.
+        Get the total number of documents in the index. This value will be cached, otherwise a query to self.doc_stats_service will be made to init this value.
         """
-        return self.doc_stats_service.doc_total
+        if read_cache:
+            cached_total = self.doc_stats_cache.read_doc_total()
+            if cached_total is not None:
+                return cached_total
+
+        total = await self.doc_stats_service.doc_total()
+        self.doc_stats_cache.write_doc_total(total)
+
+        return total
 
     async def _prepare_stats(self, term_pair: TermPair):
         """

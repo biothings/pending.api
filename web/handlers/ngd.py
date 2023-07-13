@@ -106,8 +106,7 @@ class SemmedNGDHandler(BaseAPIHandler):
             es_index_name=self.biothings.config.ES_INDEX,  # injected by handler's application instance (created by APILauncher)
             subject_field_name=self.subject_field_name,
             object_field_name=self.object_field_name,
-            doc_freq_agg_name=self.doc_freq_agg_name,
-            doc_total=self.doc_total
+            doc_freq_agg_name=self.doc_freq_agg_name
         )
 
         self.ngd_service = NGDService(

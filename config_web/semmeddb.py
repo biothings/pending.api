@@ -57,25 +57,6 @@ _object_field_name = "object.umls"
 # You are free to name it anything, actually.
 _doc_freq_agg_name = "sum_of_predication_counts"
 
-#########################
-# URLSpec kwargs Part 4 #
-#########################
-
-# Get the total number of predications (as the new "total number of documents")
-
-# Suggested by ITRB: read ES_HOST environment variable first which will take precedence, and fall back to localhost if env value is null or empty
-if "ES_HOST" in os.environ:
-    _es_temp_client = Elasticsearch(hosts=[os.environ["ES_HOST"]])
-else:
-    _es_temp_client = Elasticsearch(hosts=[ES_HOST])
-
-_doc_total_search = Search(using=_es_temp_client, index=ES_INDEX).extra(size=0)
-_doc_total_search.aggs.metric(_doc_freq_agg_name, A("sum", field="predication_count"))
-_doc_total_resp = _doc_total_search.execute()
-_doc_total = int(_doc_total_resp["aggregations"][_doc_freq_agg_name]["value"])
-
-_es_temp_client.close()
-
 ##############################
 # URLSpec kwargs composition #
 ##############################
@@ -83,7 +64,6 @@ _es_temp_client.close()
 urlspec_kwargs = dict(subject_field_name=_subject_field_name,
                       object_field_name=_object_field_name,
                       doc_freq_agg_name=_doc_freq_agg_name,
-                      doc_total=_doc_total,
                       term_expansion_service=_term_expansion_service)
 
 APP_LIST = [
