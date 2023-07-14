@@ -88,14 +88,13 @@ class SemmedNGDHandler(BaseAPIHandler):
     doc_stats_cache = DocStatsCache(unary_capacity=102400, bipartite_capacity=102400)
     ngd_cache = NGDCache(capacity=102400)
 
-    def initialize(self, subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, doc_total: int, term_expansion_service: TermExpansionService):
+    def initialize(self, subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, term_expansion_service: TermExpansionService):
         super().initialize()
 
         # The following 5 arguments are injected from the URLSpec in config_web/<plugin_name>.py
         self.subject_field_name = subject_field_name
         self.object_field_name = object_field_name
         self.doc_freq_agg_name = doc_freq_agg_name
-        self.doc_total = doc_total
         self.term_expansion_service = term_expansion_service
 
     def prepare(self):
@@ -106,8 +105,7 @@ class SemmedNGDHandler(BaseAPIHandler):
             es_index_name=self.biothings.config.ES_INDEX,  # injected by handler's application instance (created by APILauncher)
             subject_field_name=self.subject_field_name,
             object_field_name=self.object_field_name,
-            doc_freq_agg_name=self.doc_freq_agg_name,
-            doc_total=self.doc_total
+            doc_freq_agg_name=self.doc_freq_agg_name
         )
 
         self.ngd_service = NGDService(
