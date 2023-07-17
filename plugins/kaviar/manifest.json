@@ -1,6 +1,6 @@
 {
     "version": "0.1",
-    "requires" : ["csvsort","pyvcf"],
+    "requires" : ["csvsort","PyVCF3"],
     "__metadata__" : {
         "url" : "http://db.systemsbiology.net/kaviar",
         "license_url" : "http://db.systemsbiology.net/kaviar",
@@ -15,6 +15,6 @@
     },
     "uploader" : {
         "parser" : "parser:load_data",
-        "ignore_duplicates" : false
+        "on_duplicates": "error"
     }
 }
