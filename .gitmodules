@@ -234,3 +234,5 @@
 	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
 
+[submodule "hpo"]
+	url = https://github.com/biothings/hpo.git
