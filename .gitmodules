@@ -128,7 +128,7 @@
 
 [submodule "plugins/hpo"]
 	path = plugins/hpo
-	url = https://github.com/yichuanma95/hpo
+	url = https://github.com/biothings/hpo
 	ignore = dirty
 
 
@@ -234,5 +234,3 @@
 	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
 
-[submodule "hpo"]
-	url = https://github.com/biothings/hpo.git
