@@ -8,7 +8,7 @@
           <div style="position:relative;" class="p-5 mb-3">
             <h1 class="font-weight-bold reflection" :data-text='api' v-text='api'></h1>
           </div>
-          <small class="text-light mb-4 lighter" v-text='"Version "+metadata.src[getKeyName(metadata.src)]["version"]'></small>
+          <small class="text-light mb-4 lighter" v-text='"Version " + metadata?.src[getKeyName(metadata.src)]?.["version"] || "N/A"'></small>
           <ul class="link-list">
             <li class="d-inline" v-if='source_url'>
               <small>
@@ -179,49 +179,43 @@
       },
       computed:{
         sourceDetails:function(){
-          let self = this;
           try {
-            return self.metadata.src[self.getKeyName(self.metadata.src)]
+            return this.metadata.src[this.getKeyName(this.metadata.src)]
           } catch (e) {
             return {}
           }
         },
         source_url:function(){
-          let self = this;
-          if (self.sourceDetails.hasOwnProperty('url')) {
-            return self.sourceDetails['url']
+          if (this.sourceDetails?.url) {
+            return this.sourceDetails['url']
           } else {
             return false
           }
         },
         source_code:function(){
-          let self = this;
-          if (self.sourceDetails.hasOwnProperty('code') && self.sourceDetails['code'].hasOwnProperty('url')) {
-            return self.sourceDetails['code']['url']
+          if (this.sourceDetails?.code?.url) {
+            return this.sourceDetails['code']['url']
           } else {
             return false
           }
         },
         author_url:function(){
-          let self = this;
-          if (self.sourceDetails.hasOwnProperty('author') && self.sourceDetails['author'].hasOwnProperty('url')) {
-            return self.sourceDetails['author']['url']
+          if (this.sourceDetails?.author?.url) {
+            return this.sourceDetails?.author?.url
           } else {
             return false
           }
         },
         license_url:function(){
-          let self = this;
-          if (self.sourceDetails.hasOwnProperty('license_url')) {
-            return self.sourceDetails['license_url']
+          if (this.sourceDetails?.license_url) {
+            return this.sourceDetails?.license_url
           } else {
             return false
           }
         },
         description:function(){
-          let self = this;
-          if (self.sourceDetails.hasOwnProperty('description')) {
-            return self.sourceDetails['description']
+          if (this.sourceDetails?.description) {
+            return this.sourceDetails?.description
           } else {
             return false
           }
@@ -243,8 +237,8 @@
               if (self.numberOfDocs < 100) {
                 limit = 0
               }
-              let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
-              axios.get(base+self.api.toLowerCase()+'/query?q=__all__&from='+limit+'&size='+size).then(result=>{
+              axios.get("/" + self.api.toLowerCase() + '/query?q=__all__&from=' + limit + '&size=' + size)
+                .then(result=>{
                 let res = result.data.hits
                 let i = 0;
                 let picks = []
@@ -314,39 +308,18 @@
             string += ":" + obj[string]
           } 
           else if (_.isString(obj[string]) ) {
-            string += ":" + self.sanitizeStringValue(obj[string])
+            string += ":" + self.encloseString(obj[string])
           }
           return string
         }
       },
-        sanitizeStringValue(string){
-          // will add quotes if it's a URL or has spaces
-          //enclose in parenthesis to not have to escape \ or :
-          if (string.indexOf(' ') >= 0 || string.includes('http') 
-          || string.includes("\\") || string.includes(":")) {
+        encloseString(string){
+          //enclose in parenthesis if special characters present
+          if ([' ', '/', ':', '-', '.', '+'].some(v => string.includes(v))) {
             return `("${string}")`;
           }else{
             return string
           }
-        },
-        escapeCharacters(url){
-          // needs a FULL valid url to work
-          const params = (new URL(url)).searchParams;
-          // Iterating the search parameters
-          for (const [key, value] of params.entries()) {
-            console.log(value)
-            //escape colons in field value
-            //only works for one colon in value multiple will pass through as is
-            // eg. field:value:someVal => field:value\:someVal
-            if (value.split(':').length > 1 && value.split(':').length <= 3) {
-              let parts = value.split(':');
-              let x = parts.slice(1).join('\\:');
-              let newValue = [parts[0], x].join(":")
-              url = url.replace(value, newValue);
-            }
-          }
-          this.finalURL = url;
-          return url
         },
         generateQuery(dataObject){
           var self = this;
@@ -371,7 +344,13 @@
                 keys.splice(index, 1);
               }
             }
-            return keys[ keys.length * Math.random() << 0];
+            let rdmKeyIndex = keys.length * Math.random() << 0;
+            if (typeof obj[keys[rdmKeyIndex]] == 'string' && obj[keys[rdmKeyIndex]].includes('http')) {
+              console.warn('skipping URL value: ', obj[keys[rdmKeyIndex]])
+              return false
+            } else {
+              return keys[rdmKeyIndex];
+            }
           }else {
             return false
           }
@@ -387,14 +366,16 @@
           }
         },
         numberWithCommas(x) {
+          if (x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          } else {
+            return ''
+          }
         },
         testQuery(){
           if (this.api && this.querySelected) {
             // NCATS and pending sites are currently deployed with different https protocols
-            let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : window.location.origin + '/';
-            this.queryString = base + this.api.toLowerCase() + this.querySelected
-            // self.callApi(self.escapeCharacters(self.queryString))
+            this.queryString = "/" + this.api.toLowerCase() + this.querySelected
             this.finalURL = this.queryString;
             this.callApi(this.queryString)
           }
@@ -439,11 +420,8 @@
           let self = this;
           self.pending=[];
           let safeList = ['gene','chemical','variant','disease']
-          let base = window.location.href.includes('localhost') ? 'http://pending.biothings.io/' : '/'
-
-          axios.get(base+self.api+'/metadata').then(res=>{
+          axios.get("/" + self.api + '/metadata').then(res=>{
             self.metadata = res.data;
-            // console.log('META',res.data)
             self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
             if (self.metadata.biothing_type) {
               self.type= self.metadata.biothing_type;
