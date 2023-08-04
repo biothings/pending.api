@@ -60,6 +60,9 @@ class ResponseTransformer:
             if ncit:
                 ncit_def = ncit_api.getnode(f"NCIT:{ncit}", fields="def").get("def")
                 if ncit_def:
+                    # remove the trailing " []" if present
+                    if ncit_def.startswith('"') and ncit_def.endswith('" []'):
+                        ncit_def = ncit_def[1:-4]
                     unii["ncit_description"] = ncit_def
 
         unii = res.get("unii", {})
@@ -132,6 +135,7 @@ class Annotator:
                 "chembl.pref_name",
                 # Descriptions
                 "chebi.definition",
+                "unii.ncit",   # we will then add ncit_description based on ncit id
                 # Structure
                 "chebi.iupac",
                 "chembl.smiles",
