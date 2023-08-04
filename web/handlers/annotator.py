@@ -53,6 +53,25 @@ class ResponseTransformer:
 
         return res
 
+    def _transform_add_ncit_description(self, res):
+        ncit_api = biothings_client.get_client(url="https://biothings.ncats.io/ncit")
+        def _add_ncit_description(unii):
+            ncit = unii.get("ncit")
+            if ncit:
+                ncit_def = ncit_api.getnode(f"NCIT:{ncit}", fields="def").get("def")
+                if ncit_def:
+                    unii["ncit_description"] = ncit_def
+
+        unii = res.get("unii", {})
+        if unii:
+            if isinstance(unii, list):
+                # in case returned chembl is a list, rare but still possible
+                for u in unii:
+                    _add_ncit_description(u)
+            else:
+                _add_ncit_description(unii)
+        return res
+
     def transform(self, res):
         """transform the response from biothings client"""
         for fn_name, fn in inspect.getmembers(self, predicate=inspect.ismethod):
@@ -111,6 +130,8 @@ class Annotator:
                 # Names
                 "chebi.name",
                 "chembl.pref_name",
+                # Descriptions
+                "chebi.definition",
                 # Structure
                 "chebi.iupac",
                 "chembl.smiles",
