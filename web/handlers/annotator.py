@@ -53,7 +53,8 @@ class ResponseTransformer:
 
         return res
 
-    def _transform_add_ncit_description(self, res):
+    # FIXME: method _transform_add_ncit_description is temporarily disabled. Fix later.
+    def disabled_transform_add_ncit_description(self, res):
         ncit_api = biothings_client.get_client(url="https://biothings.ncats.io/ncit")
         def _add_ncit_description(unii):
             ncit = unii.get("ncit")
