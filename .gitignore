@@ -116,6 +116,9 @@ pendingenv/
 # Folder for data files required by services/handlers
 assets/
 
+# test folder for web testing
+config_test/
+
 ssh_host_key*
 
 config.py
