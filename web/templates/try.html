@@ -43,7 +43,7 @@
               </a>
             </small>
           </template>
-          <h3 class="m-3" v-text="numberWithCommas(numberOfDocs)+' documents'"></h3>
+          <h3 class="m-3" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></h3>
           <div class="m-5 p-1" style="position: relative">
             <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
           </div>
@@ -113,7 +113,7 @@
             </div>
           </form>
           <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
-            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
+            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="window.location.host + finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
           </p>
           <div v-show='loading' class="spinner">
             <div class="cube1"></div>
@@ -226,15 +226,17 @@
           let self = this;
           // console.log("🤖 Generate queries")
           self.loadingExamplesQueries = true;
-          if (self.numberOfDocs < 250000000) {
+          // testing only: numberOfDocs will be null so set to 100
+          let docNumberLimit = self.numberOfDocs ? self.numberOfDocs : 100;
+          if (docNumberLimit < 250000000) {
             let limit = Math.floor(Math.random() * 10000);
             let size = 100;
             self.loadingExamples = true
             if (limit) {
-              if (limit > self.numberOfDocs) {
-                limit = self.numberOfDocs-100;
+              if (limit > docNumberLimit) {
+                limit = docNumberLimit-100;
               }
-              if (self.numberOfDocs < 100) {
+              if (docNumberLimit < 100) {
                 limit = 0
               }
               axios.get("/" + self.api.toLowerCase() + '/query?q=__all__&from=' + limit + '&size=' + size)
@@ -290,14 +292,14 @@
           else if (_.isArray(obj[string])) {
             if (obj[string].length > 0) {
               if (typeof obj[string][0] == 'string') {
-                string += ":" + obj[string][0]
+                string += ":" + self.handleStringValue(obj[string][0])
               }else {
                 string += "." + self.getQueryString(obj[string][0])
               }
             } else {
               console.warn("Can't generate query from empty array in field:")
               console.warn("%c "+JSON.stringify(obj, null, 2), 'color:orange')
-              // query strings with undefined will be ignored
+              // query strings with undefined will be skipped
               return 'undefined'
             }
           }
@@ -308,16 +310,37 @@
             string += ":" + obj[string]
           } 
           else if (_.isString(obj[string]) ) {
-            string += ":" + self.encloseString(obj[string])
+            string += ":" + self.handleStringValue(obj[string])
           }
           return string
         }
       },
-        encloseString(string){
-          //enclose in parenthesis if special characters present
-          if ([' ', '/', ':', '-', '.', '+'].some(v => string.includes(v))) {
-            return `("${string}")`;
-          }else{
+        handleStringValue(string){
+          //check length
+          if (string.length > 50) {
+            // undefined is a flag to not use as query
+            console.warn("Skipped long value:")
+            console.warn("%c " + string, 'color:purple')
+            return 'undefined' 
+          }
+          //escape colons
+          if (string.includes(":")) {
+            return string.replaceAll(":", "\\:");
+          }
+          //escape backslashes
+          else if (string.includes("\\")) {
+            return string.replaceAll("\\", "\\\\");
+          }
+          //quote spaces
+          else if (string.includes(" ")) {
+            if (string.includes('"')) {
+              // already quoted string
+              return string
+            } else {
+              return `"${string}"`;
+            }
+          }
+          else{
             return string
           }
         },
@@ -374,7 +397,6 @@
         },
         testQuery(){
           if (this.api && this.querySelected) {
-            // NCATS and pending sites are currently deployed with different https protocols
             this.queryString = "/" + this.api.toLowerCase() + this.querySelected
             this.finalURL = this.queryString;
             this.callApi(this.queryString)
@@ -422,7 +444,7 @@
           let safeList = ['gene','chemical','variant','disease']
           axios.get("/" + self.api + '/metadata').then(res=>{
             self.metadata = res.data;
-            self.numberOfDocs = self.metadata.src[self.getKeyName(self.metadata.src)].stats[self.getKeyName(self.metadata.src)];
+            self.numberOfDocs = self.metadata?.src[self.getKeyName(self.metadata.src)]?.stats[self.getKeyName(self.metadata.src)];
             if (self.metadata.biothing_type) {
               self.type= self.metadata.biothing_type;
             }else if (self.metadata.doc_type) {
