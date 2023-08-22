@@ -292,7 +292,10 @@
           else if (_.isArray(obj[string])) {
             if (obj[string].length > 0) {
               if (typeof obj[string][0] == 'string') {
-                string += ":" + self.handleStringValue(obj[string][0])
+                let value = self.handleStringValue(obj[string][0]);
+                if (value) {
+                  string += ":" + value;
+                }
               }else {
                 string += "." + self.getQueryString(obj[string][0])
               }
@@ -310,26 +313,27 @@
             string += ":" + obj[string]
           } 
           else if (_.isString(obj[string]) ) {
-            string += ":" + self.handleStringValue(obj[string])
+            let value = self.handleStringValue(obj[string]);
+            if (value) {
+              string += ":" + value
+            }
           }
           return string
         }
       },
         handleStringValue(string){
-          //check length
+          //check values to be skipped first
           if (string.length > 50) {
-            // undefined is a flag to not use as query
+            // value is too long
             console.warn("Skipped long value:")
             console.warn("%c " + string, 'color:purple')
-            return 'undefined' 
+            return false
           }
-          //escape colons
-          if (string.includes(":")) {
-            return string.replaceAll(":", "\\:");
-          }
-          //escape backslashes
-          else if (string.includes("\\")) {
-            return string.replaceAll("\\", "\\\\");
+          else if(string.includes(">") || string.includes("<")){
+            // ES cannot escape these characters
+            console.warn("Skipped unescapable ES characters:")
+            console.warn("%c " + string, 'color:pink')
+            return false
           }
           //quote spaces
           else if (string.includes(" ")) {
@@ -339,6 +343,14 @@
             } else {
               return `"${string}"`;
             }
+          }
+          //escape colons
+          if (string.includes(":")) {
+            return string.replaceAll(":", "\\:");
+          }
+          //escape backslashes
+          else if (string.includes("\\")) {
+            return string.replaceAll("\\", "\\\\");
           }
           else{
             return string
