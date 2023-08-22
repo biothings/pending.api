@@ -26,5 +26,8 @@ def load_obo(data_folder, obofile):
             **{k: v for k, v in node[1].items() if k not in IGNORE_FIELDS} # unpack fields like name, def, comment, synonym, xref, etc.
         }
 
+        if 'def' in n and n['def'].startswith('"') and n['def'].endswith('" []'):
+            n['def'] = n['def'][1:-4]
+
         yield n
 
