@@ -3,8 +3,8 @@
 projectName="pendingapi"
 namespace="bte"
 
-set +x
-export $(egrep -v '^#' .env)
+#set +x
+#export $(egrep -v '^#' .env)
 
 sed -i.bak \
     -e "s/DOCKER_VERSION_VALUE/${BUILD_VERSION}/g" \
