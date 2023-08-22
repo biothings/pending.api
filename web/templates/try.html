@@ -254,12 +254,14 @@
                 let problematic = []
                 for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
                   let value = self.getQueryString(picks[picksIndex])
-                  let query ='/query?q='+value
-                  //excludes duplicates and results with undefined terms
-                  if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
-                    self.exampleQueries.push(query)
-                  }else{
-                    problematic.push(query)
+                  if (value) {
+                    let query = '/query?q=' + value;
+                    //excludes duplicates and results with undefined terms
+                    if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
+                      self.exampleQueries.push(query)
+                    }else{
+                      problematic.push(query)
+                    }
                   }
                 }
                 if (problematic.length) {
@@ -287,20 +289,34 @@
         let string = self.randomProperty(obj);
         if (string) {
           if (_.isPlainObject(obj[string])) {
-            string += "." + self.getQueryString(obj[string])
+            let value = self.getQueryString(obj[string]);
+            if (value) {
+              string += "." + value
+            } else {
+              return false;
+            }
           } 
           else if (_.isArray(obj[string])) {
             if (obj[string].length > 0) {
               if (typeof obj[string][0] == 'string') {
-                string += ":" + self.handleStringValue(obj[string][0])
+                let value = self.handleStringValue(obj[string][0]);
+                if (value) {
+                  string += ":" + value;
+                }else{
+                  return false;
+                }
               }else {
-                string += "." + self.getQueryString(obj[string][0])
+                let value = self.getQueryString(obj[string][0])
+                if (value) {
+                  string += "." + value
+                } else {
+                  return false;
+                }
               }
             } else {
               console.warn("Can't generate query from empty array in field:")
               console.warn("%c "+JSON.stringify(obj, null, 2), 'color:orange')
-              // query strings with undefined will be skipped
-              return 'undefined'
+              return false;
             }
           }
           else if (_.isBoolean(obj[string])) {
@@ -310,26 +326,30 @@
             string += ":" + obj[string]
           } 
           else if (_.isString(obj[string]) ) {
-            string += ":" + self.handleStringValue(obj[string])
+            let value = self.handleStringValue(obj[string]);
+            if (value) {
+              string += ":" + value
+            }
+            else{
+              return false;
+            }
           }
           return string
         }
       },
         handleStringValue(string){
-          //check length
+          //check values to be skipped first
           if (string.length > 50) {
-            // undefined is a flag to not use as query
+            // value is too long
             console.warn("Skipped long value:")
             console.warn("%c " + string, 'color:purple')
-            return 'undefined' 
+            return false
           }
-          //escape colons
-          if (string.includes(":")) {
-            return string.replaceAll(":", "\\:");
-          }
-          //escape backslashes
-          else if (string.includes("\\")) {
-            return string.replaceAll("\\", "\\\\");
+          else if(string.includes(">") || string.includes("<")){
+            // ES cannot escape these characters
+            console.warn("Skipped unescapable ES characters:")
+            console.warn("%c " + string, 'color:pink')
+            return false
           }
           //quote spaces
           else if (string.includes(" ")) {
@@ -339,6 +359,14 @@
             } else {
               return `"${string}"`;
             }
+          }
+          //escape colons
+          if (string.includes(":")) {
+            return string.replaceAll(":", "\\:");
+          }
+          //escape backslashes
+          else if (string.includes("\\")) {
+            return string.replaceAll("\\", "\\\\");
           }
           else{
             return string
@@ -369,7 +397,7 @@
             }
             let rdmKeyIndex = keys.length * Math.random() << 0;
             if (typeof obj[keys[rdmKeyIndex]] == 'string' && obj[keys[rdmKeyIndex]].includes('http')) {
-              console.warn('skipping URL value: ', obj[keys[rdmKeyIndex]])
+              console.warn('Skipped URL value: ', obj[keys[rdmKeyIndex]])
               return false
             } else {
               return keys[rdmKeyIndex];
