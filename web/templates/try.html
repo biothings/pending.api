@@ -323,7 +323,11 @@
             string += ":" + obj[string]
           } 
           else if (_.isNumber(obj[string])) {
-            string += ":" + obj[string]
+            if (parseInt(obj[string]) < 0) {
+              string += `:"${obj[string]}"`
+            } else {
+              string += ":" + obj[string]
+            }
           } 
           else if (_.isString(obj[string]) ) {
             let value = self.handleStringValue(obj[string]);
@@ -354,8 +358,9 @@
           //quote spaces
           else if (string.includes(" ")) {
             if (string.includes('"')) {
-              // already quoted string
-              return string
+              console.warn("Skipped value with quotes")
+              console.warn("%c " + string, 'color:pink')
+              return false
             } else {
               return `"${string}"`;
             }
