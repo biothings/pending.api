@@ -44,3 +44,40 @@ ncats:
     gov.nih.ncats.appconnnum: '1'
     gov.nih.ncats.appconn1host: ES_HOST_VALUE
     gov.nih.ncats.appconn1port: ES_HOST_PORT
+
+# With the following two sections, we can restrict the deployment on and only on the specific node
+# toleration to node taint such that this deployment can be scheduled on the tainted node while others without the toleration can not
+tolerations: 
+- key      : "transltr"
+  value    : "managed-app"
+  operator : "Equal"
+  effect   : "NoSchedule"
+
+# nodeSelection affinity(application=bte) such that this deployment will only select the node with that label
+affinity: 
+  # this ensures pod only runs on node with label application=bte
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: application
+          operator: In
+          values:
+          - managed-app
+  # this ensures only ONE pod will run on each node
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - managed-app
+      topologyKey: "kubernetes.io/hostname"
+resources:
+  requests:
+    memory: 48Gi
+    cpu: 8000m
+  limits:
+    memory: 58Gi
+    cpu: 14000m 
