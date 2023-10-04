@@ -95,6 +95,7 @@ class ResponseTransformer:
                 if hit.get("def"):
                     ncit_def = hit["def"]
                     # remove the trailing " []" if present
+                    # delete after data is fixed
                     if ncit_def.startswith('"') and ncit_def.endswith('" []'):
                         ncit_def = ncit_def[1:-4]
                     ncit_def_d[hit["_id"]] = ncit_def
