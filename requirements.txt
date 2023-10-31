@@ -1,4 +1,4 @@
-biothings[web_extra]==0.12.2
+biothings[web_extra]==0.12.3
 # git+https://github.com/biothings/biothings.api@0.11.x#egg=biothings[web_extra]
 Jinja2>=2.9.6
 
