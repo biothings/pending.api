@@ -243,3 +243,6 @@
 [submodule "plugins/BioThings_TTD_Dataplugin"]
 	path = plugins/BioThings_TTD_Dataplugin
 	url = https://github.com/lucyzhang95/BioThings_TTD_Dataplugin
+[submodule "plugins/CTG"]
+	path = plugins/CTG
+	url = https://github.com/biothings/clinicaltrials.gov
