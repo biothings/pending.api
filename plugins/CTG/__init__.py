@@ -1,2 +1,0 @@
-from .dumper import ClinicalTrialsGovDumper
-from .uploader import ClinicalTrialsGovUploader
