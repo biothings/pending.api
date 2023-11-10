@@ -69,5 +69,3 @@ from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
-
-from . import opentelemetry

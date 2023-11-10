@@ -11,16 +11,19 @@ import tornado.web
 from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
 
+# from config_web import opentelemetry
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
-# Enable OpenTelemetry instrumentation
+# Enable OpenTelemetry
+from web.handlers.config_opentelemetry import *
 from opentelemetry.instrumentation.tornado import TornadoInstrumentor
 TornadoInstrumentor().instrument()
 
 # Configure the OpenTelemetry exporter
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry import trace
@@ -32,7 +35,7 @@ if OPENTELEMETRY_ENABLED:
         udp_split_oversized_batches=True,
     )
 
-    trace_provider = TracerProvider()
+    trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: OPENTELEMETRY_SERVICE_NAME}))
     trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
 
     # Set the trace provider globally
