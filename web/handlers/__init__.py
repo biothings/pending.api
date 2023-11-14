@@ -17,7 +17,12 @@ from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
 # Enable OpenTelemetry
-from web.handlers.config_opentelemetry import *
+from web.handlers.config_opentelemetry import (
+    OPENTELEMETRY_ENABLED,
+    OPENTELEMETRY_JAEGER_HOST,
+    OPENTELEMETRY_JAEGER_PORT,
+    OPENTELEMETRY_SERVICE_NAME
+)
 from opentelemetry.instrumentation.tornado import TornadoInstrumentor
 TornadoInstrumentor().instrument()
 
