@@ -1,2 +1,2 @@
 # DISEASES
-biothings parser for DISEASES database
+Originally from https://github.com/kevinxin90/DISEASES.git
