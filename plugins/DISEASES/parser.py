@@ -49,7 +49,7 @@ def fetch_symbol(original_input):
         try:
             res = requests.get(
                 "http://mygene.info/v3/query?q=alias:{alias}&fields=symbol".replace("{alias}", mygene_input)).json()
-        except Exception as e:
+        except Exception as _:
             return None
         if "hits" in res and len(res["hits"]) > 0:
             print("output", res["hits"][0]['symbol'])
