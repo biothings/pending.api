@@ -1,0 +1,35 @@
+{   "_id": "MONDO: 123456",
+    "DISEASES": {
+    "doid": "DOID:1234",
+    "name": "lung cancer",
+    "associatedWith": [
+        {
+            "symbol": "CDK7",
+            "source": "GHR", 
+            "evidence": "CURATED", 
+            "confidence": 5.0
+        },
+        {
+            "symbol": "18S_rRNA",
+            "zscore": 6.854,
+            "confidence": 3.427
+        },
+        {
+            "symbol": "CXCR4",
+            "source": "DistiLD",
+            "evidence": "p-value=1e-07",
+            "confidence": 5
+        },
+        {
+            "symbol": "CXCR5",
+            "source": "COSMIC",
+            "evidence": "14 samples",
+            "confidence": 4
+        }
+    ]
+}}
+
+# whether we want to parse the evidence field
+# the root name of this data source
+# add category field "knowledge", "experiments", "textmining"
+# amyoc, doid

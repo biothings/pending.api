@@ -1,0 +1,19 @@
+{
+    "version": "0.2",
+    "__metadata__": {
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "licence": "CC BY 3.0",
+        "url": "https://tissues.jensenlab.org/"
+    },
+    "dumper": {
+        "data_url": [ "https://download.jensenlab.org/human_tissue_textmining_full.tsv",
+                      "https://download.jensenlab.org/human_tissue_experiments_full.tsv",
+                      "https://download.jensenlab.org/human_tissue_knowledge_full.tsv"
+                       ],
+        "uncompress": false
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "error"
+    }
+}

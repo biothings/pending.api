@@ -1,0 +1,21 @@
+{
+    "version": "0.1",
+    "__metadata__": {
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "licence": "CC BY 3.0",
+        "url": "https://diseases.jensenlab.org/"
+    },
+    "dumper": {
+        "data_url": [
+            "http://download.jensenlab.org/human_disease_textmining_full.tsv",
+            "http://download.jensenlab.org/human_disease_knowledge_full.tsv",
+            "http://download.jensenlab.org/human_disease_experiments_full.tsv"
+        ],
+        "uncompress": false,
+        "release": "version:get_release"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "error"
+    }
+}
