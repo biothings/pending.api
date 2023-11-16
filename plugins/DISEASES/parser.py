@@ -51,7 +51,7 @@ def fetch_symbol(original_input):
                 "http://mygene.info/v3/query?q=alias:{alias}&fields=symbol".replace("{alias}", mygene_input)).json()
         except Exception as _:
             return None
-        if "hits" in res and len(res["hits"]) > 0:
+        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
             print("output", res["hits"][0]['symbol'])
             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
             return res['hits'][0]['symbol']
@@ -61,7 +61,7 @@ def fetch_symbol(original_input):
     elif original_input.startswith("ENSP"):
         res = requests.get(
             "http://mygene.info/v3/query?q=ensembl.protein:{alias}&fields=symbol".replace("{alias}", original_input)).json()
-        if "hits" in res and len(res["hits"]) > 0:
+        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
             print("output", res["hits"][0]['symbol'])
             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
             return res['hits'][0]['symbol']
@@ -71,7 +71,7 @@ def fetch_symbol(original_input):
     elif original_input.startswith("ENSG"):
         res = requests.get(
             "http://mygene.info/v3/query?q=ensembl.gene:{alias}&fields=symbol".replace("{alias}", original_input)).json()
-        if "hits" in res and len(res["hits"]) > 0:
+        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
             print("output", res["hits"][0]['symbol'])
             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
             return res['hits'][0]['symbol']
