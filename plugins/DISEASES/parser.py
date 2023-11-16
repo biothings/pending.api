@@ -1,6 +1,5 @@
 import os
 import csv
-import json
 from itertools import groupby
 import requests
 from operator import itemgetter
@@ -50,7 +49,7 @@ def fetch_symbol(original_input):
         try:
             res = requests.get(
                 "http://mygene.info/v3/query?q=alias:{alias}&fields=symbol".replace("{alias}", mygene_input)).json()
-        except:
+        except Exception as e:
             return None
         if "hits" in res and len(res["hits"]) > 0:
             print("output", res["hits"][0]['symbol'])
@@ -148,8 +147,11 @@ def load_data(data_folder):
     json_docs = load_tm_data(tm_path) + load_ep_kn_data(kn_path,
                                                         'knowledge') + load_ep_kn_data(ep_path, 'experiments')
     json_docs = sorted(json_docs, key=itemgetter('doid'))
-    doids = [_doc['doid']
-             for _doc in json_docs if _doc['doid'].startswith('DOID:')]
+
+    ## doids is currently unused
+    # doids = [_doc['doid']
+            #  for _doc in json_docs if _doc['doid'].startswith('DOID:')]
+
     # mapping = batch_query_mondo_from_doid(doids)
     for key, group in groupby(json_docs, key=itemgetter('doid')):
         res = {

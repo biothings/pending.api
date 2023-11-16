@@ -5,7 +5,7 @@ Original Version Written by: Nichollette A.
 """
 
 # import our packages
-import biothings.utils.dataload as dl   
+import biothings.utils.dataload as dl
 import glob
 import os
 from itertools import groupby
@@ -104,7 +104,7 @@ def load_data(data_folder):
             mod_key=orig_key+f"_{i:08d}" # modify key
 
             res["_id"] = mod_key
-            res["subject"]['id'] = orig_key               
+            res["subject"]['id'] = orig_key        
 
             _record.pop("tissue_identifier")
             res["subject"]["name"] = _record["tissue_name"]
