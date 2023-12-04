@@ -1,0 +1,16 @@
+{
+    "version": "0.1",
+    "dumper": {
+        "data_url": [
+            "http://localhost:8080/dataupload/mysrc/pfocr/bte_chemicals_diseases_genes_all.ndjson",
+            "http://localhost:8080/dataupload/mysrc/pfocr/bte_chemicals_diseases_genes_synoynms.ndjson",
+            "http://localhost:8080/dataupload/mysrc/pfocr/bte_chemicals_diseases_genes_strict.ndjson"
+        ],
+        "uncompress": false,
+        "release": "version:get_release"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "ignore"
+    }
+}
