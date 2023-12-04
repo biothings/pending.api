@@ -14,19 +14,19 @@
             "name" : "pfocr_all",
             "parser": "parser:load_pfocr_all",
             "on_duplicates": "error",
-            "mapping" : "mapping:mapping_data_muts"
+            "mapping" : "mapping:pfocr_mapping"
         },
         {
             "name" : "pfocr_synoynms",
             "parser": "parser:load_pfocr_synoynms",
             "on_duplicates": "error",
-            "mapping" : "mapping:mapping_data_muts"
+            "mapping" : "mapping:pfocr_mapping"
         },
         {
             "name" : "pfocr_strict",
             "parser": "parser:load_pfocr_strict",
             "on_duplicates": "error",
-            "mapping" : "mapping:mapping_data_muts"
+            "mapping" : "mapping:pfocr_mapping"
         }
     ]
 }
