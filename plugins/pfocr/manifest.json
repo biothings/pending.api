@@ -1,5 +1,5 @@
 {
-    "version": "0.1",
+    "version": "0.2",
     "dumper": {
         "data_url": [
             "http://localhost:8080/dataupload/mysrc/pfocr/bte_chemicals_diseases_genes_all.ndjson",
@@ -9,8 +9,24 @@
         "uncompress": false,
         "release": "version:get_release"
     },
-    "uploader": {
-        "parser": "parser:load_data",
-        "on_duplicates": "ignore"
-    }
+    "uploader": [
+        {
+            "name" : "pfocr_all",
+            "parser": "parser:load_pfocr_all",
+            "on_duplicates": "error",
+            "mapping" : "mapping:mapping_data_muts"
+        },
+        {
+            "name" : "pfocr_synoynms",
+            "parser": "parser:load_pfocr_synoynms",
+            "on_duplicates": "error",
+            "mapping" : "mapping:mapping_data_muts"
+        },
+        {
+            "name" : "pfocr_strict",
+            "parser": "parser:load_pfocr_strict",
+            "on_duplicates": "error",
+            "mapping" : "mapping:mapping_data_muts"
+        }
+    ]
 }
