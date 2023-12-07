@@ -8,9 +8,10 @@ flavors:
 
 """
 
-
 from pathlib import Path
 import json
+
+from .dumper import download_mapping, get_dropbox_file
 
 
 def _load_data(data_file):
@@ -25,16 +26,25 @@ def _load_data(data_file):
 def load_pfocr_all(data_folder):
     data_file_name = "bte_chemicals_diseases_genes_all.ndjson"
     data_file = Path(data_folder) / data_file_name
-    yield _load_data(str(data_file))
+    if not data_file.exists():
+        datafile_url = download_mapping["pfocr_all"]
+        data_file = get_dropbox_file(datafile_url, data_file)
+    return _load_data(str(data_file))
 
 
-def load_pfocr_synoynms(data_folder):
-    data_file_name = "bte_chemicals_diseases_genes_synoynms.ndjson"
+def load_pfocr_synonyms(data_folder):
+    data_file_name = "bte_chemicals_diseases_genes_synonyms.ndjson"
     data_file = Path(data_folder) / data_file_name
-    yield _load_data(str(data_file))
+    if not data_file.exists():
+        datafile_url = download_mapping["pfocr_synonyms"]
+        data_file = get_dropbox_file(datafile_url, data_file)
+    return _load_data(str(data_file))
 
 
 def load_pfocr_strict(data_folder):
     data_file_name = "bte_chemicals_diseases_genes_strict.ndjson"
     data_file = Path(data_folder) / data_file_name
-    yield _load_data(str(data_file))
+    if not data_file.exists():
+        datafile_url = download_mapping["pfocr_strict"]
+        data_file = get_dropbox_file(datafile_url, data_file)
+    return _load_data(str(data_file))
