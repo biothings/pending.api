@@ -9,7 +9,7 @@
         "uncompress": false,
         "release": "version:get_release"
     },
-    "uploader": [
+    "uploaders": [
         {
             "name" : "pfocr_all",
             "parser": "parser:load_pfocr_all",
