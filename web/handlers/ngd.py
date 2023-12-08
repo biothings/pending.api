@@ -192,7 +192,6 @@ class SemmedNGDHandler(BaseAPIHandler):
 
         # Step 3: verify argument `umls` and calculate NGDs.
         # If any pair of terms failed the verification, do not raise an error simultaneously but wrap the error in the response.
-
         async def yield_responses(terms_list: list, expansion_mode, arg_show_leaves):
             async def process_terms(terms):
                 if not isinstance(terms, list):
