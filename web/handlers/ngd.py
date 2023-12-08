@@ -1,3 +1,5 @@
+import asyncio
+
 from enum import Flag, auto
 from biothings.web.handlers.query import BaseAPIHandler
 
@@ -190,28 +192,31 @@ class SemmedNGDHandler(BaseAPIHandler):
 
         # Step 3: verify argument `umls` and calculate NGDs.
         # If any pair of terms failed the verification, do not raise an error simultaneously but wrap the error in the response.
-        async def yield_responses(terms_list: list):
-            for terms in terms_list:
+        async def yield_responses(terms_list: list, expansion_mode, arg_show_leaves):
+            async def process_terms(terms):
                 if not isinstance(terms, list):
-                    yield {
+                    return {
                         "umls": terms,
                         "ngd": UNDEFINED_STR,
                         "reason": ErrorReason.terms_not_a_list(terms)
                     }
-                    continue
 
                 if len(terms) != 2:
-                    yield {
+                    return {
                         "umls": terms,
                         "ngd": UNDEFINED_STR,
                         "reason": ErrorReason.wrong_terms_quantity(terms)
                     }
-                    continue
 
                 term_pair = self.pair_two_terms(term_x_root=terms[0], term_y_root=terms[1], expansion_mode=expansion_mode)
-                response = await self.make_response(term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves)
-                yield response
+                return await self.make_response(term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves)
 
-        response_list = [res async for res in yield_responses(arg_umls)]
+            tasks = [process_terms(terms) for terms in terms_list]
+            response_list = await asyncio.gather(*tasks)
+
+            return response_list
+
+        response_list = await yield_responses(arg_umls, expansion_mode, arg_show_leaves)
+
         await self.finish(response_list)
         return
