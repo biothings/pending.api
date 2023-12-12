@@ -11,7 +11,7 @@ flavors:
 from pathlib import Path
 import json
 
-from .dumper import download_mapping, get_dropbox_file
+from dumper import download_mapping, get_dropbox_file
 
 
 def _load_data(data_file):
