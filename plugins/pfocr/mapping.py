@@ -226,7 +226,6 @@ def pfocr_mapping(cls):
 
     """
     elasticsearch_mapping = {
-        "_id": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
         "associatedWith": {
             "properties": {
                 "title": {"type": "keyword"},
