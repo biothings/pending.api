@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 BIOLINK_PREFIX_to_BioThings = {
     "NCBIGene": {"type": "gene", "field": "entrezgene"},
-    "HGNC": {"type": "gene", "field": "HGNC"},
+    # "HGNC": {"type": "gene", "field": "HGNC"},
     "ENSEMBL": {"type": "gene", "field": "ensembl.gene"},
     "UniProtKB": {"type": "gene", "field": "uniprot.Swiss-Prot"},
     "INCHIKEY": {"type": "chem"},
