@@ -2,13 +2,10 @@ import copy
 from biothings.web.settings.default import QUERY_KWARGS, ES_INDICES
 
 PFOCR_FLAVOR_ALL = "pending-pfocr_all"
-# PFOCR_FLAVOR_ALL = "pfocr_all_20231213_sdmo8dfz"
 PFOCR_FLAVOR_SYNONYMS = "pending-pfocr_synonyms"
-# PFOCR_FLAVOR_SYNONYMS = "pfocr_synonyms_20231213_sdmiqsdl"
 PFOCR_FLAVOR_STRICT = "pending-pfocr_strict"
-# PFOCR_FLAVOR_STRICT = "pfocr_strict_20231213_nfejmsas"
 
-ES_HOST = "su12:9200"
+ES_HOST = "localhost:9200"
 ES_INDEX = [PFOCR_FLAVOR_ALL, PFOCR_FLAVOR_SYNONYMS, PFOCR_FLAVOR_STRICT]
 ES_DOC_TYPE = "geneset"
 
