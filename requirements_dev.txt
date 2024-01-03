@@ -4,6 +4,3 @@ Jinja2>=2.9.6
 
 # for annotator handler
 biothings_client>=0.3.0
-
-# for opentelemetry
--r requirements_otel.txt
