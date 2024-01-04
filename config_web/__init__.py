@@ -8,6 +8,7 @@ from . import bioplanet_pathway_gene
 from . import ccle
 from . import cell_ontology
 from . import chebi
+from . import clinicaltrials_gov
 # from . import cord_anatomy
 # from . import cord_bp
 # from . import cord_cc
