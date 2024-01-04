@@ -8,6 +8,7 @@ from . import bioplanet_pathway_gene
 from . import ccle
 from . import cell_ontology
 from . import chebi
+from . import clinicaltrials_gov
 # from . import cord_anatomy
 # from . import cord_bp
 # from . import cord_cc
@@ -69,3 +70,9 @@ from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
+
+# Default Opentelemetry Settings
+OPENTELEMETRY_SERVICE_NAME = "Service Provider"
+OPENTELEMETRY_ENABLED = True
+OPENTELEMETRY_JAEGER_HOST = "localhost"
+OPENTELEMETRY_JAEGER_PORT = 6831
