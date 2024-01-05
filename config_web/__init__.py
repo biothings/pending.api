@@ -70,9 +70,3 @@ from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
-
-# Default Opentelemetry Settings
-OPENTELEMETRY_SERVICE_NAME = "Service Provider"
-OPENTELEMETRY_ENABLED = False
-OPENTELEMETRY_JAEGER_HOST = "localhost"
-OPENTELEMETRY_JAEGER_PORT = 6831
