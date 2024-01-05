@@ -15,6 +15,10 @@ containers:
   es_host: ES_HOST_VALUE
   port: 9000
 
+env:
+  OPENTELEMETRY_ENABLED_VALUE: True
+  #OPENTELEMETRY_JAEGER_HOST: OPENTELEMETRY_JAEGER_HOST_VALUE 
+
 service:
   type: ClusterIP
   port: 80
@@ -76,8 +80,8 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 resources:
   requests:
-    memory: 48Gi
-    cpu: 8000m
+    memory: 38Gi
+    cpu: 5000m
   limits:
     memory: 58Gi
     cpu: 14000m 

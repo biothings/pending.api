@@ -24,8 +24,12 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          - name: ES_HOST
-            value: {{ .Values.containers.es_host }}
+            - name: ES_HOST
+              value: {{ .Values.containers.es_host }}
+            - name: OPENTELEMETRY_ENABLED
+              value: "{{ .Values.containers.OPENTELEMETRY_ENABLED_VALUE }}"  
+            - name: OPENTELEMETRY_JAEGER_HOST
+              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_HOST_VALUE }}"     
           ports:
             - name: http
               containerPort: {{ .Values.containers.port }}
