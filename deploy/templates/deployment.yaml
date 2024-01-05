@@ -5,7 +5,9 @@ metadata:
   labels:
     {{- include "pendingapi.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  strategy:
+        type: {{ .Values.deployment.strategyType }}
+  replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
       {{- include "pendingapi.selectorLabels" . | nindent 6 }}
@@ -29,7 +31,9 @@ spec:
             - name: OPENTELEMETRY_ENABLED
               value: "{{ .Values.containers.OPENTELEMETRY_ENABLED_VALUE }}"  
             - name: OPENTELEMETRY_JAEGER_HOST
-              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_HOST_VALUE }}"     
+              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_HOST_VALUE }}"
+            - name: OPENTELEMETRY_JAEGER_PORT
+              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_PORT_VALUE }}"      
           ports:
             - name: http
               containerPort: {{ .Values.containers.port }}
