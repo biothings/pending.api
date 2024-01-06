@@ -1,3 +1,5 @@
+# import os
+
 from . import agr
 from . import biggim  # use plugin "biggim_kp"
 from . import biggim_drugresponse_kp  # use plugin "BigGIM_Parser"
@@ -72,6 +74,5 @@ from . import upheno_ontology
 
 # Default Opentelemetry Settings
 OPENTELEMETRY_SERVICE_NAME = "Service Provider"
-OPENTELEMETRY_ENABLED = False
 OPENTELEMETRY_JAEGER_HOST = "localhost"
 OPENTELEMETRY_JAEGER_PORT = 6831

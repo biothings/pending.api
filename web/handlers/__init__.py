@@ -4,6 +4,7 @@
 
 import json
 import logging
+import os
 import types
 
 import tornado.httpclient
@@ -16,9 +17,9 @@ from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
-from config_web import(OPENTELEMETRY_ENABLED)
+OPENTELEMETRY_ENABLED = os.getenv('OPENTELEMETRY_ENABLED', "false").lower()
 
-if OPENTELEMETRY_ENABLED:
+if OPENTELEMETRY_ENABLED=="true":
     from config_web import(
         OPENTELEMETRY_JAEGER_HOST,
         OPENTELEMETRY_JAEGER_PORT,
