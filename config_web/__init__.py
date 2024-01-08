@@ -73,6 +73,7 @@ from . import umlschem
 from . import upheno_ontology
 
 # Default Opentelemetry Settings
+OPENTELEMETRY_ENABLED = False
 OPENTELEMETRY_SERVICE_NAME = "Service Provider"
 OPENTELEMETRY_JAEGER_HOST = "localhost"
 OPENTELEMETRY_JAEGER_PORT = 6831

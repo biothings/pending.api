@@ -17,14 +17,19 @@ from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
-OPENTELEMETRY_ENABLED = os.getenv('OPENTELEMETRY_ENABLED', "false").lower()
+from config_web import(
+    OPENTELEMETRY_ENABLED,
+    OPENTELEMETRY_JAEGER_HOST,
+    OPENTELEMETRY_JAEGER_PORT,
+    OPENTELEMETRY_SERVICE_NAME
+)
+
+OPENTELEMETRY_ENABLED = os.getenv('OPENTELEMETRY_ENABLED', OPENTELEMETRY_ENABLED).lower()
 
 if OPENTELEMETRY_ENABLED=="true":
-    from config_web import(
-        OPENTELEMETRY_JAEGER_HOST,
-        OPENTELEMETRY_JAEGER_PORT,
-        OPENTELEMETRY_SERVICE_NAME
-    )
+    OPENTELEMETRY_JAEGER_HOST = os.getenv('OPENTELEMETRY_JAEGER_HOST', OPENTELEMETRY_JAEGER_HOST)
+    OPENTELEMETRY_JAEGER_PORT = os.getenv('OPENTELEMETRY_JAEGER_PORT', OPENTELEMETRY_JAEGER_PORT)
+    OPENTELEMETRY_SERVICE_NAME = os.getenv('OPENTELEMETRY_SERVICE_NAME', OPENTELEMETRY_SERVICE_NAME)
 
     from opentelemetry.instrumentation.tornado import TornadoInstrumentor
     TornadoInstrumentor().instrument()
