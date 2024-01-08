@@ -1,3 +1,5 @@
+# import os
+
 from . import agr
 from . import biggim  # use plugin "biggim_kp"
 from . import biggim_drugresponse_kp  # use plugin "BigGIM_Parser"
@@ -70,3 +72,9 @@ from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
+
+# Default Opentelemetry Settings
+OPENTELEMETRY_ENABLED = False
+OPENTELEMETRY_SERVICE_NAME = "Service Provider"
+OPENTELEMETRY_JAEGER_HOST = "localhost"
+OPENTELEMETRY_JAEGER_PORT = 6831
