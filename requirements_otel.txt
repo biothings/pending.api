@@ -1,7 +1,0 @@
-# for opentelemetry
-opentelemetry-api>=1.21.0
-opentelemetry-sdk>=1.21.0
-opentelemetry-exporter-otlp>=1.21.0
-opentelemetry.exporter.jaeger.thrift==1.21.0
-opentelemetry-instrumentation>=0.42b0
-opentelemetry-instrumentation-tornado>=0.42b0

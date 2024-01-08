@@ -4,7 +4,6 @@
 
 import json
 import logging
-import os
 import types
 
 import tornado.httpclient
@@ -17,30 +16,24 @@ from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
-from config_web import(
+# Enable OpenTelemetry
+from web.handlers.config_opentelemetry import (
     OPENTELEMETRY_ENABLED,
     OPENTELEMETRY_JAEGER_HOST,
     OPENTELEMETRY_JAEGER_PORT,
     OPENTELEMETRY_SERVICE_NAME
 )
+from opentelemetry.instrumentation.tornado import TornadoInstrumentor
+TornadoInstrumentor().instrument()
 
-OPENTELEMETRY_ENABLED = os.getenv('OPENTELEMETRY_ENABLED', OPENTELEMETRY_ENABLED).lower()
+# Configure the OpenTelemetry exporter
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry import trace
 
-if OPENTELEMETRY_ENABLED=="true":
-    OPENTELEMETRY_JAEGER_HOST = os.getenv('OPENTELEMETRY_JAEGER_HOST', OPENTELEMETRY_JAEGER_HOST)
-    OPENTELEMETRY_JAEGER_PORT = os.getenv('OPENTELEMETRY_JAEGER_PORT', OPENTELEMETRY_JAEGER_PORT)
-    OPENTELEMETRY_SERVICE_NAME = os.getenv('OPENTELEMETRY_SERVICE_NAME', OPENTELEMETRY_SERVICE_NAME)
-
-    from opentelemetry.instrumentation.tornado import TornadoInstrumentor
-    TornadoInstrumentor().instrument()
-
-    # Configure the OpenTelemetry exporter
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry import trace
-
+if OPENTELEMETRY_ENABLED:
     trace_exporter = JaegerExporter(
         agent_host_name=OPENTELEMETRY_JAEGER_HOST,
         agent_port=OPENTELEMETRY_JAEGER_PORT,
