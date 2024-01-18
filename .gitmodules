@@ -88,12 +88,6 @@
 	url = https://github.com/yichuanma95/foodb_json
 	branch = main
 	ignore = dirty
-[submodule "plugins/FoodData_parser"]
-	path = plugins/FoodData_parser
-	url = https://github.com/rjawesome/FoodData_parser
-	ignore = dirty
-
-
 [submodule "plugins/geneset1"]
 	path = plugins/geneset1
 	url = https://github.com/kevinxin90/geneset1
