@@ -258,8 +258,8 @@ def read_csv(file: str, delim: str):
                 categories = row
             else:
                 info.append({})
-                for j in range(len(row)):
-                    info[i-1][categories[j]] = row[j]
+                for j in enumerate(row):
+                    info[i-1][categories[j[0]]] = row[j[0]]
             i += 1
 
     return info
