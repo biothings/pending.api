@@ -1,0 +1,18 @@
+{
+  "version": "0.2",
+  "__metadata__": {
+      "url": "https://fdc.nal.usda.gov/index.html"
+  },
+  "author" : {
+    "name" : "Rohan Juneja",
+    "url" : "https://github.com/rjawesome"
+  },
+  "dumper" : {
+      "data_url" : ["https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_json_2022-04-28.zip", "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2022-04-28.zip"],
+      "uncompress" : true
+  },
+  "uploader" : {
+      "parser" : "parser:load_data",
+      "on_duplicates": "error"
+  }
+}
