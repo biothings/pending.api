@@ -270,7 +270,7 @@ def get_foodon_ids(data_folder: str) -> Dict[str, str]:
     foodon_ids = {}
     for food_attr in attribute_data:
         if food_attr['name'] == 'FoodOn Ontology ID for FDC item':
-            foodon_ids[food_attr['fdc_id']] = food_attr['value'][food_attr['value'].find('FOODON'):]
+            foodon_ids[food_attr['fdc_id']] = food_attr['value'][food_attr['value'].find('FOODON'):].replace('FOODON_', '')
     return foodon_ids
 
 
