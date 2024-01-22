@@ -28,6 +28,7 @@ BIOLINK_PREFIX_to_BioThings = {
     "DRUGBANK": {"type": "chem", "field": "drugbank.id"},
     "MONDO": {"type": "disease", "field": "mondo.mondo", "keep_prefix": True},
     "DOID": {"type": "disease", "field": "disease_ontology.doid", "keep_prefix": True},
+    "HP": {"type": "phenotype", "field": "hp", "keep_prefix": True},
 }
 
 # ANNOTAION_FIELD_TRANSFORMATION = {
@@ -259,6 +260,11 @@ class Annotator:
                 "disease_ontology.synonyms",
             ],
             "scopes": ["mondo.mondo", "disease_ontology.doid", "umls.umls"],
+        },
+        "phenotype": {
+            "client": biothings_client.get_client(url="https://biothings.ncats.io/hpo"),
+            "fields": ["hp", "name", "annotations", "comment", "def", "subset", "synonym", "xrefs"],
+            "scopes": ["hp"],
         },
     }
 
