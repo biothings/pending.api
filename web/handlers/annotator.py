@@ -67,7 +67,9 @@ class ResponseTransformer:
         return doc
 
     def caching_ncit_descriptions(self):
-        """cache ncit descriptions for all unii.ncit IDs from self.res_by_id"""
+        """cache ncit descriptions for all unii.ncit IDs from self.res_by_id
+           deprecated along with _transform_add_ncit_description method.
+        """
         ncit_id_list= []
         for res in self.res_by_id.values():
             if isinstance(res, list):
@@ -103,7 +105,10 @@ class ResponseTransformer:
             if ncit_def_d:
                 self.data_cache["ncit"] = ncit_def_d
 
-    def _transform_add_ncit_description(self, doc):
+    def deprecated_transform_add_ncit_description(self, doc):
+        """add ncit_description field to unii object based on unii.ncit field
+           deprecated now, as ncit_description is now returned directly from mychem.info
+        """
         if self.node_type != "chem":
             return doc
 
@@ -198,7 +203,8 @@ class Annotator:
                 "chembl.pref_name",
                 # Descriptions
                 "chebi.definition",
-                "unii.ncit",   # we will then add ncit_description based on ncit id
+                "unii.ncit",
+                "unii.ncit_description",
                 # Structure
                 "chebi.iupac",
                 "chembl.smiles",
