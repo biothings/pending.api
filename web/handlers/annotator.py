@@ -25,6 +25,7 @@ BIOLINK_PREFIX_to_BioThings = {
     "PUBCHEM.COMPOUND": {"type": "chem", "field": "pubchem.cid"},
     "CHEBI": {"type": "chem", "field": "chebi.id", "keep_prefix": True},
     "UNII": {"type": "chem", "field": "unii.unii"},
+    "DRUGBANK": {"type": "chem", "field": "drugbank.id"},
     "MONDO": {"type": "disease", "field": "mondo.mondo", "keep_prefix": True},
     "DOID": {"type": "disease", "field": "disease_ontology.doid", "keep_prefix": True},
 }
