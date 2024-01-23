@@ -42,7 +42,6 @@ class PFOCRBackend(AsyncESQueryBackend):
 
         strict_flavor = options.get("strict", None)
         synonyms_flavor = options.get("synonyms", None)
-        all_flavor = options.get("all", None)
 
         if strict_flavor:
             query_index = self.indices.get("strict", None)
@@ -50,7 +49,7 @@ class PFOCRBackend(AsyncESQueryBackend):
         elif synonyms_flavor:
             query_index = self.indices.get("synonyms", None)
             logger.debug(f"Discovered PFOCR synonyms option. Changing ES index to {query_index}")
-        elif all_flavor:
+        else:
             query_index = self.indices.get("all", None)
             logger.debug(f"Discovered PFOCR all option. Changing ES index to {query_index}")
 
