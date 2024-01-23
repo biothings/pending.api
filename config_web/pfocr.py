@@ -1,5 +1,5 @@
 import copy
-from biothings.web.settings.default import QUERY_KWARGS, ES_INDICES
+from biothings.web.settings.default import QUERY_KWARGS
 
 PFOCR_FLAVOR_ALL = "pending-pfocr_all"
 PFOCR_FLAVOR_SYNONYMS = "pending-pfocr_synonyms"
