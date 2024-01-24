@@ -181,11 +181,6 @@
         url = https://github.com/biothings/rare_source
         ignore = dirty
         branch = main
-[submodule "plugins/repoDB"]
-	path = plugins/repoDB
-	url = https://github.com/erikyao/repoDB
-	branch = main
-	ignore = dirty
 [submodule "plugins/Rhea"]
 	path = plugins/Rhea
 	url = https://github.com/biothings/Rhea

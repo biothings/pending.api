@@ -1,0 +1,22 @@
+{
+    "version": "0.2",
+    "requires": ["pandas", "requests"],
+    "__metadata__": {
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "licence": "Creative Commons Attribution 4.0 International License",
+        "url": "https://unmtid-shinyapps.net/shiny/repodb/",
+        "description": "repoDB contains a standard set of drug repositioning successes and failures that can be used to fairly and reproducibly benchmark computational repositioning methods. repoDB data was extracted from DrugCentral and ClinicalTrials.gov."
+    },
+    "dumper": {
+        "data_url": [
+            "http://localhost:8080/dataupload/mysrc/repoDB/full.csv",
+            "http://localhost:8080/dataupload/mysrc/repoDB/drugbank vocabulary.csv"
+        ],
+        "uncompress": true,
+        "release": "version:get_release"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "error"
+    }
+}
