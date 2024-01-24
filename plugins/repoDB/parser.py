@@ -3,6 +3,8 @@ import os
 import pandas as pd
 
 
+# pylint: disable=W0105
+# The following string statement is used for documentation and has no effect on the program's behavior
 """
 This script parses entries of the repoDB csv file (named `full.csv`) and outputs documents as SmartAPI requires.
 
