@@ -1,7 +1,6 @@
 import os
 # from collections import ChainMap
 import pandas as pd
-import requests
 
 
 """
@@ -148,8 +147,6 @@ def revise_drugbank_name(repodb_df, id_name_map):
         - If not found, use the original `drug_name`
             - If the original `drug_name` is NA or not unique, manipulate manually
     """
-
-    drugbank_ids = repodb_df.drugbank_id.unique()
 
     for _, row in repodb_df.iterrows():
         # If `row.drugbank_id` is not a key in `id_name_map`, `new_drug_name` is set None;
