@@ -157,7 +157,8 @@ def revise_drugbank_name(repodb_df, id_name_map):
         if new_drug_name is not None:
             row.drug_name = new_drug_name
 
-    assert is_injective(repodb_df, "drugbank_id", "drug_name"), "drugbank_id has multiple drug_names after manipulation"
+    if not is_injective(repodb_df, "drugbank_id", "drug_name"):
+        raise AssertionError("drugbank_id has multiple drug_names after manipulation")
 
     return repodb_df
 
