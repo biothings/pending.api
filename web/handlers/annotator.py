@@ -244,7 +244,8 @@ class Annotator:
             "client": biothings_client.get_client("disease"),
             "fields": [
                 # IDs
-                "disease_ontology.doid" "mondo.mondo",
+                "disease_ontology.doid",
+                "mondo.mondo",
                 "umls.umls",
                 # Names
                 "disease_ontology.name",
