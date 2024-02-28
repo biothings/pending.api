@@ -185,12 +185,12 @@ def append_prefix(id, prefix):
 class Annotator:
     annotator_clients = {
         "gene": {
-            "client": biothings_client.get_client("gene"),
+            "client": {"biothing_type": "gene"},    # the kwargs passed to biothings_client.get_client
             "fields": ["name", "symbol", "summary", "type_of_gene", "MIM", "HGNC", "MGI", "RGD", "alias", "interpro"],
             "scopes": ["entrezgene", "ensemblgene", "uniprot", "accession", "retired"],
         },
         "chem": {
-            "client": biothings_client.get_client("chem"),
+            "client": {"biothing_type": "chem"},
             "fields": [
                 # IDs
                 "pubchem.cid",
@@ -241,7 +241,7 @@ class Annotator:
             "scopes": ["_id", "chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
         },
         "disease": {
-            "client": biothings_client.get_client("disease"),
+            "client": {"biothing_type": "disease"},
             "fields": [
                 # IDs
                 "disease_ontology.doid",
@@ -263,11 +263,29 @@ class Annotator:
             "scopes": ["mondo.mondo", "disease_ontology.doid", "umls.umls"],
         },
         "phenotype": {
-            "client": biothings_client.get_client(url="https://biothings.ncats.io/hpo"),
+            "client": {"url": "https://biothings.ncats.io/hpo"},
             "fields": ["hp", "name", "annotations", "comment", "def", "subset", "synonym", "xrefs"],
             "scopes": ["hp"],
         },
     }
+
+    def get_client(self, node_type: str) -> tuple[biothings_client.BiothingClient, None]:
+        """lazy load the biothings client for the given node_type, return the client or None if failed."""
+        client_or_kwargs = self.annotator_clients[node_type]["client"]
+        if isinstance(client_or_kwargs, biothings_client.BiothingClient):
+            client = client_or_kwargs
+        elif isinstance(client_or_kwargs, dict):
+            try:
+                client = biothings_client.get_client(**client_or_kwargs)
+            except RuntimeError as e:
+                logger.error("%s [%s]", e, client_or_kwargs)
+                client = None
+            if isinstance(client, biothings_client.BiothingClient):
+                # cache the client
+                self.annotator_clients[node_type]["client"] = client
+        else:
+            raise ValueError("Invalid input client_or_kwargs")
+        return client
 
     def parse_curie(self, curie, return_type=True, return_id=True):
         """return a both type and if (as a tuple) or either based on the input curie"""
@@ -288,9 +306,12 @@ class Annotator:
         elif return_id:
             return _id
 
-    def query_biothings(self, node_type, query_list, fields=None):
+    def query_biothings(self, node_type: str, query_list, fields=None) -> dict:
         """Query biothings client based on node_type for a list of ids"""
-        client = self.annotator_clients[node_type]["client"]
+        client = self.get_client(node_type)
+        if not client:
+            logger.warning("Failed to get the biothings client for %s type. This type is skipped.", node_type)
+            return {}
         fields = fields or self.annotator_clients[node_type]["fields"]
         scopes = self.annotator_clients[node_type]["scopes"]
         logger.info("Querying annotations for %s %ss...", len(query_list), node_type)
@@ -308,7 +329,7 @@ class Annotator:
         if not raw:
             res = self.transform(res, node_type)
             # res = [self.transform(r) for r in res[_id]]
-        return {curie: res[_id]}
+        return {curie: res.get(_id, {})}
 
     def transform(self, res_by_id, node_type):
         """perform any transformation on the annotation object, but in-place also returned object
