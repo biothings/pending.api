@@ -17,21 +17,22 @@ from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 
-from config_web import(
+from config_web import (
     OPENTELEMETRY_ENABLED,
     OPENTELEMETRY_JAEGER_HOST,
     OPENTELEMETRY_JAEGER_PORT,
-    OPENTELEMETRY_SERVICE_NAME
+    OPENTELEMETRY_SERVICE_NAME,
 )
 
-OPENTELEMETRY_ENABLED = os.getenv('OPENTELEMETRY_ENABLED', OPENTELEMETRY_ENABLED).lower()
+OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
 
-if OPENTELEMETRY_ENABLED=="true":
-    OPENTELEMETRY_JAEGER_HOST = os.getenv('OPENTELEMETRY_JAEGER_HOST', OPENTELEMETRY_JAEGER_HOST)
-    OPENTELEMETRY_JAEGER_PORT = int(os.getenv('OPENTELEMETRY_JAEGER_PORT', OPENTELEMETRY_JAEGER_PORT))
-    OPENTELEMETRY_SERVICE_NAME = os.getenv('OPENTELEMETRY_SERVICE_NAME', OPENTELEMETRY_SERVICE_NAME)
+if OPENTELEMETRY_ENABLED == "true":
+    OPENTELEMETRY_JAEGER_HOST = os.getenv("OPENTELEMETRY_JAEGER_HOST", OPENTELEMETRY_JAEGER_HOST)
+    OPENTELEMETRY_JAEGER_PORT = int(os.getenv("OPENTELEMETRY_JAEGER_PORT", OPENTELEMETRY_JAEGER_PORT))
+    OPENTELEMETRY_SERVICE_NAME = os.getenv("OPENTELEMETRY_SERVICE_NAME", OPENTELEMETRY_SERVICE_NAME)
 
     from opentelemetry.instrumentation.tornado import TornadoInstrumentor
+
     TornadoInstrumentor().instrument()
 
     # Configure the OpenTelemetry exporter
@@ -97,6 +98,17 @@ class FrontPageHandler(BaseHandler):
         # templateEnv.globals['site'] = "pending"
         # if self.request.host == "biothings.ncats.io":
         #     templateEnv.globals['site'] = "ncats"
+
+        templateEnv.globals["site"] = hostname_to_site(self.request.host)
+        template = templateEnv.get_template("index.html")
+        output = template.render(Context=json.dumps({"List": apilist}))
+        self.finish(output)
+
+    async def head(self):
+        root = self.biothings.config._primary
+        attrs = [getattr(root, attr) for attr in dir(root)]
+        confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
+        apilist = [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
 
         templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("index.html")
