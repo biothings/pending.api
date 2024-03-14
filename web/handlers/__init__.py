@@ -77,43 +77,39 @@ def hostname_to_site(hostname: str) -> str:
 
 
 class FrontPageHandler(BaseHandler):
-    async def get(self):
-        # TEMPORARY SOLUTION
 
-        # http_client = tornado.httpclient.AsyncHTTPClient()
-        # try:
-        #     response = await http_client.fetch(
-        #         "https://biothings.ncats.io/api/list")
-        #     apilist = json.loads(response.body)['result']
-        # except Exception as e:
-        #     log.exception("Error retrieving app list.")
-        #     # raise tornado.web.HTTPError(503, reason=str(e))
-        #     apilist = [] # temporarily silence hub error
+    async def _load_template(self):
+        """
+        Loads the front page template
 
+        Extracts the API list contents from the biothings
+        configuration
+
+        Then loads the template and renders it with the populated
+        API list
+        """
         root = self.biothings.config._primary
         attrs = [getattr(root, attr) for attr in dir(root)]
         confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
         apilist = [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
 
-        # templateEnv.globals['site'] = "pending"
-        # if self.request.host == "biothings.ncats.io":
-        #     templateEnv.globals['site'] = "ncats"
-
         templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("index.html")
         output = template.render(Context=json.dumps({"List": apilist}))
-        self.finish(output)
+
+    async def get(self):
+        """
+        GET method for rendering the frontpage template
+        """
+        rendered_template = await self._load_template()
+        self.finish(rendered_template)
 
     async def head(self):
-        root = self.biothings.config._primary
-        attrs = [getattr(root, attr) for attr in dir(root)]
-        confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
-        apilist = [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
-
-        templateEnv.globals["site"] = hostname_to_site(self.request.host)
-        template = templateEnv.get_template("index.html")
-        output = template.render(Context=json.dumps({"List": apilist}))
-        self.finish(output)
+        """
+        HEAD method for rendering the frontpage template
+        """
+        rendered_template = await self._load_template()
+        self.finish()
 
 
 class ApiViewHandler(tornado.web.RequestHandler):
