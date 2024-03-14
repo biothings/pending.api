@@ -1,12 +1,15 @@
-import pytest
+"""
+Tests for mocking the FrontPageHandler front page rendering
+"""
 import tornado
+from tornado.testing import AsyncHTTPTestCase
 
 from biothings.web.launcher import TornadoAPILauncher
 
 from web.handlers import EXTRA_HANDLERS
 
 
-class TestFrontPageHandler(tornado.testing.AsyncHTTPTestCase):
+class TestFrontPageHandler(AsyncHTTPTestCase):
 
     def get_app(self):
         app_handlers = EXTRA_HANDLERS
@@ -84,7 +87,6 @@ class TestFrontPageHandler(tornado.testing.AsyncHTTPTestCase):
         frontpage_endpoint = r"/"
         http_method = "HEAD"
         response = self.fetch(frontpage_endpoint, method=http_method)
-        breakpoint()
         self.assertEqual(response.code, 200)
         self.assertEqual(response._body, None)
         self.assertEqual(response.reason, "OK")
