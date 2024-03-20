@@ -89,7 +89,6 @@ def test_fda_drug_data_loading(plugin_directory: Path, configuration: None):
 
     for uploader_cls in current_plugin.uploader_classes:
         uploader = uploader_cls.create(db_conn_info="")
-        breakpoint()
         uploader.make_temp_collection()
         uploader.prepare()
 
@@ -109,5 +108,4 @@ def test_fda_drug_data_loading(plugin_directory: Path, configuration: None):
         uploader.keep_archive = 3
         uploader.clean_archived_collections()
 
-    breakpoint()
     dp.remove({"_id": current_plugin.plugin_name})
