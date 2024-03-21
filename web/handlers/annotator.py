@@ -237,6 +237,8 @@ class Annotator:
                 "ndc.routename",
                 "ndc.producttypename",
                 "ndc.pharm_classes",
+                "ndc.proprietaryname",
+                "ndc.nonproprietaryname",
             ],
             "scopes": ["_id", "chebi.id", "chembl.molecule_chembl_id", "pubchem.cid", "drugbank.id", "unii.unii"],
         },
