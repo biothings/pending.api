@@ -47,8 +47,12 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         Takes the FDA drug data files pulled down from the source and groups them to form
         one joined file that contains the structure we wish to upload to our index
         """
+
+        # Force creation of the to_dump collection
+        self.create_todump_list(force=True)
         local_zip_file = self.to_dump[0]["local"]
         data_directory = Path(local_zip_file).parent
+
         with zipfile.ZipFile(local_zip_file, "r") as zip_object:
             zip_object.extractall(data_directory)
 
