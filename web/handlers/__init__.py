@@ -78,7 +78,7 @@ def hostname_to_site(hostname: str) -> str:
 
 class FrontPageHandler(BaseHandler):
 
-    async def _load_template(self):
+    async def _load_template(self) -> str:
         """
         Loads the front page template
 
@@ -96,6 +96,7 @@ class FrontPageHandler(BaseHandler):
         templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("index.html")
         output = template.render(Context=json.dumps({"List": apilist}))
+        return output
 
     async def get(self):
         """
@@ -108,7 +109,7 @@ class FrontPageHandler(BaseHandler):
         """
         HEAD method for rendering the frontpage template
         """
-        rendered_template = await self._load_template()
+        await self._load_template()
         self.finish()
 
 

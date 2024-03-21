@@ -1,6 +1,7 @@
 """
 Tests for mocking the FrontPageHandler front page rendering
 """
+
 import tornado
 from tornado.testing import AsyncHTTPTestCase
 
@@ -83,6 +84,10 @@ class TestFrontPageHandler(AsyncHTTPTestCase):
     def test_head_method(self):
         """
         Test the HEAD HTTP method handler for the front page
+
+        The main difference is because we don't return any content generated
+        from the front page template, the response content length shouldn't
+        have anything and should always be length 0
         """
         frontpage_endpoint = r"/"
         http_method = "HEAD"
@@ -99,7 +104,7 @@ class TestFrontPageHandler(AsyncHTTPTestCase):
 
         self.assertTrue(isinstance(response_headers, tornado.httputil.HTTPHeaders))
         self.assertEqual(response_content_type, "text/html; charset=UTF-8")
-        self.assertTrue(int(response_content_length) > 0)
+        self.assertTrue(int(response_content_length) == 0)
         self.assertEqual(response_header_connection, "close")
 
         head_request = response.request
