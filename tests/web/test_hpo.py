@@ -1,10 +1,8 @@
 import logging
 
 import pytest
-import requests
 
-from biothings.tests.web import BiothingsDataTest
-from biothings.web.query.builder import ESQueryBuilder, QStringParser, Query
+from biothings.web.query.builder import QStringParser, Query
 
 from config_web.hpo import ANNOTATION_ID_REGEX_LIST
 
