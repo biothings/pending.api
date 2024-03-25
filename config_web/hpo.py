@@ -1,8 +1,6 @@
 import re
 
-# ES_HOST = "localhost:9200"
-# ES_HOST = "es8.biothings.io:9200"
-ES_HOST = "biothings.ci.transltr.io"
+ES_HOST = "localhost:9200"
 ES_INDEX = "pending-hpo"
 ES_DOC_TYPE = "phenotype"
 
@@ -12,11 +10,7 @@ API_VERSION = ""
 
 # CURIE ID support based on BioLink Model
 BIOLINK_MODEL_PREFIX_BIOTHINGS_GENE_MAPPING = {
-    "HP": {
-        "type": "phenotype",
-        "field": "hp",
-        "regex_term_pattern": "(?P<term>HP:[0-9]+)",
-    }
+    "HP": {"type": "phenotype", "field": "hp", "regex_term_pattern": "(?P<term>HP:[0-9]+)"}
 }
 biolink_curie_regex_list = []
 for (
@@ -35,8 +29,9 @@ for (
     biolink_curie_regex_list.append(pattern)
 
 
-ANNOTATION_ID_REGEX_LIST = [
-    *biolink_curie_regex_list,
-]
+# id regex pattern
+id_hpo_regex_pattern = (re.compile(r"([\w]+):([0-9]+)", re.I), ["_id"])
+
+ANNOTATION_ID_REGEX_LIST = [*biolink_curie_regex_list, id_hpo_regex_pattern]
 
 ANNOTATION_DEFAULT_SCOPES = ["_id", "hp"]
