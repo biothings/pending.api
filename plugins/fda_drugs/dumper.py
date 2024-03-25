@@ -146,6 +146,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                     f"{product.Form}\t"
                     f"{marketing_status_value}\t"
                     f"{te.TECode}\t"
+                    f"{product.ReferenceDrug}\t"
                     f"{product.ReferenceStandard}\n"
                 )
                 group_handle.write(grouped_entry)

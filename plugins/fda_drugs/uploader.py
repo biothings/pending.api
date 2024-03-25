@@ -25,20 +25,23 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
 
     def load_data(self, data_folder: Union[str, Path]):
         """
-        Loads the structured FDA drugs data
+        Loads the structured FDA drugs data. After the post dump merging of the various data
+        sources provided by the FDA, we simply have to extract the merged documents rows into
+        a JSON document
         """
         structured_fda_drug_data = Path(data_folder).joinpath("FDA_DRUGS_GROUPING.txt")
         with open(structured_fda_drug_data, "r", encoding="utf-8") as file_handle:
             for raw_entry in file_handle.readlines():
                 structured_entry = raw_entry.strip().split("\t")
                 document = {
-                    "drug_name": structured_entry[0],
-                    "active_ingredients": structured_entry[1],
-                    "strength": structured_entry[2],
-                    "dosage_form": structured_entry[3],
-                    "marketing_status": structured_entry[4],
-                    "te_code": structured_entry[5],
-                    "reference_standard": structured_entry[6],
+                    "drug_name": str(structured_entry[0]),
+                    "active_ingredients": str(structured_entry[1]),
+                    "strength": str(structured_entry[2]),
+                    "dosage_form": str(structured_entry[3]),
+                    "marketing_status": str(structured_entry[4]),
+                    "therapeutic_equivalence": str(structured_entry[5]),
+                    "reference_listed_drug": bool(structured_entry[6]),
+                    "reference_standard": bool(structured_entry[7]),
                 }
                 yield document
 

@@ -13,7 +13,7 @@ Drug Name	Active Ingredients	Strength	Dosage Form/Route	Marketing Status	TE Code
 [3] Dosage Form/Route  -> Products.txt
 [4] Marketing Status -> [TE.txt, MarketingStatusi.txt] + MarketingStatus_Lookup.txt
 [5] TE Code -> TE.txt
-[6] RLD -> ???
+[6] RLD -> Products.txt
 [7] RS -> Products.txt
 """
 
@@ -26,7 +26,6 @@ class ProductsFileEntry:
     ==> Products.txt <==
     ApplNo  ProductNo Form                      Strength ReferenceDrug DrugName  ActiveIngredient                  ReferenceStandard
     000004  004       SOLUTION/DROPS;OPHTHALMIC 1%       0             PAREDRINE [HYDROXYAMPHETAMINE HYDROBROMIDE] 0
-
     """
 
     ApplNo: str
