@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-semmed_anatomy"
+ES_DOC_TYPE = "anatomy"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-semmed_anatomy'
-ES_DOC_TYPE = 'anatomy'
-
-API_PREFIX = 'semmed_anatomy'
-API_VERSION = ''
+API_PREFIX = "semmed_anatomy"
+API_VERSION = ""

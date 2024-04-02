@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-semmed_phenotype"
+ES_DOC_TYPE = "phenotype"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-semmed_phenotype'
-ES_DOC_TYPE = 'phenotype'
-
-API_PREFIX = 'semmedphenotype'
-API_VERSION = ''
+API_PREFIX = "semmedphenotype"
+API_VERSION = ""

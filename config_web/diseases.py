@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-diseases"
+ES_DOC_TYPE = "disease"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-diseases'
-ES_DOC_TYPE = 'disease'
-
-API_PREFIX = 'DISEASES'
-API_VERSION = ''
+API_PREFIX = "DISEASES"
+API_VERSION = ""
