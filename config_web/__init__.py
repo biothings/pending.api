@@ -11,6 +11,7 @@ from . import ccle
 from . import cell_ontology
 from . import chebi
 from . import clinicaltrials_gov
+
 # from . import cord_anatomy
 # from . import cord_bp
 # from . import cord_cc
@@ -27,6 +28,7 @@ from . import dgidb  # use plugin "DGIdb"
 from . import diseases
 from . import doid
 from . import ebigene2phenotype  # use plugin "ebi_gene2phenotype"
+
 # from . import fire
 from . import foodb  # use plugin "foodb_json"
 from . import fooddata  # use plugin "FoodData_parser"
@@ -56,15 +58,18 @@ from . import pseudocap_go
 from . import rare_source
 from . import repodb
 from . import rhea
+
 # from . import semmed
 # from . import semmed_anatomy  # use plugin "semmedana"
 # from . import semmedbp
 # from . import semmedchemical
 from . import semmeddb
+
 # from . import semmedgene
 # from . import semmedphenotype  # use plugin "semmedphen"
 from . import suppkg
 from . import tcga_mut_freq_kp
+
 # from . import text_mining_co_occurrence_kp
 from . import text_mining_targeted_association
 from . import tissues
@@ -76,5 +81,5 @@ from . import upheno_ontology
 # Default Opentelemetry Settings
 OPENTELEMETRY_ENABLED = "False"
 OPENTELEMETRY_SERVICE_NAME = "Service Provider"
-OPENTELEMETRY_JAEGER_HOST = "localhost"
+OPENTELEMETRY_JAEGER_HOST = "http://localhost"
 OPENTELEMETRY_JAEGER_PORT = 6831
