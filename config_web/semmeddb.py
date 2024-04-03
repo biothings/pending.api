@@ -8,12 +8,12 @@ from biothings.web.settings.default import APP_LIST
 from web.service.umls_service import UMLSJsonFileClient, NarrowerRelationshipService
 
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-semmeddb'
-ES_DOC_TYPE = 'association'
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-semmeddb"
+ES_DOC_TYPE = "association"
 
-API_PREFIX = 'semmeddb'
-API_VERSION = ''
+API_PREFIX = "semmeddb"
+API_VERSION = ""
 
 #########################
 # URLSpec kwargs Part 1 #
@@ -36,8 +36,9 @@ if not os.path.exists(_narrower_relationships_filepath):
 
 _narrower_relationships_client = UMLSJsonFileClient(filepath=_narrower_relationships_filepath)
 _narrower_relationships_client.open_resource()
-_term_expansion_service = NarrowerRelationshipService(umls_resource_client=_narrower_relationships_client,
-                                                      add_input_prefix=True, remove_output_prefix=True)
+_term_expansion_service = NarrowerRelationshipService(
+    umls_resource_client=_narrower_relationships_client, add_input_prefix=True, remove_output_prefix=True
+)
 
 #########################
 # URLSpec kwargs Part 2 #
@@ -61,12 +62,11 @@ _doc_freq_agg_name = "sum_of_predication_counts"
 # URLSpec kwargs composition #
 ##############################
 
-urlspec_kwargs = dict(subject_field_name=_subject_field_name,
-                      object_field_name=_object_field_name,
-                      doc_freq_agg_name=_doc_freq_agg_name,
-                      term_expansion_service=_term_expansion_service)
+urlspec_kwargs = dict(
+    subject_field_name=_subject_field_name,
+    object_field_name=_object_field_name,
+    doc_freq_agg_name=_doc_freq_agg_name,
+    term_expansion_service=_term_expansion_service,
+)
 
-APP_LIST = [
-    (r"/{pre}/{ver}/query/ngd?", "web.handlers.SemmedNGDHandler", urlspec_kwargs),
-    *APP_LIST
-]
+APP_LIST = [(r"/{pre}/{ver}/query/ngd?", "web.handlers.SemmedNGDHandler", urlspec_kwargs), *APP_LIST]

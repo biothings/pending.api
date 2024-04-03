@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-go_cc"
+ES_DOC_TYPE = "geneset"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-go_cc'
-ES_DOC_TYPE = 'geneset'
-
-API_PREFIX = 'go_cc'
-API_VERSION = ''
+API_PREFIX = "go_cc"
+API_VERSION = ""

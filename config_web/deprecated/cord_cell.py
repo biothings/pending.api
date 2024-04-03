@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-cord_cell"
+ES_DOC_TYPE = "cell"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-cord_cell'
-ES_DOC_TYPE = 'cell'
-
-API_PREFIX = 'cord_cell'
-API_VERSION = ''
+API_PREFIX = "cord_cell"
+API_VERSION = ""
