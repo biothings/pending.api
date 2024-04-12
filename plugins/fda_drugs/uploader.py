@@ -68,10 +68,10 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
                     "active_ingredients": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
                     "strength": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
                     "dosage_form": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                    "marketing_status": {"type": "keyword", "normalizer": "keyword"},
-                    "te_code": {"type": "keyword", "normalizer": "keyword"},
-                    "rld": {"type": "keyword", "normalizer": "keyword"},
-                    "reference_standard": {"type": "keyword", "normalizer": "keyword"},
+                    "marketing_status": {"type": "keyword"},
+                    "te_code": {"type": "keyword"},
+                    "rld": {"type": "keyword"},
+                    "reference_standard": {"type": "keyword"},
                 },
             }
         }
