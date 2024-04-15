@@ -34,14 +34,15 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             for raw_entry in file_handle.readlines():
                 structured_entry = raw_entry.strip().split("\t")
                 document = {
-                    "drug_name": str(structured_entry[0]),
-                    "active_ingredients": str(structured_entry[1]),
-                    "strength": str(structured_entry[2]),
-                    "dosage_form": str(structured_entry[3]),
-                    "marketing_status": str(structured_entry[4]),
-                    "therapeutic_equivalence": str(structured_entry[5]),
-                    "reference_listed_drug": bool(structured_entry[6]),
-                    "reference_standard": bool(structured_entry[7]),
+                    "_id": str(structured_entry[0]),
+                    "drug_name": str(structured_entry[1]),
+                    "active_ingredients": str(structured_entry[2]),
+                    "strength": str(structured_entry[3]),
+                    "dosage_form": str(structured_entry[4]),
+                    "marketing_status": str(structured_entry[5]),
+                    "therapeutic_equivalence": str(structured_entry[6]),
+                    "reference_listed_drug": bool(structured_entry[7]),
+                    "reference_standard": bool(structured_entry[8]),
                 }
                 yield document
 

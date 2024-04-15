@@ -138,8 +138,10 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 te = te_content.get(lookup_key, NULL_TE)
 
                 marketing_status_value = marketing_status_lookup_table.get(marketing_status.MarketingStatusID, None)
+                unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}"
 
                 grouped_entry = (
+                    f"{unique_id}\t"
                     f"{product.DrugName}\t"
                     f"{product.ActiveIngredient}\t"
                     f"{product.Strength}\t "
