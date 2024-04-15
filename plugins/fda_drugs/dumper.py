@@ -6,6 +6,7 @@ Methods for pulling down the FDA Drugs data
 from pathlib import Path
 from typing import List, Union
 import urllib.request
+import uuid
 import zipfile
 
 import bs4
@@ -138,7 +139,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 te = te_content.get(lookup_key, NULL_TE)
 
                 marketing_status_value = marketing_status_lookup_table.get(marketing_status.MarketingStatusID, None)
-                unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}"
+                unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}-{uuid.uuid4().hex}"
 
                 grouped_entry = (
                     f"{unique_id}\t"
