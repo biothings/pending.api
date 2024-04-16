@@ -16,8 +16,10 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
     name = "fda_drugs"
     __metadata__ = {
         "src_meta": {
-            "url": "https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files",
-            "license_url": None,
+            "url": "https://www.fda.gov/drugsatfda",
+            "license": "CC0 1.0 Universal",
+            "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "description": "Drugs@FDA includes information about drugs, including biological products, approved for human use in the United States (see (https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=faq.page)), but does not include information about FDA-approved products regulated by the Center for Biologics Evaluation and Research (for example, vaccines, allergenic products, blood and blood products, plasma derivatives, cellular and gene therapy products).",
         }
     }
 
