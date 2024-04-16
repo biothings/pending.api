@@ -63,17 +63,15 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         }
         """
         elasticsearch_mapping = {
-            "associatedWith": {
-                "properties": {
-                    "drug_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                    "active_ingredients": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                    "strength": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                    "dosage_form": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                    "marketing_status": {"type": "keyword"},
-                    "te_code": {"type": "keyword"},
-                    "rld": {"type": "keyword"},
-                    "reference_standard": {"type": "keyword"},
-                },
-            }
+            "properties": {
+                "drug_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "active_ingredients": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "strength": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "dosage_form": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "marketing_status": {"type": "keyword"},
+                "te_code": {"type": "keyword"},
+                "rld": {"type": "keyword"},
+                "reference_standard": {"type": "keyword"},
+            },
         }
         return elasticsearch_mapping
