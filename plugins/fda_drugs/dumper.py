@@ -29,7 +29,6 @@ logger = config.logger
 
 class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
     FDA_URL = "https://www.fda.gov"
-
     SRC_NAME = "fda_drugs"
     SRC_ROOT_FOLDER = Path(config.DATA_ARCHIVE_ROOT) / SRC_NAME
     SCHEDULE = None
