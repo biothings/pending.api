@@ -11,8 +11,6 @@ from typing import Union
 import biothings.hub
 import biothings.hub.dataload.uploader
 
-from biothings import config
-
 
 class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
     name = "fda_drugs"
