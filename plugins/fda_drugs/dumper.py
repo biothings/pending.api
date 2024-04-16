@@ -201,12 +201,20 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         fda_drug_data_path = "/drugs/drug-approvals-and-databases/drugsfda-data-files"
         fda_drug_data_page = f"{cls.FDA_URL}{fda_drug_data_path}"
         request_timeout_sec = 15
+
+        # [Bandit security warning note]
+        # any usage of the urllib trigger the warning: {B310: Audit url open for permitted schemes}
+        # urllib.request.urlopen supports file system access via ftp:// and file://
+        #
+        # if our usage accepted external input, then this would be a potential security concern, but
+        # our use case leverages hard-coded URL's pointing directly at the FDA webpages
         try:
-            http_response = urllib.request.urlopen(url=fda_drug_data_page, data=None, timeout=request_timeout_sec)
+            page_request = urllib.request.Request(url=fda_drug_data_page, data=None, headers={}, method="GET")
+            with urllib.request.urlopen(url=page_request, timeout=request_timeout_sec) as http_response:  # nosec
+                raw_html_structure = b"".join(http_response.readlines())
         except Exception as gen_exc:
             raise gen_exc
 
-        raw_html_structure = b"".join(http_response.readlines())
         html_parser = bs4.BeautifulSoup(raw_html_structure, features="html.parser")
 
         data_entity_attributes = {"data-entity-substitution": True, "data-entity-type": True, "data-entity-uuid": True}
@@ -251,12 +259,20 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         fda_drug_data_path = "/drugs/drug-approvals-and-databases/drugsfda-data-files"
         fda_drug_data_page = f"{cls.FDA_URL}{fda_drug_data_path}"
         request_timeout_sec = 15
+
+        # [Bandit security warning note]
+        # any usage of the urllib trigger the warning: {B310: Audit url open for permitted schemes}
+        # urllib.request.urlopen supports file system access via ftp:// and file://
+        #
+        # if our usage accepted external input, then this would be a potential security concern, but
+        # our use case leverages hard-coded URL's pointing directly at the FDA webpages
         try:
-            http_response = urllib.request.urlopen(url=fda_drug_data_page, data=None, timeout=request_timeout_sec)
+            page_request = urllib.request.Request(url=fda_drug_data_page, data=None, headers={}, method="GET")
+            with urllib.request.urlopen(url=page_request, timeout=request_timeout_sec) as http_response:  # nosec
+                raw_html_structure = b"".join(http_response.readlines())
         except Exception as gen_exc:
             raise gen_exc
 
-        raw_html_structure = b"".join(http_response.readlines())
         html_parser = bs4.BeautifulSoup(raw_html_structure, features="html.parser")
 
         data_entity_attributes = {"data-entity-substitution": True, "data-entity-type": True, "data-entity-uuid": True}
