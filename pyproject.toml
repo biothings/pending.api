@@ -7,3 +7,10 @@ profile = "black"
 combine_as_imports = true
 line_length = 120
 src_paths = ["."]
+
+[flake8]
+per-file-ignores =
+    tests: S101 # Ignore the usage of "assert" in tests as a security concern for [bandit]
+
+[tool.bandit.assert_used]
+skips = ['*_test.py', '*/test_*.py'] # Ignore the usage of "assert" in tests as a security concern for [bandit]
