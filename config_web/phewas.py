@@ -1,7 +1,6 @@
+ES_HOST = "http://localhost:9200"
+ES_INDEX = "pending-phewas"
+ES_DOC_TYPE = "variant"
 
-ES_HOST = 'localhost:9200'
-ES_INDEX = 'pending-phewas'
-ES_DOC_TYPE = 'variant'
-
-API_PREFIX = 'phewas'
-API_VERSION = ''
+API_PREFIX = "phewas"
+API_VERSION = ""

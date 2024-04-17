@@ -5,7 +5,7 @@ PFOCR_FLAVOR_ALL = "pending-pfocr_all"
 PFOCR_FLAVOR_SYNONYMS = "pending-pfocr_synonyms"
 PFOCR_FLAVOR_STRICT = "pending-pfocr_strict"
 
-ES_HOST = "localhost:9200"
+ES_HOST = "http://localhost:9200"
 ES_INDEX = [PFOCR_FLAVOR_ALL, PFOCR_FLAVOR_SYNONYMS, PFOCR_FLAVOR_STRICT]
 ES_DOC_TYPE = "geneset"
 

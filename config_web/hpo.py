@@ -1,6 +1,6 @@
 import re
 
-ES_HOST = "localhost:9200"
+ES_HOST = "http://localhost:9200"
 ES_INDEX = "pending-hpo"
 ES_DOC_TYPE = "phenotype"
 
