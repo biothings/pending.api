@@ -30,6 +30,7 @@ from . import doid
 from . import ebigene2phenotype  # use plugin "ebi_gene2phenotype"
 
 # from . import fire
+from . import fda_drugs
 from . import foodb  # use plugin "foodb_json"
 from . import fooddata  # use plugin "FoodData_parser"
 from . import geneset  # use plugin "geneset1"
