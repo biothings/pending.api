@@ -1,8 +1,8 @@
 """
 Methods for pulling down the FDA Drugs data
-
 """
 
+import json
 from pathlib import Path
 from typing import List, Union
 import urllib.request
@@ -38,7 +38,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
     def __init__(self):
         self.SRC_URLS = FDA_DrugDumper.extract_fda_drug_data()
         self.__class__.SRC_URLS = self.SRC_URLS
-        self.grouped_file = "FDA_DRUGS_GROUPING.txt"
+        self.grouped_file = "FDA_DRUGS_GROUPING.json"
 
         super().__init__()
 
@@ -46,6 +46,23 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         """
         Takes the FDA drug data files pulled down from the source and groups them to form
         one joined file that contains the structure we wish to upload to our index
+
+        The final structure of our file is a collection of row-based entries with these headers:
+
+        {
+            unique_id,
+            application_number,
+            product_number,
+            drug_name,
+            active_ingredients,
+            strength,
+            dosage_form
+            marketing_status,
+            te_code,
+            reference_drug,
+            reference_standard
+        )
+
         """
 
         # Force creation of the to_dump collection
@@ -56,102 +73,173 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         with zipfile.ZipFile(local_zip_file, "r") as zip_object:
             zip_object.extractall(data_directory)
 
+        unique_entries = set()
+        products_content = self._process_product_file(data_directory=data_directory, unique_entries=unique_entries)
+        marketing_status_content = self._process_marketing_status_file(
+            data_directory=data_directory, unique_entries=unique_entries
+        )
+        te_content = self._process_te_file(data_directory=data_directory, unique_entries=unique_entries)
+
         marketing_status_lookup_file = Path(data_directory).joinpath("MarketingStatus_Lookup.txt")
         marketing_status_lookup_table = self._build_marketing_status_lookup_table(marketing_status_lookup_file)
 
+        group_file_path = Path(data_directory).joinpath(self.grouped_file)
+        join_mapping = []
+        for lookup_key in unique_entries:
+            product = products_content.get(lookup_key, NULL_PRODUCT)
+            marketing_status = marketing_status_content.get(lookup_key, NULL_MARKETING_STATUS)
+            te = te_content.get(lookup_key, NULL_TE)
+
+            marketing_status_value = marketing_status_lookup_table.get(marketing_status.MarketingStatusID, None)
+            unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}-{uuid.uuid4().hex}"
+
+            grouped_entry = {
+                "unique_id": unique_id,
+                "application_number": product.ApplNo,
+                "product_number": product.ProductNo,
+                "drug_name": product.DrugName,
+                "active_ingredient": product.ActiveIngredient,
+                "strength": product.Strength,
+                "dosage_form": product.Form,
+                "marketing_status": marketing_status_value,
+                "te_code": te.TECode,
+                "reference_drug": product.ReferenceDrug,
+                "reference_standard": product.ReferenceStandard,
+            }
+            join_mapping.append(grouped_entry)
+
+        with open(group_file_path, "w", encoding="utf-8") as group_handle:
+            json.dump(join_mapping, group_handle, indent=4)
+
+    def _process_product_file(self, data_directory: Path, unique_entries: set) -> dict:
+        """
+        Processes the Product.txt file into a collection of the following structure:
+
+        ApplNo: int
+        ProductNo: int
+        Form: list[str]
+        Strength: list[str]
+        ReferenceDrug: bool
+        DrugName: str
+        ActiveIngredient: str
+        ReferenceStandard: bool
+
+        """
         products_file = Path(data_directory).joinpath("Products.txt")
-        marketing_status_file = Path(data_directory).joinpath("MarketingStatus.txt")
-        te_file = Path(data_directory).joinpath("TE.txt")
-
-        unique_entries = set()
-
         products_content = {}
+        column_delimiter = "\t"
+
         with open(products_file, "r", encoding="utf-8") as product_handle:
             for raw_entry in product_handle.readlines()[1:]:
-                entry_row = raw_entry.strip().split("\t")
+                entry_row = raw_entry.split(column_delimiter)
+                entry_row = [entry.strip() for entry in entry_row]
 
-                application_number = entry_row[0]
-                product_number = entry_row[1]
+                application_number = int(entry_row[0])
+                product_number = int(entry_row[1])
 
-                if len(entry_row) < 8:
-                    reference_standard = None
-                else:
-                    reference_standard = bool(entry_row[7])
+                dosage_delimiter = ";"
+                dosage_forms = entry_row[2].split(dosage_delimiter)
+                dosage_forms = [str(dosage_entry).strip().lower() for dosage_entry in dosage_forms]
+
+                strength_delimiter = ";"
+                strength = entry_row[3].split(strength_delimiter)
+                strength = [str(strength_entry).strip().lower() for strength_entry in strength]
+
+                try:
+                    reference_drug_index = int(entry_row[4])
+                except ValueError:
+                    reference_drug_index = 0
+                finally:
+                    reference_drug = bool(reference_drug_index)
+
+                drug_name = str(entry_row[5])
+                active_ingredients = str(entry_row[6]).lower()
+
+                try:
+                    reference_standard_index = int(entry_row[7])
+                except ValueError:
+                    reference_standard_index = 0
+                finally:
+                    reference_standard = bool(reference_standard_index)
 
                 product_structure = ProductsFileEntry(
                     ApplNo=application_number,
                     ProductNo=product_number,
-                    Form=entry_row[2],
-                    Strength=entry_row[3],
-                    ReferenceDrug=bool(entry_row[4]),
-                    DrugName=entry_row[5],
-                    ActiveIngredient=entry_row[6],
+                    Form=dosage_forms,
+                    Strength=strength,
+                    ReferenceDrug=reference_drug,
+                    DrugName=drug_name,
+                    ActiveIngredient=active_ingredients,
                     ReferenceStandard=reference_standard,
                 )
                 hash_key = hash(application_number) + hash(product_number)
                 products_content[hash_key] = product_structure
                 unique_entries.add(hash_key)
+        return products_content
 
+    def _process_marketing_status_file(self, data_directory: Path, unique_entries: set) -> dict:
+        """
+        Processes the MarketingStatus.txt file into a collection of the following structure:
+
+        MarketingStatusID: int
+        ApplNo: int
+        ProductNo: str
+
+        """
+        marketing_status_file = Path(data_directory).joinpath("MarketingStatus.txt")
         marketing_status_content = {}
+        column_delimiter = "\t"
+
         with open(marketing_status_file, "r", encoding="utf-8") as marketing_handle:
             for raw_entry in marketing_handle.readlines()[1:]:
-                entry_row = raw_entry.strip().split("\t")
+                entry_row = raw_entry.split(column_delimiter)
+                entry_row = [entry.strip() for entry in entry_row]
 
-                application_number = entry_row[1]
-                product_number = entry_row[2]
+                marketing_status_index = int(entry_row[0])
+                application_number = int(entry_row[1])
+                product_number = int(entry_row[2])
                 marketing_status_structure = MarketingStatusEntry(
-                    MarketingStatusID=int(entry_row[0]), ApplNo=application_number, ProductNo=product_number
+                    MarketingStatusID=marketing_status_index, ApplNo=application_number, ProductNo=product_number
                 )
                 hash_key = hash(application_number) + hash(product_number)
                 marketing_status_content[hash_key] = marketing_status_structure
                 unique_entries.add(hash_key)
+        return marketing_status_content
 
+    def _process_te_file(self, data_directory: Path, unique_entries: set) -> dict:
+        """
+        Processes the TE.txt file into a collection of the following structure:
+
+        ApplNo: int
+        ProductNo: int
+        MarketingStatusID: int
+        TECode: str
+
+        """
+        te_file = Path(data_directory).joinpath("TE.txt")
         te_content = {}
+        column_delimiter = "\t"
+
         with open(te_file, "r", encoding="utf-8") as te_handle:
             for raw_entry in te_handle.readlines()[1:]:
-                entry_row = raw_entry.strip().split("\t")
+                entry_row = raw_entry.split(column_delimiter)
+                entry_row = [entry.strip() for entry in entry_row]
 
-                application_number = entry_row[0]
-                product_number = entry_row[1]
-
-                if len(entry_row) < 4:
-                    te_code = None
-                else:
-                    te_code = entry_row[3]
+                application_number = int(entry_row[0])
+                product_number = int(entry_row[1])
+                marketing_status_index = int(entry_row[2])
+                te_code = str(entry_row[3])
 
                 te_status_structure = TEFileEntry(
                     ApplNo=application_number,
                     ProductNo=product_number,
-                    MarketingStatusID=int(entry_row[2]),
+                    MarketingStatusID=marketing_status_index,
                     TECode=te_code,
                 )
                 hash_key = hash(application_number) + hash(product_number)
                 te_content[hash_key] = te_status_structure
                 unique_entries.add(hash_key)
-
-        group_file_path = Path(data_directory).joinpath(self.grouped_file)
-        with open(group_file_path, "w", encoding="utf-8") as group_handle:
-            for lookup_key in unique_entries:
-
-                product = products_content.get(lookup_key, NULL_PRODUCT)
-                marketing_status = marketing_status_content.get(lookup_key, NULL_MARKETING_STATUS)
-                te = te_content.get(lookup_key, NULL_TE)
-
-                marketing_status_value = marketing_status_lookup_table.get(marketing_status.MarketingStatusID, None)
-                unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}-{uuid.uuid4().hex}"
-
-                grouped_entry = (
-                    f"{unique_id}\t"
-                    f"{product.DrugName}\t"
-                    f"{product.ActiveIngredient}\t"
-                    f"{product.Strength}\t "
-                    f"{product.Form}\t"
-                    f"{marketing_status_value}\t"
-                    f"{te.TECode}\t"
-                    f"{product.ReferenceDrug}\t"
-                    f"{product.ReferenceStandard}\n"
-                )
-                group_handle.write(grouped_entry)
+        return te_content
 
     @classmethod
     def _build_marketing_status_lookup_table(cls, marketing_status_lookup_file: Union[str, Path]) -> dict:
@@ -169,7 +257,10 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
             file_contents = file_handle.readlines()[1:]
             for entry in file_contents:
                 lookup_contents = entry.split("\t")
-                marketing_status_mapping[int(lookup_contents[0])] = str(lookup_contents[1]).strip()
+                marketing_status_index = int(lookup_contents[0])
+                marketing_status_value = str(lookup_contents[1]).strip().lower()
+
+                marketing_status_mapping[marketing_status_index] = marketing_status_value
         return marketing_status_mapping
 
     @classmethod

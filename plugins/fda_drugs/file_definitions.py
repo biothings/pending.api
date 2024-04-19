@@ -15,6 +15,9 @@ Drug Name	Active Ingredients	Strength	Dosage Form/Route	Marketing Status	TE Code
 [5] TE Code -> TE.txt
 [6] RLD -> Products.txt
 [7] RS -> Products.txt
+
+Naming References:
+https://www.fda.gov/drugs/drug-approvals-and-databases/orange-book-data-files
 """
 
 import dataclasses
@@ -28,10 +31,10 @@ class ProductsFileEntry:
     000004  004       SOLUTION/DROPS;OPHTHALMIC 1%       0             PAREDRINE [HYDROXYAMPHETAMINE HYDROBROMIDE] 0
     """
 
-    ApplNo: str
-    ProductNo: str
-    Form: str
-    Strength: str
+    ApplNo: int
+    ProductNo: int
+    Form: list[str]
+    Strength: list[str]
     ReferenceDrug: bool
     DrugName: str
     ActiveIngredient: str
@@ -58,8 +61,8 @@ class TEFileEntry:
     003444  001       1                 AA
     """
 
-    ApplNo: str
-    ProductNo: str
+    ApplNo: int
+    ProductNo: int
     MarketingStatusID: int
     TECode: str
 
@@ -76,7 +79,7 @@ class MarketingStatusEntry:
     """
 
     MarketingStatusID: int
-    ApplNo: str
+    ApplNo: int
     ProductNo: str
 
 

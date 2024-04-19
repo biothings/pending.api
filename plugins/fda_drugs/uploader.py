@@ -5,6 +5,7 @@ Handles the parsing of the document generated post_dump
 from the dumper class instance
 """
 
+import json
 from pathlib import Path
 from typing import Union
 
@@ -29,20 +30,22 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         sources provided by the FDA, we simply have to extract the merged documents rows into
         a JSON document
         """
-        structured_fda_drug_data = Path(data_folder).joinpath("FDA_DRUGS_GROUPING.txt")
+        structured_fda_drug_data = Path(data_folder).joinpath("FDA_DRUGS_GROUPING.json")
         with open(structured_fda_drug_data, "r", encoding="utf-8") as file_handle:
-            for raw_entry in file_handle.readlines():
-                structured_entry = raw_entry.strip().split("\t")
+            joined_mapping = json.load(file_handle)
+            for entry_map in joined_mapping:
                 document = {
-                    "_id": str(structured_entry[0]),
-                    "drug_name": str(structured_entry[1]),
-                    "active_ingredients": str(structured_entry[2]),
-                    "strength": str(structured_entry[3]),
-                    "dosage_form": str(structured_entry[4]),
-                    "marketing_status": str(structured_entry[5]),
-                    "therapeutic_equivalence": str(structured_entry[6]),
-                    "reference_listed_drug": bool(structured_entry[7]),
-                    "reference_standard": bool(structured_entry[8]),
+                    "_id": entry_map["unique_id"],
+                    "anda": entry_map["application_number"],
+                    "product_no": entry_map["product_number"],
+                    "drug_name": entry_map["drug_name"],
+                    "active_ingredients": entry_map["active_ingredient"],
+                    "strength": entry_map["strength"],
+                    "dosage_form": entry_map["dosage_form"],
+                    "marketing_status": entry_map["marketing_status"],
+                    "te_code": entry_map["te_code"],
+                    "rld": entry_map["reference_drug"],
+                    "rs": entry_map["reference_standard"],
                 }
                 yield document
 
@@ -63,6 +66,8 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         }
         """
         elasticsearch_mapping = {
+            "anda": {"type": "keyword"},
+            "product_no": {"type": "keyword"},
             "drug_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             "active_ingredients": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             "strength": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
