@@ -107,7 +107,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
             elif application.SponsorName is not None:
                 application_company = application.SponsorName
 
-            unique_id = f"ApplNo-{application_number}-ProductNo-{product_number}"
+            unique_id = f"{application_number}-{product_number}"
 
             grouped_entry = {
                 "unique_id": unique_id,
