@@ -78,8 +78,8 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             "dosage_form": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             "marketing_status": {"type": "keyword"},
             "te_code": {"type": "keyword"},
-            "rld": {"type": "keyword"},
-            "reference_standard": {"type": "keyword"},
+            "rld": {"type": "boolean"},
+            "rs": {"type": "boolean"},
             "company": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
         }
         return elasticsearch_mapping
