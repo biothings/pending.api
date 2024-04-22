@@ -72,7 +72,7 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         elasticsearch_mapping = {
             "anda": {"type": "keyword"},
             "product_no": {"type": "keyword"},
-            "drug_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+            "drug_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer", "copy_to": ["all"]},
             "active_ingredients": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             "strength": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             "dosage_form": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
