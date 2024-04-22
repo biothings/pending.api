@@ -5,16 +5,18 @@ We don't need all of them but for the one's we do we define a file
 structure here to help strictly specify the structure in code
 
 The document we want to construct has the following structure:
-Drug Name	Active Ingredients	Strength	Dosage Form/Route	Marketing Status	TE Code	RLD	RS
 
-[0] Drug Name -> Products.txt
-[1] Active Ingredients -> Products.txt
-[2] Strength -> Products.txt
-[3] Dosage Form/Route  -> Products.txt
-[4] Marketing Status -> [TE.txt, MarketingStatusi.txt] + MarketingStatus_Lookup.txt
-[5] TE Code -> TE.txt
-[6] RLD -> Products.txt
-[7] RS -> Products.txt
+[0]  Application Number -> [Products.txt, TE.txt, MarketingStatus.txt, Applications.txt]
+[1]  Product Number -> [Products.txt, TE.txt, MarketingStatus.txt, Applications.txt]
+[2]  Drug Name -> Products.txt
+[3]  Active Ingredients -> Products.txt
+[4]  Strength -> Products.txt
+[5]  Dosage Form/Route  -> Products.txt
+[6]  Marketing Status -> [TE.txt, MarketingStatus.txt] + MarketingStatus_Lookup.txt
+[7]  Therapeutic Equivalence Code -> TE.txt
+[8]  Reference Level Drug -> Products.txt
+[9]  Reference Standard -> Products.txt
+[10] Company -> Applications.txt 
 
 Naming References:
 https://www.fda.gov/drugs/drug-approvals-and-databases/orange-book-data-files
@@ -31,8 +33,8 @@ class ProductsFileEntry:
     000004  004       SOLUTION/DROPS;OPHTHALMIC 1%       0             PAREDRINE [HYDROXYAMPHETAMINE HYDROBROMIDE] 0
     """
 
-    ApplNo: int
-    ProductNo: int
+    ApplNo: str
+    ProductNo: str
     Form: list[str]
     Strength: list[str]
     ReferenceDrug: bool
@@ -61,8 +63,8 @@ class TEFileEntry:
     003444  001       1                 AA
     """
 
-    ApplNo: int
-    ProductNo: int
+    ApplNo: str
+    ProductNo: str
     MarketingStatusID: int
     TECode: str
 
@@ -79,8 +81,32 @@ class MarketingStatusEntry:
     """
 
     MarketingStatusID: int
-    ApplNo: int
+    ApplNo: str
     ProductNo: str
 
 
 NULL_MARKETING_STATUS = MarketingStatusEntry(MarketingStatusID=None, ApplNo=None, ProductNo=None)
+
+
+@dataclasses.dataclass(frozen=True)
+class ApplicationsEntry:
+    """
+    ==> Applications.txt <==
+    ApplNo	ApplType	ApplPublicNotes	             SponsorName
+    218158	NDA         FORMOSA PHARMACEUTICALS INC
+    218181	ANDA                                     GRAVITI PHARMS
+    218182	ANDA                                     TARO
+    218193	NDA         MYLAN PHARMS INC
+    218194	ANDA                                     AUROBINDO PHARMA
+    218197	NDA         ASTRAZENECA
+    218213	NDA         BRISTOL
+    218221	ANDA                                     BIONPHARMA
+    """
+
+    ApplNo: str
+    ApplTyp: str
+    ApplPublicNotes: str
+    SponsorName: str
+
+
+NULL_APPLICATION = ApplicationsEntry(ApplNo=None, ApplTyp=None, ApplPublicNotes=None, SponsorName=None)
