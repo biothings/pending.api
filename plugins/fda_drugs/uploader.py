@@ -46,6 +46,7 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
                     "te_code": entry_map["te_code"],
                     "rld": entry_map["reference_drug"],
                     "rs": entry_map["reference_standard"],
+                    "company": entry_map["company"],
                 }
                 yield document
 
@@ -55,6 +56,8 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         Elasticsearch mapping for representing the structured FDA drugs data
         Entry Structure:
         {
+            <Application Number>
+            <Product Number>
             <Drug Name>
             <Active Ingredients>
             <Strength>
@@ -63,6 +66,7 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             <TE Code>
             <RLD>
             <RS>
+            <Company>
         }
         """
         elasticsearch_mapping = {
@@ -76,5 +80,6 @@ class FDA_DrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             "te_code": {"type": "keyword"},
             "rld": {"type": "keyword"},
             "reference_standard": {"type": "keyword"},
+            "company": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
         }
         return elasticsearch_mapping

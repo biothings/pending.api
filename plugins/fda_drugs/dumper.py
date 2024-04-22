@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 from typing import List, Union
 import urllib.request
-import uuid
 import zipfile
 
 import bs4
@@ -15,12 +14,14 @@ import biothings.hub
 from biothings import config
 
 from .file_definitions import (
-    ProductsFileEntry,
-    NULL_PRODUCT,
-    TEFileEntry,
-    NULL_TE,
+    ApplicationsEntry,
     MarketingStatusEntry,
+    NULL_APPLICATION,
     NULL_MARKETING_STATUS,
+    NULL_PRODUCT,
+    NULL_TE,
+    ProductsFileEntry,
+    TEFileEntry,
 )
 
 
@@ -79,6 +80,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
             data_directory=data_directory, unique_entries=unique_entries
         )
         te_content = self._process_te_file(data_directory=data_directory, unique_entries=unique_entries)
+        applications_content = self._process_applications_file(data_directory=data_directory)
 
         marketing_status_lookup_file = Path(data_directory).joinpath("MarketingStatus_Lookup.txt")
         marketing_status_lookup_table = self._build_marketing_status_lookup_table(marketing_status_lookup_file)
@@ -91,12 +93,26 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
             te = te_content.get(lookup_key, NULL_TE)
 
             marketing_status_value = marketing_status_lookup_table.get(marketing_status.MarketingStatusID, None)
-            unique_id = f"ApplNo-{product.ApplNo}-ProductNo-{product.ProductNo}-{uuid.uuid4().hex}"
+
+            application_numbers = [product.ApplNo, marketing_status.ApplNo, te.ApplNo]
+            application_number = [appl for appl in application_numbers if appl is not None][0]
+
+            product_numbers = set([product.ProductNo, marketing_status.ProductNo, te.ProductNo])
+            product_number = [prod for prod in product_numbers if prod is not None][0]
+
+            application = applications_content.get(application_number, NULL_APPLICATION)
+            application_company = None
+            if application.ApplPublicNotes is not None:
+                application_company = application.ApplPublicNotes
+            elif application.SponsorName is not None:
+                application_company = application.SponsorName
+
+            unique_id = f"ApplNo-{application_number}-ProductNo-{product_number}"
 
             grouped_entry = {
                 "unique_id": unique_id,
-                "application_number": product.ApplNo,
-                "product_number": product.ProductNo,
+                "application_number": application_number,
+                "product_number": product_number,
                 "drug_name": product.DrugName,
                 "active_ingredient": product.ActiveIngredient,
                 "strength": product.Strength,
@@ -105,7 +121,10 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 "te_code": te.TECode,
                 "reference_drug": product.ReferenceDrug,
                 "reference_standard": product.ReferenceStandard,
+                "company": application_company,
             }
+            logger.debug(json.dumps(grouped_entry, indent=4))
+
             join_mapping.append(grouped_entry)
 
         with open(group_file_path, "w", encoding="utf-8") as group_handle:
@@ -115,8 +134,8 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         """
         Processes the Product.txt file into a collection of the following structure:
 
-        ApplNo: int
-        ProductNo: int
+        ApplNo: str
+        ProductNo: str
         Form: list[str]
         Strength: list[str]
         ReferenceDrug: bool
@@ -134,8 +153,8 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 entry_row = raw_entry.split(column_delimiter)
                 entry_row = [entry.strip() for entry in entry_row]
 
-                application_number = int(entry_row[0])
-                product_number = int(entry_row[1])
+                application_number = entry_row[0]
+                product_number = entry_row[1]
 
                 dosage_delimiter = ";"
                 dosage_forms = entry_row[2].split(dosage_delimiter)
@@ -182,7 +201,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         Processes the MarketingStatus.txt file into a collection of the following structure:
 
         MarketingStatusID: int
-        ApplNo: int
+        ApplNo: str
         ProductNo: str
 
         """
@@ -196,8 +215,8 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 entry_row = [entry.strip() for entry in entry_row]
 
                 marketing_status_index = int(entry_row[0])
-                application_number = int(entry_row[1])
-                product_number = int(entry_row[2])
+                application_number = entry_row[1]
+                product_number = entry_row[2]
                 marketing_status_structure = MarketingStatusEntry(
                     MarketingStatusID=marketing_status_index, ApplNo=application_number, ProductNo=product_number
                 )
@@ -210,8 +229,8 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         """
         Processes the TE.txt file into a collection of the following structure:
 
-        ApplNo: int
-        ProductNo: int
+        ApplNo: str
+        ProductNo: str
         MarketingStatusID: int
         TECode: str
 
@@ -225,21 +244,54 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 entry_row = raw_entry.split(column_delimiter)
                 entry_row = [entry.strip() for entry in entry_row]
 
-                application_number = int(entry_row[0])
-                product_number = int(entry_row[1])
+                application_number = entry_row[0]
+                product_number = entry_row[1]
                 marketing_status_index = int(entry_row[2])
                 te_code = str(entry_row[3])
 
-                te_status_structure = TEFileEntry(
+                te_structure = TEFileEntry(
                     ApplNo=application_number,
                     ProductNo=product_number,
                     MarketingStatusID=marketing_status_index,
                     TECode=te_code,
                 )
                 hash_key = hash(application_number) + hash(product_number)
-                te_content[hash_key] = te_status_structure
+                te_content[hash_key] = te_structure
                 unique_entries.add(hash_key)
         return te_content
+
+    def _process_applications_file(self, data_directory: Path) -> dict:
+        """
+        Processes the Applications.txt file into a collection of the following structure:
+
+        ApplNo: str
+        ApplTyp: str
+        ApplPublicNotes: str
+        SponsorName: str
+
+        """
+        applications_file = Path(data_directory).joinpath("Applications.txt")
+        applications_content = {}
+        column_delimiter = "\t"
+
+        with open(applications_file, "r", encoding="utf-8") as te_handle:
+            for raw_entry in te_handle.readlines()[1:]:
+                entry_row = raw_entry.split(column_delimiter)
+                entry_row = [entry.strip() for entry in entry_row]
+
+                application_number = entry_row[0]
+                application_type = entry_row[1]
+                application_publication_notes = str(entry_row[2]).lower()
+                sponsor_name = str(entry_row[3]).lower()
+
+                application_structure = ApplicationsEntry(
+                    ApplNo=application_number,
+                    ApplTyp=application_type,
+                    ApplPublicNotes=application_publication_notes,
+                    SponsorName=sponsor_name,
+                )
+                applications_content[application_number] = application_structure
+        return applications_content
 
     @classmethod
     def _build_marketing_status_lookup_table(cls, marketing_status_lookup_file: Union[str, Path]) -> dict:
