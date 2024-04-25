@@ -10,7 +10,8 @@
                       "https://download.jensenlab.org/human_tissue_experiments_full.tsv",
                       "https://download.jensenlab.org/human_tissue_knowledge_full.tsv"
                        ],
-        "uncompress": false
+        "uncompress": false,
+        "schedule": "0 2 * * *"
     },
     "uploader": {
         "parser": "parser:load_data",

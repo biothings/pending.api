@@ -12,7 +12,8 @@
             "http://download.jensenlab.org/human_disease_experiments_full.tsv"
         ],
         "uncompress": false,
-        "release": "version:get_release"
+        "release": "version:get_release",
+        "schedule": "0 2 * * *"
     },
     "uploader": {
         "parser": "parser:load_data",
