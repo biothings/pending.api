@@ -172,7 +172,10 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                     reference_drug = bool(reference_drug_index)
 
                 drug_name = str(entry_row[5])
-                active_ingredients = str(entry_row[6]).lower()
+
+                active_ingredient_delimiter = ";"
+                active_ingredients = entry_row[6].split(active_ingredient_delimiter)
+                active_ingredients = [str(ingredient).strip().lower() for ingredient in active_ingredients]
 
                 try:
                     reference_standard_index = int(entry_row[7])
