@@ -102,6 +102,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
 
             application = applications_content.get(application_number, NULL_APPLICATION)
             application_company = None
+            breakpoint()
             if application.ApplPublicNotes is not None:
                 application_company = application.ApplPublicNotes
             elif application.SponsorName is not None:
@@ -281,8 +282,14 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
 
                 application_number = entry_row[0]
                 application_type = entry_row[1]
+
                 application_publication_notes = str(entry_row[2]).lower()
+                if application_publication_notes == "":
+                    application_publication_notes = None
+
                 sponsor_name = str(entry_row[3]).lower()
+                if sponsor_name == "":
+                    sponsor_name = None
 
                 application_structure = ApplicationsEntry(
                     ApplNo=application_number,
