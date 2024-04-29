@@ -102,7 +102,6 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
 
             application = applications_content.get(application_number, NULL_APPLICATION)
             application_company = None
-            breakpoint()
             if application.ApplPublicNotes is not None:
                 application_company = application.ApplPublicNotes
             elif application.SponsorName is not None:
