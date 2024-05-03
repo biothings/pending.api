@@ -6,7 +6,7 @@
             "https://www.ebi.ac.uk/gene2phenotype/downloads/DDG2P.csv.gz"],
         "uncompress" : true,
         "release" : "version:get_release",
-        "schedule": "50 10 * * *"
+        "schedule": "0 6 * * *"
     },
     "uploader" : {
         "parser" : "parser:load_data",
