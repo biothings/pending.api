@@ -61,13 +61,6 @@
 	path = plugins/DISEASES
 	url = https://github.com/kevinxin90/DISEASES
 	ignore = dirty
-[submodule "plugins/doid"]
-	path = plugins/doid
-	url = https://github.com/ericz1803/doid
-	branch = main
-	ignore = dirty
-
-
 [submodule "plugins/ebi_gene2phenotype"]
 	path = plugins/ebi_gene2phenotype
 	url = https://github.com/erikyao/ebi_gene2phenotype
