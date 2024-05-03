@@ -98,12 +98,6 @@
 	ignore = dirty
 
 
-[submodule "plugins/hpo"]
-	path = plugins/hpo
-	url = https://github.com/biothings/hpo
-	ignore = dirty
-
-
 [submodule "plugins/iDisk"]
 	path = plugins/iDisk
 	url = https://github.com/r76941156/iDisk
