@@ -1,0 +1,24 @@
+{
+    "version": "1.0",
+    "__metadata__": {
+        "license_url": "https://hpo.jax.org/app/license",
+        "url": "https://hpo.jax.org"
+    },
+    "requires": [
+        "networkx",
+        "obonet"
+    ],
+    "dumper": {
+        "data_url": [
+            "http://purl.obolibrary.org/obo/hp.obo",
+            "http://purl.obolibrary.org/obo/hp/hpoa/phenotype_to_genes.txt"
+        ],
+        "uncompress": false,
+        "release" : "version:get_release",
+        "schedule": "50 10 * * *"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "error"
+    }
+}
