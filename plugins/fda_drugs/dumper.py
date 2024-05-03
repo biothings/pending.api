@@ -285,11 +285,11 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
                 application_number = entry_row[0]
                 application_type = entry_row[1]
 
-                application_publication_notes = str(entry_row[2]).lower()
+                application_publication_notes = str(entry_row[2]).upper()
                 if application_publication_notes == "":
                     application_publication_notes = None
 
-                sponsor_name = str(entry_row[3]).lower()
+                sponsor_name = str(entry_row[3]).upper()
                 if sponsor_name == "":
                     sponsor_name = None
 
