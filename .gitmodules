@@ -42,10 +42,6 @@
 	ignore = dirty
 
 
-[submodule "plugins/cell_ontology"]
-	path = plugins/cell_ontology
-	url = https://github.com/kevinxin90/cell_ontology
-	ignore = dirty
 [submodule "plugins/chebi"]
 	path = plugins/chebi
 	url = https://github.com/ericz1803/chebi
