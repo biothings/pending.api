@@ -186,11 +186,6 @@
 	path = plugins/umlschem
 	url = https://github.com/kevinxin90/umlschem
 	ignore = dirty
-[submodule "plugins/upheno_ontology"]
-	path = plugins/upheno_ontology
-	url = https://github.com/kevinxin90/upheno_ontology
-	ignore = dirty
-
 [submodule "plugins/semmeddb"]
 	path = plugins/semmeddb
 	url = https://github.com/biothings/semmeddb
