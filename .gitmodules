@@ -182,10 +182,6 @@
 	ignore = dirty
 
 
-[submodule "plugins/uberon"]
-	path = plugins/uberon
-	url = https://github.com/kevinxin90/uberon
-	ignore = dirty
 [submodule "plugins/umlschem"]
 	path = plugins/umlschem
 	url = https://github.com/kevinxin90/umlschem
