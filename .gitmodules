@@ -42,11 +42,6 @@
 	ignore = dirty
 
 
-[submodule "plugins/chebi"]
-	path = plugins/chebi
-	url = https://github.com/ericz1803/chebi
-	ranch = main
-	ignore = dirty
 [submodule "plugins/clinical_risk_kp"]
 	path = plugins/clinical_risk_kp
 	url = https://github.com/Hadlock-Lab/clinical_risk_kp
