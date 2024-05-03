@@ -19,3 +19,11 @@ python3 parser.py outputfile.txt
 * [Related Github Issue](https://github.com/biothings/mygene.info/issues/51)
 * [EBI Data Source](https://www.ebi.ac.uk/gene2phenotype/downloads)
 * [BioThings Studio](http://docs.biothings.io/en/latest/doc/studio.html)
+
+## Original version can be found here
+
+- <https://github.com/erikyao/ebi_gene2phenotype>
+
+### The imported version was forked from this commit
+
+- <https://github.com/erikyao/ebi_gene2phenotype/commit/3c42f7d4ba5d0f6920f6b72dc03b38588cd1fd05>
