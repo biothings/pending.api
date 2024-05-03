@@ -1,19 +1,26 @@
 import csv
 import io
 import json
+import glob
 import sys
 import os.path
 from datetime import datetime
 
 
 def load_data(data_folder):
-    # read two files
-    input_file_1 = os.path.join(data_folder, "CancerG2P_24_6_2023.csv")
-    assert os.path.exists(input_file_1), "Can't find input file '%s'" % input_file_1
-    input_file_2 = os.path.join(data_folder, "DDG2P_24_6_2023.csv")
-    assert os.path.exists(input_file_2), "Can't find input file '%s'" % input_file_2
-    dt1 = list(csv.reader(open(input_file_1)))
-    dt2 = list(csv.reader(open(input_file_2)))
+    # Find files matching the first pattern
+    files = glob.glob(os.path.join(data_folder, "CancerG2P_*_*_*.csv"))
+    if files:
+        dt1 = list(csv.reader(open(files[0])))
+    else:
+        raise FileNotFoundError("Can't find input file matching pattern CancerG2P_*_*_*.csv")
+
+    # Find files matching the second pattern
+    files = glob.glob(os.path.join(data_folder, "DDG2P_*_*_*.csv"))
+    if files:
+        dt2 = list(csv.reader(open(files[0])))
+    else:
+        raise FileNotFoundError("Can't find input file matching pattern DDG2P_*_*_*.csv")
 
     # clean data
     props_names = dt1[0]
