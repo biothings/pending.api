@@ -195,9 +195,6 @@
 	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
 
-[submodule "plugins/ncit"]
-	path = plugins/ncit
-	url = https://github.com/DylanWelzel/ncit
 [submodule "plugins/semmeddb"]
 	path = plugins/semmeddb
 	url = https://github.com/biothings/semmeddb
