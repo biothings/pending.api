@@ -1,0 +1,15 @@
+{
+    "version": "0.2",
+    "dumper" : {
+        "data_url" : [
+            "https://www.ebi.ac.uk/gene2phenotype/downloads/CancerG2P.csv.gz",
+            "https://www.ebi.ac.uk/gene2phenotype/downloads/DDG2P.csv.gz"],
+        "uncompress" : true,
+        "release" : "version:get_release",
+        "schedule": "50 10 * * *"
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "on_duplicates" : "ignore"
+    }
+}
