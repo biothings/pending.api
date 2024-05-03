@@ -61,12 +61,6 @@
 	path = plugins/DISEASES
 	url = https://github.com/kevinxin90/DISEASES
 	ignore = dirty
-[submodule "plugins/ebi_gene2phenotype"]
-	path = plugins/ebi_gene2phenotype
-	url = https://github.com/erikyao/ebi_gene2phenotype
-	ignore = dirty
-
-
 [submodule "plugins/foodb_json"]
 	path = plugins/foodb_json
 	url = https://github.com/yichuanma95/foodb_json
