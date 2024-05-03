@@ -1,0 +1,23 @@
+{
+    "version": "0.2",
+    "__metadata__" : {
+        "url" : "https://ncithesaurus.nci.nih.gov/ncitbrowser/",
+        "license_url" : "https://creativecommons.org/licenses/by/4.0/",
+        "licence" : "CC-BY 4.0",
+        "author" : {
+            "name" : "Dylan Welzel",
+            "url" : "https://github.com/DylanWelzel"
+        }
+    },
+    "dumper" : {
+        "data_url" : "http://purl.obolibrary.org/obo/ncit.obo",
+        "uncompress" : false,
+        "release" : "version:get_release",
+        "schedule": "50 10 * * *"
+    },
+    "uploader" : {
+        "parser" : "hub.dataload.data_parsers:load_obo",
+        "parser_kwargs": {"obofile": "ncit.obo"},
+        "on_duplicates" : "error"
+    }
+}
