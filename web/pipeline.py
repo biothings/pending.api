@@ -1,7 +1,8 @@
 import logging
 from copy import deepcopy
+
 from biothings.utils.common import dotdict, traverse
-from biothings.web.query import ESQueryBuilder, ESResultFormatter, AsyncESQueryPipeline
+from biothings.web.query import AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
 from elasticsearch_dsl import MultiSearch, Search
 
 from web.graph import GraphObject, GraphQueries, GraphQuery
@@ -83,7 +84,7 @@ class PendingQueryBuilder(ESQueryBuilder):
 
 class GraphResultTransform(ESResultFormatter):
 
-    def transform_hit(self, path, doc, options):
+    def transform_hit(self, path, doc, hit, options):
 
         if path == '':
 
