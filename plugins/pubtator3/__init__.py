@@ -1,2 +1,2 @@
-from dumper import Pubtator3Dumper
-from uploader import Pubtator3Uploader
+from .dumper import Pubtator3Dumper
+from .uploader import Pubtator3Uploader
