@@ -132,6 +132,33 @@ class Pubtator3Uploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSourceUp
 
     @classmethod
     def get_mapping(self) -> dict:
-        mapping = {}
+        mapping = {
+            "object": {
+                "properties": {
+                    "semantic_type_name": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                    "identifier": {
+                        "properties": {
+                            "key": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                            "value": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                        }
+                    },
+                }
+            },
+            "pmid_count": {"type": "integer"},
+            "predicate": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+            "predication_count": {"type": "integer"},
+            "pmid": {"type": "integer"},
+            "subject": {
+                "properties": {
+                    "semantic_type_name": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                    "identifier": {
+                        "properties": {
+                            "key": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                            "value": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                        }
+                    },
+                }
+            },
+        }
 
         return mapping
