@@ -1,9 +1,11 @@
-import networkx
-import obonet
 import os
 
+import networkx
+import obonet
+
+
 def load_obo(data_folder, obofile):
-    graph = obonet.read_obo(os.path.join(data_folder, obofile))
+    graph = obonet.read_obo(os.path.join(data_folder, obofile), ignore_obsolete=False)
 
     IGNORE_FIELDS = ['is_a'] # captured in parent field already
 
@@ -29,5 +31,13 @@ def load_obo(data_folder, obofile):
         if 'def' in n and n['def'].startswith('"') and n['def'].endswith('" []'):
             n['def'] = n['def'][1:-4]
 
-        yield n
+        if node[1].get('is_obsolete') == 'true':
+            n['is_obsolete'] = True
 
+        if 'replaced_by' in node[1]:
+            n['replaced_by'] = node[1]['replaced_by'][0]
+
+        if 'consider' in node[1]:
+            n['consider'] = node[1]['consider']
+
+        yield n
