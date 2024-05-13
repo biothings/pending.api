@@ -221,10 +221,11 @@ class Annotator:
                 # drug info
                 "unichem.rxnorm",  # drug name
                 "pharmgkb.trade_names",  # drug name
+                "pharmgkb.xrefs.atc",    # atc code
                 "chembl.drug_indications",
                 "aeolus.indications",
                 "chembl.drug_mechanisms",
-                "chembl.atc_classifications",
+                "chembl.atc_classifications",   # atc code
                 "chembl.max_phase",
                 "chembl.first_approval",
                 "drugcentral.approval",
