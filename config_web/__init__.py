@@ -49,6 +49,7 @@ from . import mgigene2phenotype  # use plugin "mgi_gene2phenotype"
 from . import mondo
 from . import mrcoc  # use plugin "bte_filter"
 from . import multiomics_clinicaltrials_kp
+from . import multiomics_drug_approvals_kp
 from . import multiomics_ehr_risk_kp  # use plugin "clinical_risk_kp"
 from . import multiomics_wellness
 from . import ncit
