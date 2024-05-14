@@ -120,7 +120,6 @@ class Pubtator3Uploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSourceUp
 
                 document = {
                     "_id": unique_id,
-                    "_version": 1,
                     "object": objects,
                     "pmid_count": 1,
                     "predicate": predicate,
