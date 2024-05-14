@@ -117,6 +117,8 @@ class ResponseTransformer:
         if atc:
             doc["atc_classifications"] = atc
 
+        return doc
+
     def caching_ncit_descriptions(self):
         """cache ncit descriptions for all unii.ncit IDs from self.res_by_id
         deprecated along with _transform_add_ncit_description method.
