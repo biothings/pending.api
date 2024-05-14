@@ -229,3 +229,6 @@
 [submodule "plugins/BioThings_TTD_Dataplugin"]
 	path = plugins/BioThings_TTD_Dataplugin
 	url = https://github.com/lucyzhang95/BioThings_TTD_Dataplugin
+[submodule "plugins/multiomics_drug_approvals_kp"]
+	path = plugins/multiomics_drug_approvals_kp
+	url = https://github.com/multiomicsKP/drug_approvals_kp
