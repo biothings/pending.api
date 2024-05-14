@@ -223,12 +223,12 @@
 	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
 
-[submodule "plugins/ncit"]
-	path = plugins/ncit
-	url = https://github.com/DylanWelzel/ncit
 [submodule "plugins/semmeddb"]
 	path = plugins/semmeddb
 	url = https://github.com/biothings/semmeddb
 [submodule "plugins/BioThings_TTD_Dataplugin"]
 	path = plugins/BioThings_TTD_Dataplugin
 	url = https://github.com/lucyzhang95/BioThings_TTD_Dataplugin
+[submodule "plugins/multiomics_drug_approvals_kp"]
+	path = plugins/multiomics_drug_approvals_kp
+	url = https://github.com/multiomicsKP/drug_approvals_kp
