@@ -94,12 +94,37 @@ class ResponseTransformer:
         if self.node_type != "chem":
             return doc
 
-        atc_from_chembl = doc.get("chembl", {}).get("atc_classifications", [])
-        if isinstance(atc_from_chembl, str):
-            atc_from_chembl = [atc_from_chembl]
-        atc_from_pharmgkb = doc.get("pharmgkb", {}).get("xrefs", {}).get("atc", [])
-        if isinstance(atc_from_pharmgkb, str):
-            atc_from_pharmgkb = [atc_from_pharmgkb]
+        def _get_atc_from_chembl(chembl):
+            atc_from_chembl = chembl.get("atc_classifications", [])
+            if isinstance(atc_from_chembl, str):
+                atc_from_chembl = [atc_from_chembl]
+            return atc_from_chembl
+
+        chembl = doc.get("chembl", {})
+        atc_from_chembl = []
+        if chembl:
+            if isinstance(chembl, list):
+                # in case returned chembl is a list, rare but still possible
+                for c in chembl:
+                    atc_from_chembl.extend(_get_atc_from_chembl(c))
+            else:
+                atc_from_chembl.extend(_get_atc_from_chembl(chembl))
+
+        def _get_atc_from_pharmgkb(pharmgkb):
+            atc_from_pharmgkb = pharmgkb.get("xrefs", {}).get("atc", [])
+            if isinstance(atc_from_pharmgkb, str):
+                atc_from_pharmgkb = [atc_from_pharmgkb]
+            return atc_from_pharmgkb
+
+        pharmgkb = doc.get("pharmgkb", {})
+        atc_from_pharmgkb = []
+        if pharmgkb:
+            if isinstance(pharmgkb, list):
+                # in case returned pharmgkb is a list, rare but still possible
+                for p in pharmgkb:
+                    atc_from_pharmgkb.extend(_get_atc_from_pharmgkb(p))
+            else:
+                atc_from_pharmgkb.extend(_get_atc_from_pharmgkb(pharmgkb))
 
         atc = []
         for atc_code in set(atc_from_chembl + atc_from_pharmgkb):
