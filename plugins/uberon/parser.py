@@ -9,14 +9,13 @@ def get_synonyms(data):
     exact and related synonyms are the keys, and their values are in lists
     """
     if 'synonym' in data:
-        syn_dict = {}
         exact = []
         related = []
         for syn in data['synonym']:
             if 'EXACT' in syn:
                 match = re.findall(r'\"(.+?)\"', syn)
                 exact = exact + match
-            elif 'RELATED' in syn: 
+            elif 'RELATED' in syn:
                 match = re.findall(r'\"(.+?)\"', syn)
                 related = related + match
         synonyms = {}

@@ -9,7 +9,8 @@ def get_release(self):
         res = self.client.head(url, allow_redirects=True)
         header = res.headers['Content-Disposition']
         match = date_pattern.findall(header)
-        assert len(match) == 1, "Parser Date Extraction Error"
+        if len(match) != 1:
+            raise ValueError("Parser Date Extraction Error")
         dates.append(datetime.strptime(match[0], '%d_%m_%Y').date())
 
     if dates[0] < dates[1]:

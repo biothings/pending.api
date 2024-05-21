@@ -38,7 +38,8 @@ def get_synonyms(data):
 def load_data(data_folder):
     annotations = defaultdict(list)
     infile = os.path.join(data_folder, 'phenotype_to_genes.txt')
-    assert os.path.exists(infile)
+    if not os.path.exists(infile):
+        raise FileNotFoundError(f"File not found: {infile}")
     with open(infile) as f:
         f.readline()  # first line is just a header
         for line in f:
