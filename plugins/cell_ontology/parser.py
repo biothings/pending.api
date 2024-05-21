@@ -51,11 +51,11 @@ def load_data(data_folder):
                 xrefs = defaultdict(set)
                 for val in rec.get("xref"):
                     if ":" in val:
-                        prefix, id = val.split(':', 1)
+                        prefix, idx = val.split(':', 1)
                         if prefix in ["http", "https"]:
                             continue
                         if prefix in ['UMLS', 'MESH']:
-                            xrefs[prefix.lower()].add(id)
+                            xrefs[prefix.lower()].add(idx)
                         else:
                             xrefs[prefix.lower()].add(val)
                 for k, v in xrefs.items():

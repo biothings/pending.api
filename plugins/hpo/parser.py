@@ -10,7 +10,6 @@ def get_synonyms(data):
     exact and related synonyms are the keys, and their values are in lists
     """
     if 'synonym' in data:
-        syn_dict = {}
         exact = []
         related = []
         broad = []

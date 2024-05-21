@@ -47,7 +47,7 @@ def load_data(data_folder):
 
     result_dict = {}  # intermediate dict construct, with unique ids
 
-    for x in range(len(dt)):  # of all observations
+    for x, _ in enumerate(dt):  # of all observations
         dict_gene = {}  # each observation's storage to attach to the 'gene2phenotype' of its unique id in main dict
 
         for y in range(len(dt[0])):  # of all properties
@@ -57,7 +57,7 @@ def load_data(data_folder):
                     if 'disease' not in dict_gene:
                         dict_gene['disease'] = {}
                     dict_gene['disease'][props_names[y]] = dt[x][y]
-                elif (y == 7 or y == 8 or y == 11): 
+                elif (y == 7 or y == 8 or y == 11):
                     # additional processing for rgan specificity list , pre symbols, phenotypes
                     dict_gene[props_names[y]] = dt[x][y].split(';')
                 elif (y == 9):
