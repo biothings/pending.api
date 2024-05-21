@@ -40,53 +40,57 @@ def load_data(data_folder):
     graph = obonet.read_obo(path)
     for item in graph.nodes():
         if item.startswith("CL:"):
-            rec = graph.nodes[item]
-            rec["_id"] = item
-            rec["cl"] = item
-            if rec.get("is_a"):
-                rec["parents"] = [parent for parent in rec.pop(
-                    "is_a") if parent.startswith("CL:")]
-            if rec.get("xref"):
-                xrefs = defaultdict(set)
-                for val in rec.get("xref"):
-                    if ":" in val:
-                        prefix, idx = val.split(':', 1)
-                        if prefix in ["http", "https"]:
-                            continue
-                        if prefix in ['UMLS', 'MESH']:
-                            xrefs[prefix.lower()].add(idx)
-                        else:
-                            xrefs[prefix.lower()].add(val)
-                for k, v in xrefs.items():
-                    xrefs[k] = list(v)
-                rec.pop("xref")
-                rec["xrefs"] = dict(xrefs)
-            rec["children"] = [child for child in graph.predecessors(
-                item) if child.startswith("CL:")]
-            rec["ancestors"] = [ancestor for ancestor in nx.descendants(
-                graph, item) if ancestor.startswith("CL:")]
-            rec["descendants"] = [descendant for descendant in nx.ancestors(
-                graph, item) if descendant.startswith("CL:")]
-            rec["synonym"] = get_synonyms(rec)
-            if rec.get("created_by"):
-                rec.pop("created_by")
-            if rec.get("creation_date"):
-                rec.pop("creation_date")
-            if rec.get("property_value"):
-                rec.pop("property_value")
-            if rec.get("relationship"):
-                rels = {}
-                for rel in rec.get("relationship"):
-                    predicate, val = rel.split(' ')
-                    prefix = val.split(':')[0]
-                    if predicate not in rels:
-                        rels[predicate] = defaultdict(set)
-                    if prefix.lower() not in rels[predicate]:
-                        rels[predicate][prefix.lower()].add(val)
-                for m, n in rels.items():
-                    for p, q in n.items():
-                        n[p] = list(q)
-                    rels[m] = dict(n)
-                rec.update(rels)
-                rec.pop("relationship")
+            rec = process_node(graph, item)
             yield rec
+
+def process_node(graph, item):
+    rec = graph.nodes[item]
+    rec["_id"] = item
+    rec["cl"] = item
+    process_is_a(rec)
+    process_xrefs(rec)
+    rec["children"] = [child for child in graph.predecessors(item) if child.startswith("CL:")]
+    rec["ancestors"] = [ancestor for ancestor in nx.descendants(graph, item) if ancestor.startswith("CL:")]
+    rec["descendants"] = [descendant for descendant in nx.ancestors(graph, item) if descendant.startswith("CL:")]
+    rec["synonym"] = get_synonyms(rec)
+    remove_unnecessary_fields(rec)
+    process_relationships(rec)
+    return rec
+
+def process_is_a(rec):
+    if rec.get("is_a"):
+        rec["parents"] = [parent for parent in rec.pop("is_a") if parent.startswith("CL:")]
+
+def process_xrefs(rec):
+    if rec.get("xref"):
+        xrefs = defaultdict(set)
+        for val in rec.get("xref"):
+            if ":" in val:
+                prefix, idx = val.split(':', 1)
+                if prefix not in ["http", "https"]:
+                    if prefix in ['UMLS', 'MESH']:
+                        xrefs[prefix.lower()].add(idx)
+                    else:
+                        xrefs[prefix.lower()].add(val)
+        for k, v in xrefs.items():
+            xrefs[k] = list(v)
+        rec.pop("xref")
+        rec["xrefs"] = dict(xrefs)
+
+def remove_unnecessary_fields(rec):
+    for field in ["created_by", "creation_date", "property_value"]:
+        if rec.get(field):
+            rec.pop(field)
+
+def process_relationships(rec):
+    if rec.get("relationship"):
+        rels = defaultdict(lambda: defaultdict(set))
+        for rel in rec.get("relationship"):
+            predicate, val = rel.split(' ')
+            prefix = val.split(':')[0]
+            rels[predicate][prefix.lower()].add(val)
+        for predicate, values in rels.items():
+            for prefix, val_set in values.items():
+                values[prefix] = list(val_set)
+            rec[predicate] = dict(values)
+        rec.pop("relationship")
