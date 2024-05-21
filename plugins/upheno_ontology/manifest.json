@@ -1,0 +1,17 @@
+{
+    "version": "0.2",
+    "requires" : ["pandas"],
+    "__metadata__": {
+        "url": "https://github.com/obophenotype/upheno"
+    },
+    "dumper" : {
+        "data_url" : ["https://raw.githubusercontent.com/obophenotype/upheno/master/mappings/hp-to-mp-bestmatches.tsv"],
+        "uncompress" : false,
+        "release" : "version:get_release",
+        "schedule": "0 6 * * *"
+    },
+    "uploader" : {
+        "parser" : "parser:load_annotations",
+        "on_duplicates" : "error"
+    }
+}
