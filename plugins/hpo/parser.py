@@ -72,13 +72,13 @@ def load_data(data_folder):
             xrefs = defaultdict(set)
             for val in rec.get("xref"):
                 if ":" in val:
-                    prefix, id = val.split(':', 1)
+                    prefix, idx = val.split(':', 1)
                     if prefix in ["http", "https"]:
                         continue
                     if prefix.lower() in ['umls', 'snomedct_us', 'snomed_ct', 'cohd', 'ncit']:
-                        xrefs[prefix.lower()].add(id)
+                        xrefs[prefix.lower()].add(idx)
                     elif prefix == 'MSH':
-                        xrefs['mesh'].add(id)
+                        xrefs['mesh'].add(idx)
                     else:
                         xrefs[prefix.lower()].add(val)
             for k, v in xrefs.items():
