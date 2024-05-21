@@ -8,82 +8,70 @@ from datetime import datetime
 
 
 def load_data(data_folder):
-    # Find files matching the first pattern
-    files = glob.glob(os.path.join(data_folder, "CancerG2P_*_*_*.csv"))
-    if files:
-        dt1 = list(csv.reader(open(files[0])))
-    else:
-        raise FileNotFoundError("Can't find input file matching pattern CancerG2P_*_*_*.csv")
+    dt1 = load_csv(data_folder, "CancerG2P_*_*_*.csv")
+    dt2 = load_csv(data_folder, "DDG2P_*_*_*.csv")
 
-    # Find files matching the second pattern
-    files = glob.glob(os.path.join(data_folder, "DDG2P_*_*_*.csv"))
-    if files:
-        dt2 = list(csv.reader(open(files[0])))
-    else:
-        raise FileNotFoundError("Can't find input file matching pattern DDG2P_*_*_*.csv")
+    props_names = clean_headers(dt1[0])
+    dt1_cleaned = clean_csv_data(dt1[1:])
+    dt2_cleaned = clean_csv_data(dt2[1:])
 
-    # clean data
-    props_names = dt1[0]
-
-    for i, name in enumerate(props_names):
-        props_names[i] = name.replace(' ', '_')
-
-    dt1_header_removed = dt1[1:]
-    dt2_header_removed = dt2[1:]
-
-    def cleanCSV(ls):
-        for row in ls:
-            if (row[1] == 'No gene mim'):
-                row[1] = ''
-            if (row[3] == 'No disease mim'):
-                row[3] = ''
-
-    cleanCSV(dt1_header_removed)
-    cleanCSV(dt2_header_removed)
-
-    dt = dt1_header_removed + dt2_header_removed
-
-    # parse and ignore empty data
-
-    result_dict = {}  # intermediate dict construct, with unique ids
-
-    for x, _ in enumerate(dt):  # of all observations
-        dict_gene = {}  # each observation's storage to attach to the 'gene2phenotype' of its unique id in main dict
-
-        for y in range(len(dt[0])):  # of all properties
-            if dt[x][y] != '':  # of not empty properties
-                if (y == 2 or y == 3):
-                    # additional processsing for disease name and mim
-                    if 'disease' not in dict_gene:
-                        dict_gene['disease'] = {}
-                    dict_gene['disease'][props_names[y]] = dt[x][y]
-                elif (y == 7 or y == 8 or y == 11):
-                    # additional processing for rgan specificity list , pre symbols, phenotypes
-                    dict_gene[props_names[y]] = dt[x][y].split(';')
-                elif (y == 9):
-                    # additional processing for pmids (list of integers)
-                    dict_gene[props_names[y]] = [int(x) for x in dt[x][y].split(';')]
-                elif (y == 12):
-                    continue
-                elif (y == 13):
-                    if dt[x][y] != 'No date':
-                        dict_gene[props_names[y]] = datetime.strptime(dt[x][y], '%Y-%m-%d %H:%M:%S').isoformat()
-                else:
-                    dict_gene[props_names[y]] = dt[x][y]
-
-        if int(dt[x][12]) in result_dict:
-            list_gene = result_dict[int(dt[x][12])]['gene2phenotype']
-            list_gene.append(dict_gene)
-            result_dict[int(dt[x][12])]['gene2phenotype'] = list_gene
-        else:
-            dict_item = {
-                "_id": dt[x][12],
-                "gene2phenotype": [dict_gene]
-            }
-            result_dict[int(dt[x][12])] = dict_item
+    dt = dt1_cleaned + dt2_cleaned
+    result_dict = parse_data(dt, props_names)
 
     for v in result_dict.values():
         yield v
+
+def load_csv(data_folder, pattern):
+    files = glob.glob(os.path.join(data_folder, pattern))
+    if files:
+        with open(files[0], 'r') as f:
+            return list(csv.reader(f))
+    else:
+        raise FileNotFoundError(f"Can't find input file matching pattern {pattern}")
+
+def clean_headers(headers):
+    return [name.replace(' ', '_') for name in headers]
+
+def clean_csv_data(rows):
+    for row in rows:
+        if row[1] == 'No gene mim':
+            row[1] = ''
+        if row[3] == 'No disease mim':
+            row[3] = ''
+    return rows
+
+def parse_data(data, headers):
+    result_dict = {}
+    for row in data:
+        dict_gene = parse_row(row, headers)
+        id_key = int(row[12])
+        if id_key in result_dict:
+            result_dict[id_key]['gene2phenotype'].append(dict_gene)
+        else:
+            result_dict[id_key] = {
+                "_id": row[12],
+                "gene2phenotype": [dict_gene]
+            }
+    return result_dict
+
+def parse_row(row, headers):
+    dict_gene = {}
+    for y, cell in enumerate(row):
+        if cell != '':
+            if y in {2, 3}:
+                if 'disease' not in dict_gene:
+                    dict_gene['disease'] = {}
+                dict_gene['disease'][headers[y]] = cell
+            elif y in {7, 8, 11}:
+                dict_gene[headers[y]] = cell.split(';')
+            elif y == 9:
+                dict_gene[headers[y]] = [int(x) for x in cell.split(';')]
+            elif y == 13:
+                if cell != 'No date':
+                    dict_gene[headers[y]] = datetime.strptime(cell, '%Y-%m-%d %H:%M:%S').isoformat()
+            elif y != 12:
+                dict_gene[headers[y]] = cell
+    return dict_gene
 
 
 if __name__ == "__main__":
