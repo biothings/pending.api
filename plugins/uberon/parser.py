@@ -13,7 +13,7 @@ def get_synonyms(data):
         exact = []
         related = []
         for syn in data['synonym']:
-            if 'EXACT' in syn: 
+            if 'EXACT' in syn:
                 match = re.findall(r'\"(.+?)\"', syn)
                 exact = exact + match
             elif 'RELATED' in syn: 
