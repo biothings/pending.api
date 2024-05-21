@@ -6,100 +6,93 @@ import os
 
 
 def get_synonyms(data):
-    """Format synonyms as dicionary
-    exact and related synonyms are the keys, and their values are in lists
+    """Format synonyms as a dictionary.
+    Exact, related, and broad synonyms are the keys, and their values are lists.
     """
     if 'synonym' in data:
-        exact = []
-        related = []
-        broad = []
+        synonyms = defaultdict(list)
         for syn in data['synonym']:
+            match = re.findall(r'\"(.+?)\"', syn)
             if 'EXACT' in syn:
-                match = re.findall(r'\"(.+?)\"', syn)
-                exact = exact + match
+                synonyms["exact"].extend(match)
             elif 'RELATED' in syn:
-                match = re.findall(r'\"(.+?)\"', syn)
-                related = related + match
+                synonyms["related"].extend(match)
             elif 'BROAD' in syn:
-                match = re.findall(r'\"(.+?)\"', syn)
-                broad = broad + match
-        synonyms = {}
-        if len(exact) > 0:
-            synonyms["exact"] = exact
-        if len(related) > 0:
-            synonyms["related"] = related
-        if len(broad) > 0:
-            synonyms["broad"] = broad
-        return synonyms
-    else:
-        return {}
+                synonyms["broad"].extend(match)
+        return dict(synonyms)
+    return {}
 
-
-def load_data(data_folder):
+def load_annotations(data_folder):
     annotations = defaultdict(list)
     infile = os.path.join(data_folder, 'phenotype_to_genes.txt')
     if not os.path.exists(infile):
         raise FileNotFoundError(f"File not found: {infile}")
     with open(infile) as f:
-        f.readline()  # first line is just a header
+        f.readline()  # Skip header
         for line in f:
-            datapoint = line.rstrip('\n').split('\t')
-            hpoID = datapoint[0]
-            ncbiGeneID = datapoint[2]
-            geneSymbol = datapoint[3]
-            diseaseID = datapoint[4]
+            hpoID, _, ncbiGeneID, geneSymbol, diseaseID = line.strip().split('\t')
             obj = {
-                'gene': {
-                    'id': ncbiGeneID,
-                    'symbol': geneSymbol
-                },
+                'gene': {'id': ncbiGeneID, 'symbol': geneSymbol},
                 'disease_id': diseaseID
             }
             annotations[hpoID].append(obj)
+    return annotations
 
-    url = "https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo"
+def load_ontology(url):
     graph = obonet.read_obo(url)
+    return graph
+
+def process_node(graph, item, annotations):
+    rec = graph.nodes[item]
+    rec["_id"] = item
+    rec["hp"] = item
+    if rec.get("def"):
+        rec["def"] = rec.get("def").replace('"', '')
+    if rec.get("is_a"):
+        rec["parents"] = [parent for parent in rec.pop("is_a") if parent.startswith("HP:")]
+    if rec.get("xref"):
+        rec["xrefs"] = process_xrefs(rec.pop("xref"))
+    rec["children"] = [child for child in graph.predecessors(item) if child.startswith("HP:")]
+    rec["ancestors"] = [ancestor for ancestor in nx.descendants(graph, item) if ancestor.startswith("HP:")]
+    rec["descendants"] = [descendant for descendant in nx.ancestors(graph, item) if descendant.startswith("HP:")]
+    rec["synonym"] = get_synonyms(rec)
+    remove_unnecessary_fields(rec)
+    process_relationships(rec)
+    rec["annotations"] = annotations[item]
+    return rec
+
+def process_xrefs(xref_list):
+    xrefs = defaultdict(list)
+    for val in xref_list:
+        if ":" in val:
+            prefix, idx = val.split(':', 1)
+            if prefix.lower() in ["http", "https"]:
+                continue
+            elif prefix.lower() in ['umls', 'snomedct_us', 'snomed_ct', 'cohd', 'ncit']:
+                xrefs[prefix.lower()].append(idx)
+            elif prefix == 'MSH':
+                xrefs['mesh'].append(idx)
+            else:
+                xrefs[prefix.lower()].append(val)
+    return dict(xrefs)
+
+def remove_unnecessary_fields(rec):
+    for field in ["created_by", "creation_date", "relationship"]:
+        rec.pop(field, None)
+
+def process_relationships(rec):
+    if rec.get("relationship"):
+        for rel in rec.get("relationship"):
+            predicate, val = rel.split(' ')
+            prefix = val.split(':')[0]
+            rec[predicate] = {prefix.lower(): val}
+        rec.pop("relationship")
+
+def load_data(data_folder):
+    annotations = load_annotations(data_folder)
+    url = "https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo"
+    graph = load_ontology(url)
     for item in graph.nodes():
-        rec = graph.nodes[item]
-
-        rec["_id"] = item
-        rec["hp"] = item
-        if rec.get("def"):
-            rec["def"] = rec.get("def").replace('"', '')
-        if rec.get("is_a"):
-            rec["parents"] = [parent for parent in rec.pop("is_a") if parent.startswith("HP:")]
-        if rec.get("xref"):
-            xrefs = defaultdict(set)
-            for val in rec.get("xref"):
-                if ":" in val:
-                    prefix, idx = val.split(':', 1)
-                    if prefix in ["http", "https"]:
-                        continue
-                    if prefix.lower() in ['umls', 'snomedct_us', 'snomed_ct', 'cohd', 'ncit']:
-                        xrefs[prefix.lower()].add(idx)
-                    elif prefix == 'MSH':
-                        xrefs['mesh'].add(idx)
-                    else:
-                        xrefs[prefix.lower()].add(val)
-            for k, v in xrefs.items():
-                xrefs[k] = list(v)
-            rec.pop("xref")
-            rec["xrefs"] = dict(xrefs)
-        rec["children"] = [child for child in graph.predecessors(item) if child.startswith("HP:")]
-        rec["ancestors"] = [ancestor for ancestor in nx.descendants(graph, item) if ancestor.startswith("HP:")]
-        rec["descendants"] = [descendant for descendant in nx.ancestors(graph, item) if descendant.startswith("HP:")]
-        rec["synonym"] = get_synonyms(rec)
-        if rec.get("created_by"):
-            rec.pop("created_by")
-        if rec.get("creation_date"):
-            rec.pop("creation_date")
-        if rec.get("relationship"):
-            for rel in rec.get("relationship"):
-                predicate, val = rel.split(' ')
-                prefix = val.split(':')[0]
-                rec[predicate] = {prefix.lower(): val}
-            rec.pop("relationship")
-
-        rec["annotations"] = annotations[item]
-
-        yield rec
+        if item.startswith("HP:"):
+            rec = process_node(graph, item, annotations)
+            yield rec
