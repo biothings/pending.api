@@ -118,11 +118,6 @@
 	url = https://github.com/ericz1803/mondo
 	branch = main
 	ignore = dirty
-[submodule "plugins/Multiomics_ClinicalTrials_KP"]
-	path = plugins/Multiomics_ClinicalTrials_KP
-	url = https://github.com/Hadlock-Lab/Multiomics_ClinicalTrials_KP
-	branch = main
-	ignore = dirty
 [submodule "plugins/multiomics_wellness_kp"]
 	path = plugins/multiomics_wellness_kp
 	url = https://github.com/Hadlock-Lab/multiomics_wellness_kp
