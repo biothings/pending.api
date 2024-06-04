@@ -1,3 +1,5 @@
+import re
+
 from biothings.web.query import ESQueryBuilder
 from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.query import MultiMatch
@@ -43,8 +45,20 @@ class PfocrQueryBuilder(ESQueryBuilder):
         return search
 
 class OntologyQueryBuilder(ESQueryBuilder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ontology = self._extract_ontology(args)
+
+    def _extract_ontology(self, args):
+            metadata = args[6]
+            indices = metadata.indices
+            if indices:
+                for index in indices.values():
+                    match = re.search(r'pending-(\w+)', index)
+                    if match:
+                        return match.group(1).lower()
+
     def apply_extras(self, search, options):
         if options.ignore_obsolete:
-            # Filter out obsolete terms (mondo.is_obsolete=True)
-            search = search.filter(~Q("term", **{"mondo.is_obsolete": True}))
+            search = search.filter(~Q("term", **{f"{self.ontology}.is_obsolete": True}))
         return super().apply_extras(search, options)
