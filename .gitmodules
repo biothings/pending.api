@@ -191,6 +191,3 @@
 [submodule "plugins/multiomics_drug_approvals_kp"]
 	path = plugins/multiomics_drug_approvals_kp
 	url = https://github.com/multiomicsKP/drug_approvals_kp
-[submodule "plugins/Multiomics_ClinicalTrials_KP"]
-	path = plugins/Multiomics_ClinicalTrials_KP
-	url = https://github.com/multiomicsKP/clinical_trials_kp
