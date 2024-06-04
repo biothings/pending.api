@@ -1,0 +1,24 @@
+{
+    "version": "0.2",
+    "__metadata__": {
+        "url": "https://mondo.monarchinitiative.org/#license",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "licence": "CC-BY 4.0",
+        "author": {
+            "name": "Eric Zhou",
+            "url": "https://github.com/ericz1803"
+        }
+    },
+    "dumper": {
+        "data_url": "http://purl.obolibrary.org/obo/mondo.obo",
+        "uncompress": false
+    },
+    "uploader": {
+        "parser": "hub.dataload.data_parsers:load_obo",
+        "parser_kwargs": {
+            "obofile": "mondo.obo",
+            "prefix": "MONDO"
+        },
+        "on_duplicates": "error"
+    }
+}
