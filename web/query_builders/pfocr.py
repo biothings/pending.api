@@ -1,5 +1,5 @@
 from biothings.web.query import ESQueryBuilder
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.query import MultiMatch
 
 
