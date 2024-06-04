@@ -23,10 +23,7 @@ ES_INDICES.update(PFOCR_FLAVOR_INDICES)
 
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)
 
-FLAVOR_FILTERS = {
-    "flavor": {"type": str, "default": "all"}
-}
-QUERY_KWARGS["*"].update(FLAVOR_FILTERS)
+QUERY_KWARGS["*"].update({"flavor": {"type": str, "default": "all"}})
 QUERY_KWARGS["POST"].update({"minimum_should_match": {"type": int}, "operator": {"type": str}})
 
 # Default implementations: <from biothings.api web/settings/default.py>
