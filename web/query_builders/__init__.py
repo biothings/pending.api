@@ -1,1 +1,1 @@
-from .pfocr import PfocrQueryBuilder
+from .pfocr import OntologyQueryBuilder, PfocrQueryBuilder
