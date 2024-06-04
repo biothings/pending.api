@@ -11,7 +11,9 @@
     },
     "dumper" : {
         "data_url" : "http://purl.obolibrary.org/obo/ncit.obo",
-        "uncompress" : false
+        "uncompress" : false,
+        "release" : "version:get_release",
+        "schedule": "0 6 * * *"
     },
     "uploader" : {
         "parser" : "hub.dataload.data_parsers:load_obo",

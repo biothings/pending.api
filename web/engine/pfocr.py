@@ -28,7 +28,7 @@ class PFOCRBackend(AsyncESQueryBackend):
     based off the query options
 
     Examples query syntax
-    <url>:<port>/pfocr/query?q=associatedWith.pmc:PMC3521791&<flavor>
+    <url>:<port>/pfocr/query?q=associatedWith.pmc:PMC3521791&flavor=<flavor>
     where <flavor> can be {strict, synonyms, all}
     If the flavor isn't supplied then all PFOCR elasticsearch indices
     are used. These indices are set in pending.api.config_web.pfocr
@@ -40,13 +40,12 @@ class PFOCRBackend(AsyncESQueryBackend):
         """
         query_index = original_index
 
-        strict_flavor = options.get("strict", None)
-        synonyms_flavor = options.get("synonyms", None)
+        flavor = options.get("flavor", "all").lower()
 
-        if strict_flavor:
+        if flavor == "strict":
             query_index = self.indices.get("strict", None)
             logger.debug(f"Discovered PFOCR strict option. Changing ES index to {query_index}")
-        elif synonyms_flavor:
+        elif flavor == "synonyms":
             query_index = self.indices.get("synonyms", None)
             logger.debug(f"Discovered PFOCR synonyms option. Changing ES index to {query_index}")
         else:

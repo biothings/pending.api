@@ -242,7 +242,7 @@ def pfocr_mapping(cls):
                         },
                         "genes": {
                             "properties": {
-                                "bcbigene": {
+                                "ncbigene": {
                                     "type": "keyword",
                                 }
                             }

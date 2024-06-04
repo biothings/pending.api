@@ -57,6 +57,7 @@ from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 
 from . import pfocr
 from . import phewas
 from . import pseudocap_go
+from . import pubtator3
 from . import rare_source
 from . import repodb
 from . import rhea

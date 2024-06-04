@@ -1,5 +1,6 @@
-biothings[web_extra]==0.12.4
-# git+https://github.com/biothings/biothings.api@0.11.x#egg=biothings[web_extra]
+# biothings[web_extra]==0.12.4
+# Continue using this biothings.api version until a new version is released
+git+https://github.com/biothings/biothings.api@17cfdcb4a87979a8e6a013e8e49d2effebd790e5#egg=biothings[web_extra]
 Jinja2>=2.9.6
 
 # for annotator handler

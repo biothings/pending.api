@@ -1,0 +1,22 @@
+{
+    "version": "1.0",
+    "__metadata__": {
+        "license_url": "http://www.obofoundry.org/docs/Citation.html",
+        "licence": "",
+        "url": "http://www.obofoundry.org/ontology/cl.html"
+    },
+    "requires": [
+        "networkx",
+        "obonet"
+    ],
+    "dumper": {
+        "data_url": "http://purl.obolibrary.org/obo/cl.obo",
+        "uncompress": false,
+        "release": "version:get_release",
+        "schedule": "0 6 * * *"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "error"
+    }
+}

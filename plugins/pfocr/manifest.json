@@ -2,9 +2,9 @@
     "version": "0.2",
     "dumper": {
         "data_url": [
-            "https://github.com/AlexanderPico/pfocr-files/blob/main/bte_chemicals_diseases_genes_all.ndjson",
-            "https://github.com/AlexanderPico/pfocr-files/blob/main/bte_chemicals_diseases_genes_strict.ndjson",
-            "https://github.com/AlexanderPico/pfocr-files/blob/main/bte_chemicals_diseases_genes_synonyms.ndjson"
+            "https://raw.githubusercontent.com/AlexanderPico/pfocr-files/main/bte_chemicals_diseases_genes_all.ndjson",
+            "https://raw.githubusercontent.com/AlexanderPico/pfocr-files/main/bte_chemicals_diseases_genes_strict.ndjson",
+            "https://raw.githubusercontent.com/AlexanderPico/pfocr-files/main/bte_chemicals_diseases_genes_synonyms.ndjson"
         ],
         "uncompress": false,
         "release": "version:get_release"

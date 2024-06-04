@@ -42,15 +42,6 @@
 	ignore = dirty
 
 
-[submodule "plugins/cell_ontology"]
-	path = plugins/cell_ontology
-	url = https://github.com/kevinxin90/cell_ontology
-	ignore = dirty
-[submodule "plugins/chebi"]
-	path = plugins/chebi
-	url = https://github.com/ericz1803/chebi
-	ranch = main
-	ignore = dirty
 [submodule "plugins/clinical_risk_kp"]
 	path = plugins/clinical_risk_kp
 	url = https://github.com/Hadlock-Lab/clinical_risk_kp
@@ -70,19 +61,6 @@
 	path = plugins/DISEASES
 	url = https://github.com/kevinxin90/DISEASES
 	ignore = dirty
-[submodule "plugins/doid"]
-	path = plugins/doid
-	url = https://github.com/ericz1803/doid
-	branch = main
-	ignore = dirty
-
-
-[submodule "plugins/ebi_gene2phenotype"]
-	path = plugins/ebi_gene2phenotype
-	url = https://github.com/erikyao/ebi_gene2phenotype
-	ignore = dirty
-
-
 [submodule "plugins/foodb_json"]
 	path = plugins/foodb_json
 	url = https://github.com/yichuanma95/foodb_json
@@ -117,12 +95,6 @@
 [submodule "plugins/gwascatalog"]
 	path = plugins/gwascatalog
 	url = https://github.com/erikyao/gwascatalog
-	ignore = dirty
-
-
-[submodule "plugins/hpo"]
-	path = plugins/hpo
-	url = https://github.com/biothings/hpo
 	ignore = dirty
 
 
@@ -210,17 +182,9 @@
 	ignore = dirty
 
 
-[submodule "plugins/uberon"]
-	path = plugins/uberon
-	url = https://github.com/kevinxin90/uberon
-	ignore = dirty
 [submodule "plugins/umlschem"]
 	path = plugins/umlschem
 	url = https://github.com/kevinxin90/umlschem
-	ignore = dirty
-[submodule "plugins/upheno_ontology"]
-	path = plugins/upheno_ontology
-	url = https://github.com/kevinxin90/upheno_ontology
 	ignore = dirty
 
 [submodule "plugins/semmeddb"]
