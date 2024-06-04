@@ -10,8 +10,6 @@
 [submodule "standalone"]
 	path = standalone
 	url = https://github.com/biothings/standalone.git
-
-
 [submodule "plugins/BigGIM_Parser"]
 	path = plugins/BigGIM_Parser
 	url = https://github.com/gloriachin/BigGIM_Parser
@@ -40,14 +38,10 @@
 	path = plugins/bte_filter
 	url = https://github.com/kevinxin90/bte_filter
 	ignore = dirty
-
-
 [submodule "plugins/clinical_risk_kp"]
 	path = plugins/clinical_risk_kp
 	url = https://github.com/Hadlock-Lab/clinical_risk_kp
 	ignore = dirty
-
-
 [submodule "plugins/DDInter"]
 	path = plugins/DDInter
 	url = https://github.com/biothings/DDInter
@@ -96,8 +90,6 @@
 	path = plugins/gwascatalog
 	url = https://github.com/erikyao/gwascatalog
 	ignore = dirty
-
-
 [submodule "plugins/iDisk"]
 	path = plugins/iDisk
 	url = https://github.com/r76941156/iDisk
@@ -107,8 +99,6 @@
 	url = https://github.com/ericz1803/InnateDB_parser
 	branch = main
 	ignore = dirty
-
-
 [submodule "plugins/mgi_gene2phenotype"]
 	path = plugins/mgi_gene2phenotype
 	url = https://github.com/kevinxin90/mgi_gene2phenotype.git
@@ -118,18 +108,11 @@
 	url = https://github.com/ericz1803/mondo
 	branch = main
 	ignore = dirty
-[submodule "plugins/Multiomics_ClinicalTrials_KP"]
-	path = plugins/Multiomics_ClinicalTrials_KP
-	url = https://github.com/Hadlock-Lab/Multiomics_ClinicalTrials_KP
-	branch = main
-	ignore = dirty
 [submodule "plugins/multiomics_wellness_kp"]
 	path = plugins/multiomics_wellness_kp
 	url = https://github.com/Hadlock-Lab/multiomics_wellness_kp
 	branch = main
 	ignore = dirty
-
-
 [submodule "plugins/pfocr"]
 	path = plugins/pfocr
 	url = https://github.com/kevinxin90/pfocr.git
@@ -157,16 +140,11 @@
 	path = plugins/Rhea
 	url = https://github.com/biothings/Rhea
 	ignore = dirty
-
-
-
 [submodule "plugins/SuppKG"]
 	path = plugins/SuppKG
 	url = https://github.com/biothings/SuppKG
 	branch = main
 	ignore = dirty
-
-
 [submodule "plugins/tcga_mut_freq_kp"]
 	path = plugins/tcga_mut_freq_kp
 	url = https://github.com/kevinxin90/tcga_mut_freq_kp
@@ -180,13 +158,10 @@
 	url = https://github.com/NikkiBytes/TISSUES
 	branch = main
 	ignore = dirty
-
-
 [submodule "plugins/umlschem"]
 	path = plugins/umlschem
 	url = https://github.com/kevinxin90/umlschem
 	ignore = dirty
-
 [submodule "plugins/semmeddb"]
 	path = plugins/semmeddb
 	url = https://github.com/biothings/semmeddb
@@ -196,3 +171,6 @@
 [submodule "plugins/multiomics_drug_approvals_kp"]
 	path = plugins/multiomics_drug_approvals_kp
 	url = https://github.com/multiomicsKP/drug_approvals_kp
+[submodule "plugins/multiomics_clinicaltrials_kp"]
+	path = plugins/multiomics_clinicaltrials_kp
+	url = https://github.com/multiomicsKP/clinical_trials_kp
