@@ -24,9 +24,7 @@ ES_INDICES.update(PFOCR_FLAVOR_INDICES)
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)
 
 FLAVOR_FILTERS = {
-    "strict": {"type": bool, "default": False},
-    "synonyms": {"type": bool, "default": False},
-    "all": {"type": bool, "default": True},
+    "flavor": {"type": str, "default": "all"}
 }
 QUERY_KWARGS["*"].update(FLAVOR_FILTERS)
 QUERY_KWARGS["POST"].update({"minimum_should_match": {"type": int}, "operator": {"type": str}})
