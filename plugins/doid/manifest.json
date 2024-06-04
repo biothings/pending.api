@@ -1,23 +1,26 @@
 {
     "version": "0.2",
-    "__metadata__" : {
-        "url" : "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_url" : "https://creativecommons.org/publicdomain/zero/1.0/",
-        "licence" : "Creative Commons Public Domain Dedication CC0 1.0 Universal license",
-        "author" : {
-            "name" : "Eric Zhou",
-            "url" : "https://github.com/ericz1803"
+    "__metadata__": {
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence": "Creative Commons Public Domain Dedication CC0 1.0 Universal license",
+        "author": {
+            "name": "Eric Zhou",
+            "url": "https://github.com/ericz1803"
         }
     },
-    "dumper" : {
-        "data_url" : "http://purl.obolibrary.org/obo/doid.obo",
-        "uncompress" : false,
+    "dumper": {
+        "data_url": "http://purl.obolibrary.org/obo/doid.obo",
+        "uncompress": false,
         "release": "version:get_release",
         "schedule": "0 6 * * *"
     },
-    "uploader" : {
-        "parser" : "hub.dataload.data_parsers:load_obo",
-        "parser_kwargs": {"obofile": "doid.obo"},
-        "on_duplicates" : "error"
+    "uploader": {
+        "parser": "hub.dataload.data_parsers:load_obo",
+        "parser_kwargs": {
+            "obofile": "doid.obo",
+            "prefix": "DOID"
+        },
+        "on_duplicates": "error"
     }
 }
