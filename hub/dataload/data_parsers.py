@@ -12,6 +12,9 @@ class OntologyHelper:
     XREF_INVALID_PREFIXES = {"https", "http"}
     XREF_ALWAYS_PREFIXED = {"DOID", "HP", "MP", "OBI", "EFO"}
 
+    def __init__(self, prefix):
+        self.prefix = prefix
+
     def load_obo_network(self, filepath: str) -> nx.MultiDiGraph:
         graph = obonet.read_obo(filepath, ignore_obsolete=False)
         edges_to_remove = [(u, v, key) for (u, v, key) in graph.edges(keys=True) if key != self.IS_A_EDGE_TYPE]
@@ -70,6 +73,9 @@ class OntologyHelper:
     def is_obsolete(self, node_obj: dict) -> bool:
         return node_obj.get("is_obsolete", "false") == "true"
 
+    def is_target_prefix(self, node_id: str) -> bool:
+        return node_id.startswith(self.prefix)
+
     def get_ontological_predecessors(self, graph: nx.MultiDiGraph, node_id: str):
         return list(graph.successors(node_id))
 
@@ -82,18 +88,17 @@ class OntologyHelper:
     def get_ontological_descendants(self, graph: nx.MultiDiGraph, node_id: str):
         return list(nx.ancestors(graph, node_id))
 
-def load_obo(data_folder, obofile):
+def load_obo(data_folder, obofile, prefix):
     path = os.path.join(data_folder, obofile)
-    helper = OntologyHelper()
+    helper = OntologyHelper(prefix)
     graph = helper.load_obo_network(path)
 
     for node_id in graph.nodes(data=False):
-        node_obj = graph.nodes[node_id]
-
-        if not node_obj:
+        if not helper.is_target_prefix(node_id):
             continue
 
         node_doc = {"_id": node_id}
+        node_obj = graph.nodes[node_id]
 
         node_doc["parents"] = helper.get_ontological_predecessors(graph, node_id)
         node_doc["children"] = helper.get_ontological_successors(graph, node_id)
