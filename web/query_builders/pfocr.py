@@ -1,6 +1,6 @@
 from biothings.web.query import ESQueryBuilder
-from elasticsearch_dsl.query import MultiMatch
 from elasticsearch_dsl import Search
+from elasticsearch_dsl.query import MultiMatch
 
 
 class PfocrQueryBuilder(ESQueryBuilder):
@@ -41,3 +41,10 @@ class PfocrQueryBuilder(ESQueryBuilder):
         multi_match = MultiMatch(query=q, **_params)
         search = Search().query(multi_match)
         return search
+
+class OntologyQueryBuilder(ESQueryBuilder):
+    def apply_extras(self, search, options):
+        if options.ignore_obsolete:
+            # Filter out obsolete terms (mondo.is_obsolete=True)
+            search = search.filter(~Q("term", **{"mondo.is_obsolete": True}))
+        return super().apply_extras(search, options)
