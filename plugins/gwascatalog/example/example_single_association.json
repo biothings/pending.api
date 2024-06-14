@@ -1,0 +1,28 @@
+{
+  "_id": "chr19:g.29903677G>A",
+  "gwascatalog": {
+    "associations": {
+      "efo": {
+        "name": "bulimia nervosa",
+        "id": "EFO_0005204"
+      },
+      "study": {
+        "name": "Genetic variants associated with disordered eating.",
+        "platform": "Illumina [6150213] (imputed)",
+        "accession": "GCST001958"
+      },
+      "snps": "rs12986207",
+      "pubmed": 23568457,
+      "date_added": "2013-08-07",
+      "trait": "Bulimia nervosa",
+      "raf": 0.817,
+      "p_val": 0.000004
+    },
+    "rsid": "rs12986207",
+    "region": "19q12",
+    "chrom": "19",
+    "pos": 29412770,
+    "gene": "VSTM2B",
+    "context": "splice_region_variant"
+  }
+}
