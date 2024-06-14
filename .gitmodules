@@ -86,10 +86,6 @@
 	url = https://github.com/biothings/GTRx
 	branch = main
 	ignore = dirty
-[submodule "plugins/gwascatalog"]
-	path = plugins/gwascatalog
-	url = https://github.com/erikyao/gwascatalog
-	ignore = dirty
 [submodule "plugins/iDisk"]
 	path = plugins/iDisk
 	url = https://github.com/r76941156/iDisk
