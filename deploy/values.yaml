@@ -4,7 +4,7 @@
 
 deployment:
   strategyType: Recreate
-  replicaCount: 1
+  replicaCount: 4
 
 image:
   repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
@@ -16,6 +16,12 @@ containers:
   name: pendingapiserver
   es_host: ES_HOST_VALUE
   port: 9000
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 9000
+    initialDelaySeconds: 60
+    periodSeconds: 15
 
 env:
   OPENTELEMETRY_ENABLED_VALUE: True
@@ -83,8 +89,9 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 resources:
   requests:
-    memory: 42Gi
-    cpu: 8000m
+    memory: 10.5Gi  # 42Gi / 4
+    cpu: 2000m      # 8000m / 4
   limits:
-    memory: 58Gi
-    cpu: 14000m 
+    memory: 14.5Gi  # 58Gi / 4
+    cpu: 3500m      # 14000m / 4
+
