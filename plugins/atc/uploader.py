@@ -60,8 +60,8 @@ class ATCUploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSourceUploader
                 for row_mapping in dict_transformer:
                     document = {
                         "_id": row_mapping["atc_code"],
-                        "atc_code": row_mapping["atc_code"],
-                        "atc_name": row_mapping["atc_name"],
+                        "code": row_mapping["atc_code"],
+                        "name": row_mapping["atc_name"],
                     }
                     logger.debug("#%s %s", dict_transformer.line_num, row_mapping)
                     yield document
@@ -87,8 +87,8 @@ class ATCUploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSourceUploader
         """
         elasticsearch_mapping = {
             "properties": {
-                "atc_code": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                "atc_name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "code": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
             }
         }
         return elasticsearch_mapping
