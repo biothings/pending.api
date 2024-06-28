@@ -88,7 +88,7 @@ class ATCUploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSourceUploader
         elasticsearch_mapping = {
             "properties": {
                 "code": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
-                "name": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "name": {"type": "text", "normalizer": "keyword_lowercase_normalizer"},
             }
         }
         return elasticsearch_mapping
