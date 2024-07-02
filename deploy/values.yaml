@@ -4,7 +4,7 @@
 
 deployment:
   strategyType: Recreate
-  replicaCount: 4
+  replicaCount: 2
 
 image:
   repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
@@ -89,9 +89,9 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 resources:
   requests:
-    memory: 10.5Gi  # 42Gi / 4
-    cpu: 2000m      # 8000m / 4
+    memory: 42Gi
+    cpu: 8000m
   limits:
-    memory: 14.5Gi  # 58Gi / 4
-    cpu: 3500m      # 14000m / 4
+    memory: 58Gi
+    cpu: 14000m 
 
