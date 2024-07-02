@@ -16,13 +16,36 @@ containers:
   name: pendingapiserver
   es_host: ES_HOST_VALUE
   port: 9000
+  # To determine if a container application has started successfully.
+  startupProbe:
+    httpGet:
+      path: /
+      port: 9000
+    initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
+    periodSeconds: 15  # How often (in seconds) to perform the startup probe.
+    timeoutSeconds: 10  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container started successfully.
+    failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
+  # To determine when the container is ready to start accepting traffic
   readinessProbe:
     httpGet:
       path: /
       port: 9000
-    initialDelaySeconds: 60
-    periodSeconds: 15
-
+    initialDelaySeconds: 60  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+    periodSeconds: 15  # How often (in seconds) to perform the readiness probe.
+    timeoutSeconds: 1  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
+    failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
+  # To determine if a container is still running
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 9000
+    initialDelaySeconds: 60  # The number of seconds to wait after the container has started before performing the first liveness probe.
+    periodSeconds: 15  # How often (in seconds) to perform the liveness probe.
+    timeoutSeconds: 10  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
+    failureThreshold: 3  # The number of consecutive failures required to consider the container unhealthy and restart it.
 env:
   OPENTELEMETRY_ENABLED_VALUE: True
   #OPENTELEMETRY_JAEGER_HOST: OPENTELEMETRY_JAEGER_HOST_VALUE
