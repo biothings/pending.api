@@ -56,6 +56,9 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
                             record["duplicate"] = record["duplicate"] == 1
                         record["_id"] = record["safetyreportid"]
 
+                        # print(record["_id"])
+                        if record["_id"] == "5902758-9":
+                            print(file_path)
                         yield record
 
     def _process_field_vals(self, k, v):
