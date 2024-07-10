@@ -22,8 +22,8 @@ containers:
       path: /
       port: 9000
     initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
-    periodSeconds: 15  # How often (in seconds) to perform the startup probe.
-    timeoutSeconds: 10  # The number of seconds after which the probe times out.
+    periodSeconds: 5  # How often (in seconds) to perform the startup probe.
+    timeoutSeconds: 3  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container started successfully.
     failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
   # To determine when the container is ready to start accepting traffic
@@ -31,9 +31,9 @@ containers:
     httpGet:
       path: /
       port: 9000
-    initialDelaySeconds: 60  #  The number of seconds to wait after the container has started before performing the first readiness probe.
-    periodSeconds: 15  # How often (in seconds) to perform the readiness probe.
-    timeoutSeconds: 10  # The number of seconds after which the probe times out.
+    initialDelaySeconds: 10  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+    periodSeconds: 5  # How often (in seconds) to perform the readiness probe.
+    timeoutSeconds: 3  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
     failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
   # To determine if a container is still running
@@ -41,9 +41,9 @@ containers:
     httpGet:
       path: /
       port: 9000
-    initialDelaySeconds: 60  # The number of seconds to wait after the container has started before performing the first liveness probe.
+    initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
     periodSeconds: 15  # How often (in seconds) to perform the liveness probe.
-    timeoutSeconds: 10  # The number of seconds after which the probe times out.
+    timeoutSeconds: 3  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
     failureThreshold: 3  # The number of consecutive failures required to consider the container unhealthy and restart it.
 env:
