@@ -13,10 +13,10 @@ from datetime import datetime
 from zipfile import ZipFile
 
 import biothings.hub
-import biothings.hub.dataload.storage
 import biothings.hub.dataload.uploader
 import yaml
 from biothings import config
+from biothings.hub.dataload import storage
 from biothings.utils.dataload import dict_convert, dict_sweep, dict_traverse
 
 logger = config.logger
@@ -32,7 +32,9 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             "url": "https://open.fda.gov/",
         }
     }
-    storage_class = biothings.hub.dataload.storage.RootKeyMergerStorage
+
+    # some records are massive, hence we use CheckSizeStorage
+    storage_class = (storage.RootKeyMergerStorage, storage.CheckSizeStorage)
 
     def __init__(self, db_conn_info, collection_name=None, log_folder=None, *args, **kwargs):
         # NOTE: using hardcoded URL for record schema
