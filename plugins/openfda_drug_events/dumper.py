@@ -17,7 +17,7 @@ logger = config.logger
 
 class OpenFDADrugEventsDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
     DIR_STRUCTURE_URL = "https://api.fda.gov/download.json"
-    SAMPLE_FRAC = 0.01
+    SAMPLE_FRAC = 1.0
     SRC_NAME = "openfda_drug_events"
     SRC_ROOT_FOLDER = Path(config.DATA_ARCHIVE_ROOT) / SRC_NAME
     SCHEDULE = None

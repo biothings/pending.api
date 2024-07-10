@@ -13,6 +13,7 @@ from datetime import datetime
 from zipfile import ZipFile
 
 import biothings.hub
+import biothings.hub.dataload.storage
 import biothings.hub.dataload.uploader
 import yaml
 from biothings import config
@@ -31,6 +32,7 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
             "url": "https://open.fda.gov/",
         }
     }
+    storage_class = biothings.hub.dataload.storage.RootKeyMergerStorage
 
     def __init__(self, db_conn_info, collection_name=None, log_folder=None, *args, **kwargs):
         # NOTE: using hardcoded URL for record schema
@@ -56,9 +58,6 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
                             record["duplicate"] = record["duplicate"] == 1
                         record["_id"] = record["safetyreportid"]
 
-                        # print(record["_id"])
-                        if record["_id"] == "5902758-9":
-                            print(file_path)
                         yield record
 
     def _process_field_vals(self, k, v):
