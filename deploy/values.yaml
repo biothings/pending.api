@@ -33,7 +33,7 @@ containers:
       port: 9000
     initialDelaySeconds: 60  #  The number of seconds to wait after the container has started before performing the first readiness probe.
     periodSeconds: 15  # How often (in seconds) to perform the readiness probe.
-    timeoutSeconds: 1  # The number of seconds after which the probe times out.
+    timeoutSeconds: 10  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
     failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
   # To determine if a container is still running
