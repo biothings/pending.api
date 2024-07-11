@@ -22,6 +22,29 @@ from biothings.utils.dataload import dict_convert, dict_sweep, dict_traverse
 logger = config.logger
 
 
+class MostRecentStorage(storage.MergerStorage):
+    """
+    Uses function hooks exposed by MergerStorage to store the most
+    recent record
+    """
+
+    # upon inspection, this is the descending order of dates for a record
+    # most likely. Hence the same order is used to find the latest record
+    date_priority_order = ("transmissiondate", "receivedate", "receiptdate")
+
+    @classmethod
+    def merge_func(cls, doc1, doc2, **kwargs):
+        # NOTE: assume call order of merge_func(errdoc, existing, **kwargs)
+        doc = doc2
+
+        # update doc if new doc's date is greater than old doc's date
+        for field in cls.date_priority_order:
+            if OpenFDADrugUploader.parse_date(doc1[field]) > OpenFDADrugUploader.parse_date(doc2[field]):
+                doc = doc1
+                break
+        return doc
+
+
 class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
     name = "openfda_drug_events"
     RECORD_SCHEMA_URL = "https://open.fda.gov/fields/drugevent.yaml"
@@ -33,8 +56,8 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         }
     }
 
-    # some records are massive, hence we use CheckSizeStorage
-    storage_class = (storage.RootKeyMergerStorage, storage.CheckSizeStorage)
+    # CheckSizeStorage is also used to skip massive records
+    storage_class = (MostRecentStorage, storage.CheckSizeStorage)
 
     def __init__(self, db_conn_info, collection_name=None, log_folder=None, *args, **kwargs):
         # NOTE: using hardcoded URL for record schema
@@ -66,17 +89,24 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         """process dates, integers and categorical values"""
         new_val = v
         if k.endswith("date"):
-            if len(v) == 8:
-                new_val = datetime.strptime(v, "%Y%m%d").strftime("%Y-%m-%d")
-            elif len(v) == 6:
-                new_val = datetime.strptime(v, "%Y%m").strftime("%Y-%m")
-            elif len(v) == 4:
-                new_val = datetime.strptime(v, "%Y").strftime("%Y")
+            date_obj = OpenFDADrugUploader.parse_date(v)
+            new_val = date_obj.strftime("%Y-%m-%d")
         elif k in self.int_fields:
             new_val = int(v)
         elif k in self.categorical_fields.keys() and v in self.categorical_fields[k].keys():
             new_val = self.categorical_fields[k][v]
         return k, new_val
+
+    @staticmethod
+    def parse_date(date_str: str) -> datetime:
+        date_obj = None
+        if len(date_str) == 8:
+            date_obj = datetime.strptime(date_str, "%Y%m%d")
+        elif len(date_str) == 6:
+            date_obj = datetime.strptime(date_str, "%Y%m")
+        elif len(date_str) == 4:
+            date_obj = datetime.strptime(date_str, "%Y")
+        return date_obj
 
     @staticmethod
     def _remove_dateformat_fields(data):
