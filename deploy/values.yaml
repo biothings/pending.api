@@ -27,7 +27,7 @@ containers:
   # To determine if a container application has started successfully.
   startupProbe:
     httpGet:
-      path: /
+      path: /rhea/status
       port: 9000
     initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
     periodSeconds: 5  # How often (in seconds) to perform the startup probe.
@@ -37,7 +37,7 @@ containers:
   # To determine when the container is ready to start accepting traffic
   readinessProbe:
     httpGet:
-      path: /
+      path: /rhea/status
       port: 9000
     initialDelaySeconds: 10  #  The number of seconds to wait after the container has started before performing the first readiness probe.
     periodSeconds: 5  # How often (in seconds) to perform the readiness probe.
@@ -47,11 +47,11 @@ containers:
   # To determine if a container is still running
   livenessProbe:
     httpGet:
-      path: /
+      path: /rhea/status
       port: 9000
     initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
-    periodSeconds: 15  # How often (in seconds) to perform the liveness probe.
-    timeoutSeconds: 3  # The number of seconds after which the probe times out.
+    periodSeconds: 60  # How often (in seconds) to perform the liveness probe.
+    timeoutSeconds: 30  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
     failureThreshold: 3  # The number of consecutive failures required to consider the container unhealthy and restart it.
 env:
