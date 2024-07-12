@@ -37,6 +37,7 @@ class MostRecentStorage(storage.MergerStorage):
     def merge_func(cls, doc1, doc2, **kwargs):
         # NOTE: assume call order of merge_func(errdoc, existing, **kwargs)
         doc = copy.deepcopy(doc2)  # deepcopy to avoid modifying existing
+        _id = doc["_id"]
 
         # NOTE: update doc if new doc's date is greater than old doc's date
         # only if both are not null
@@ -46,6 +47,7 @@ class MostRecentStorage(storage.MergerStorage):
             if doc1_date is not None and doc2_date is not None:
                 if doc1_date > doc2_date:
                     doc = doc1
+                    doc["_id"] = _id
                     break
         return doc
 
