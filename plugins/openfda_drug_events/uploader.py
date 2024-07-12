@@ -5,6 +5,7 @@ Handles the parsing of the document generated post_dump
 from the dumper class instance
 """
 
+import copy
 import glob
 import json
 import os
@@ -35,13 +36,17 @@ class MostRecentStorage(storage.MergerStorage):
     @classmethod
     def merge_func(cls, doc1, doc2, **kwargs):
         # NOTE: assume call order of merge_func(errdoc, existing, **kwargs)
-        doc = doc2
+        doc = copy.deepcopy(doc2)  # deepcopy to avoid modifying existing
 
-        # update doc if new doc's date is greater than old doc's date
+        # NOTE: update doc if new doc's date is greater than old doc's date
+        # only if both are not null
         for field in cls.date_priority_order:
-            if OpenFDADrugUploader.parse_date(doc1[field]) > OpenFDADrugUploader.parse_date(doc2[field]):
-                doc = doc1
-                break
+            doc1_date = OpenFDADrugUploader.parse_date(doc1[field], sep="-")
+            doc2_date = OpenFDADrugUploader.parse_date(doc2[field], sep="-")
+            if doc1_date is not None and doc2_date is not None:
+                if doc1_date > doc2_date:
+                    doc = doc1
+                    break
         return doc
 
 
@@ -90,7 +95,12 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         new_val = v
         if k.endswith("date"):
             date_obj = OpenFDADrugUploader.parse_date(v)
-            new_val = date_obj.strftime("%Y-%m-%d")
+            if len(v) == 8:
+                new_val = date_obj.strftime("%Y-%m-%d")
+            elif len(v) == 6:
+                new_val = date_obj.strftime("%Y-%m")
+            elif len(v) == 4:
+                new_val = date_obj.strftime("%Y")
         elif k in self.int_fields:
             new_val = int(v)
         elif k in self.categorical_fields.keys() and v in self.categorical_fields[k].keys():
@@ -98,14 +108,23 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         return k, new_val
 
     @staticmethod
-    def parse_date(date_str: str) -> datetime:
-        date_obj = None
-        if len(date_str) == 8:
-            date_obj = datetime.strptime(date_str, "%Y%m%d")
-        elif len(date_str) == 6:
-            date_obj = datetime.strptime(date_str, "%Y%m")
+    def parse_date(date_str: str, sep: str = "") -> datetime | None:
+        """
+        parse date from string with `sep` separating year, month, and day
+
+        Returns:
+            datetime if date can be parsed
+            None otherwise
+        """
+        if len(date_str) == (8 + 2 * len(sep)):
+            date_obj = datetime.strptime(date_str, f"%Y{sep}%m{sep}%d")
+        elif len(date_str) == (6 + len(sep)):
+            date_obj = datetime.strptime(date_str, f"%Y{sep}%m")
         elif len(date_str) == 4:
-            date_obj = datetime.strptime(date_str, "%Y")
+            date_obj = datetime.strptime(date_str, f"%Y")
+        else:
+            date_obj = None
+            logger.warning(f"Cannot parse date {date_str}")
         return date_obj
 
     @staticmethod
