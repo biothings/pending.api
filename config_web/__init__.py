@@ -26,6 +26,7 @@ from . import clinicaltrials_gov
 from . import ddinter
 from . import denovodb
 from . import dgidb  # use plugin "DGIdb"
+from . import disbiome
 from . import diseases
 from . import doid
 from . import ebigene2phenotype  # use plugin "ebi_gene2phenotype"
