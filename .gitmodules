@@ -177,3 +177,6 @@
 [submodule "plugins/disbiome"]
 	path = plugins/disbiome
 	url = https://github.com/lucyzhang95/Disbiome_data
+[submodule "plugins/hmdb"]
+	path = plugins/hmdb
+	url = https://github.com/lucyzhang95/HMDB_data
