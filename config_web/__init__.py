@@ -42,7 +42,7 @@ from . import go_cc
 from . import go_mf
 from . import gtrx
 from . import gwascatalog
-from . import hmdb  # use plugin "prot_meta_assc_hmdb"
+from . import hmdbv4  # use plugin "prot_meta_assc_hmdb"
 from . import hpo
 from . import idisk
 from . import innatedb
