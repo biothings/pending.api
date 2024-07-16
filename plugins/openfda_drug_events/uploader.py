@@ -68,7 +68,9 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
 
     def __init__(self, db_conn_info, collection_name=None, log_folder=None, *args, **kwargs):
         # NOTE: using hardcoded URL for record schema
-        with urllib.request.urlopen(self.RECORD_SCHEMA_URL) as response:
+        if not self.RECORD_SCHEMA_URL.startswith("https://"):
+            raise ValueError(f"Only HTTPS allowed for accessing openFDA, found {self.RECORD_SCHEMA_URL}")
+        with urllib.request.urlopen(self.RECORD_SCHEMA_URL) as response:  # nosec B310 - checked before
             schema = yaml.safe_load(response.read().decode("utf-8"))
         self.int_fields, self.categorical_fields = OpenFDADrugUploader._parse_schema(schema)
         super().__init__(db_conn_info, collection_name, log_folder, *args, **kwargs)
@@ -123,7 +125,7 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
         elif len(date_str) == (6 + len(sep)):
             date_obj = datetime.strptime(date_str, f"%Y{sep}%m")
         elif len(date_str) == 4:
-            date_obj = datetime.strptime(date_str, f"%Y")
+            date_obj = datetime.strptime(date_str, "%Y")
         else:
             date_obj = None
             logger.warning(f"Cannot parse date {date_str}")

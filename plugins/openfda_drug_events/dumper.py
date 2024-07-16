@@ -31,8 +31,10 @@ class OpenFDADrugEventsDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDump
         super().__init__()
 
     def create_todump_list(self, force=False):
-        assert type(self.__class__.SRC_URLS) is list, "SRC_URLS should be a list"
-        assert self.__class__.SRC_URLS, "SRC_URLS list is empty"
+        if not isinstance(self.__class__.SRC_URLS, list):
+            raise AssertionError("SRC_URLS should be a list")
+        if len(self.__class__.SRC_URLS) == 0:
+            raise AssertionError("SRC_URLS list is empty")
         self.set_release()  # so we can generate new_data_folder
         for src_url in self.__class__.SRC_URLS:
             # add year and quarter to filename to prevent overwriting
@@ -52,7 +54,9 @@ class OpenFDADrugEventsDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDump
 
     @classmethod
     def extract_download_urls(cls) -> List[str]:
-        with urllib.request.urlopen(cls.DIR_STRUCTURE_URL) as response:
+        if not cls.DIR_STRUCTURE_URL.startswith("https://"):
+            raise ValueError(f"Only HTTPS allowed for accessing openFDA, found {cls.DIR_STRUCTURE_URL}")
+        with urllib.request.urlopen(cls.DIR_STRUCTURE_URL) as response:  # nosec B310 - checked before
             source_meta = json.loads(response.read().decode("utf-8"))
             source_urls = tuple(rec["file"] for rec in source_meta["results"]["drug"]["event"]["partitions"])
 
