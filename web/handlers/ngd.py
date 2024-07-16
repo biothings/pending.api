@@ -4,16 +4,25 @@ from enum import Flag, auto
 from biothings.web.handlers.query import BaseAPIHandler
 
 from web.utils import NGDZeroDocFreqException, UNDEFINED_STR
-from web.service.ngd_service import NGDService, DocStatsService, NGDCache, DocStatsCache, Term, TermPair, TermExpansionService
+from web.service.ngd_service import (
+    NGDService,
+    DocStatsService,
+    NGDCache,
+    DocStatsCache,
+    Term,
+    TermPair,
+    TermExpansionService,
+)
 
 
 class ExpansionMode(Flag):
     """
     When a pair of terms is passed in as arguments, this Enum class can be used to indicate which term should be expanded.
     """
-    NIL = 0              # none of the paired terms should expand
-    LEFT = auto()        # (LEFT == 1) only the left (i.e. 1st) term of the pair should expand
-    RIGHT = auto()       # (RIGHT == 2) only the right (i.e. 2nd) term of the pair should expand
+
+    NIL = 0  # none of the paired terms should expand
+    LEFT = auto()  # (LEFT == 1) only the left (i.e. 1st) term of the pair should expand
+    RIGHT = auto()  # (RIGHT == 2) only the right (i.e. 2nd) term of the pair should expand
     BOTH = LEFT | RIGHT  # (BOTH == 3) both terms should expand
 
     @classmethod
@@ -53,44 +62,33 @@ class SemmedNGDHandler(BaseAPIHandler):
 
     kwargs = {
         **BaseAPIHandler.kwargs,
-
-        'GET': {
-            'umls': {
-                'type': list,
+        "GET": {
+            "umls": {
+                "type": list,
                 # 'max': 2,  # exactly 2 umls are required. Will check the cardinality in get()
-                'required': True
+                "required": True,
             },
-            'expand': {
-                'type': str,
-                'required': False
-            },
-            'show-leaves': {
-                'type': bool,
-                'default': False
-            }
+            "expand": {"type": str, "required": False},
+            "show-leaves": {"type": bool, "default": False},
         },
-        'POST': {
-            'umls': {
-                'type': list,
-                'max': 1000,
-                'required': True
-            },
-            'expand': {
-                'type': str,
-                'required': False
-            },
-            'show-leaves': {
-                'type': bool,
-                'default': False
-            }
-        }
+        "POST": {
+            "umls": {"type": list, "max": 1000, "required": True},
+            "expand": {"type": str, "required": False},
+            "show-leaves": {"type": bool, "default": False},
+        },
     }
 
     # Suppose each term ID is an 8-char string and each doc freq is an integer. An OrderedDict of size 102400 takes ~10MB in RAM
     doc_stats_cache = DocStatsCache(unary_capacity=102400, bipartite_capacity=102400)
     ngd_cache = NGDCache(capacity=102400)
 
-    def initialize(self, subject_field_name: str, object_field_name: str, doc_freq_agg_name: str, term_expansion_service: TermExpansionService):
+    def initialize(
+        self,
+        subject_field_name: str,
+        object_field_name: str,
+        doc_freq_agg_name: str,
+        term_expansion_service: TermExpansionService,
+    ):
         super().initialize()
 
         # The following 5 arguments are injected from the URLSpec in config_web/<plugin_name>.py
@@ -107,14 +105,14 @@ class SemmedNGDHandler(BaseAPIHandler):
             es_index_name=self.biothings.config.ES_INDEX,  # injected by handler's application instance (created by APILauncher)
             subject_field_name=self.subject_field_name,
             object_field_name=self.object_field_name,
-            doc_freq_agg_name=self.doc_freq_agg_name
+            doc_freq_agg_name=self.doc_freq_agg_name,
         )
 
         self.ngd_service = NGDService(
             doc_stats_service=self.doc_stats_service,
             term_expansion_service=self.term_expansion_service,
             doc_stats_cache=self.doc_stats_cache,
-            ngd_cache=self.ngd_cache
+            ngd_cache=self.ngd_cache,
         )
 
     @classmethod
@@ -159,29 +157,31 @@ class SemmedNGDHandler(BaseAPIHandler):
         return response
 
     async def get(self, *args, **kwargs):
-        arg_umls = self.args['umls']
+        arg_umls = self.args["umls"]
         if len(arg_umls) != 2:
             self.write_error(status_code=400, reason=ErrorReason.wrong_terms_quantity(arg_umls))
             return
 
-        arg_expand = self.args.get('expand')
+        arg_expand = self.args.get("expand")
         try:
             expansion_mode = ExpansionMode.mode_of(arg_expand)
         except ValueError:
             self.write_error(status_code=400, reason=ErrorReason.unknown_expansion_mode(arg_expand))
             return
 
-        arg_show_leaves = self.args['show-leaves']
+        arg_show_leaves = self.args["show-leaves"]
         term_pair = self.pair_two_terms(term_x_root=arg_umls[0], term_y_root=arg_umls[1], expansion_mode=expansion_mode)
-        response = await self.make_response(term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves)
+        response = await self.make_response(
+            term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves
+        )
         await self.finish(response)
         return
 
     async def post(self, *args, **kwargs):
         # Step 1: Accept two arguments
-        arg_umls = self.args['umls']  # should be a list of 2-termed sublists, e.g. [['a', 'b'], ['c', 'd'], ...]
-        arg_expand = self.args.get('expand')
-        arg_show_leaves = self.args['show-leaves']
+        arg_umls = self.args["umls"]  # should be a list of 2-termed sublists, e.g. [['a', 'b'], ['c', 'd'], ...]
+        arg_expand = self.args.get("expand")
+        arg_show_leaves = self.args["show-leaves"]
 
         # Step 2: verify argument `expand`, raise an error simultaneously if invalid
         try:
@@ -195,21 +195,17 @@ class SemmedNGDHandler(BaseAPIHandler):
         async def yield_responses(terms_list: list, expansion_mode, arg_show_leaves):
             async def process_terms(terms):
                 if not isinstance(terms, list):
-                    return {
-                        "umls": terms,
-                        "ngd": UNDEFINED_STR,
-                        "reason": ErrorReason.terms_not_a_list(terms)
-                    }
+                    return {"umls": terms, "ngd": UNDEFINED_STR, "reason": ErrorReason.terms_not_a_list(terms)}
 
                 if len(terms) != 2:
-                    return {
-                        "umls": terms,
-                        "ngd": UNDEFINED_STR,
-                        "reason": ErrorReason.wrong_terms_quantity(terms)
-                    }
+                    return {"umls": terms, "ngd": UNDEFINED_STR, "reason": ErrorReason.wrong_terms_quantity(terms)}
 
-                term_pair = self.pair_two_terms(term_x_root=terms[0], term_y_root=terms[1], expansion_mode=expansion_mode)
-                return await self.make_response(term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves)
+                term_pair = self.pair_two_terms(
+                    term_x_root=terms[0], term_y_root=terms[1], expansion_mode=expansion_mode
+                )
+                return await self.make_response(
+                    term_pair=term_pair, expansion_mode=expansion_mode, show_leaves=arg_show_leaves
+                )
 
             tasks = [process_terms(terms) for terms in terms_list]
             response_list = await asyncio.gather(*tasks)

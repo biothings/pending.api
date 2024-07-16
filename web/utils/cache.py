@@ -7,6 +7,7 @@ class LRUCache:
 
     Credit to https://www.geeksforgeeks.org/lru-cache-in-python-using-ordereddict/
     """
+
     def __init__(self, capacity: int):
         self.cache = OrderedDict()
         self.capacity = capacity
