@@ -36,6 +36,7 @@ from . import fda_drugs
 from . import foodb  # use plugin "foodb_json"
 from . import fooddata  # use plugin "FoodData_parser"
 from . import geneset  # use plugin "geneset1"
+from . import gmmad2
 from . import go
 from . import go_bp
 from . import go_cc
