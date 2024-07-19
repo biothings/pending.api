@@ -9,6 +9,7 @@ class NGDUndefinedException(Exception):
     """
     Raised when Normalized Google Distance cannot be computed for the input two terms.
     """
+
     pass
 
 
@@ -17,6 +18,7 @@ class NGDZeroDocFreqException(NGDUndefinedException):
     Raised when the document frequency of a term (i.e. f(x) or f(y) in the wikipedia NGD formula) is 0 in the corpus.
     Normalized Google Distance is not defined in this scenario.
     """
+
     def __init__(self, term):
         self.term = term  # the term that causes this exception
 
@@ -26,6 +28,7 @@ class NGDInfinityException(Exception):
     Raised when the counts of two terms (i.e. f(x, y) in the wikipedia NGD formula) is 0 in the corpus.
     Normalized Google Distance is infinite in this scenario, regardless of the formula.
     """
+
     pass
 
 
@@ -47,7 +50,7 @@ def normalized_google_distance(n: int, f_x: int, f_y: int, f_xy: int):
     if f_xy == 0:
         # In this case, both terms appear separately in the corpus, but they never appear together in a single document.
         # According to wikipedia, NGD is infinite in this case, formula below not used
-        return float('inf')
+        return float("inf")
 
     # It's really annoying to guess what the base is for log calculation.
     # From the example on the wikipedia page, we can infer that it's 2.

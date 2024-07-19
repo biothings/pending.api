@@ -1,6 +1,7 @@
 """
 Translator Node Annotator Service Handler
 """
+
 import inspect
 import logging
 import os.path
@@ -131,9 +132,7 @@ class ResponseTransformer:
             if len(atc_code) == 7:
                 # example: L04AB02
                 level_d = {}
-                for i, code in enumerate(
-                    [atc_code[0], atc_code[:3], atc_code[:4], atc_code[:5], atc_code]
-                ):
+                for i, code in enumerate([atc_code[0], atc_code[:3], atc_code[:4], atc_code[:5], atc_code]):
                     level_d[f"level{i+1}"] = {
                         "code": code,
                         "name": self.atc_cache.get(code, ""),
@@ -168,9 +167,7 @@ class ResponseTransformer:
                 if ncit:
                     ncit_id_list.append(ncit)
         if ncit_id_list:
-            ncit_api = biothings_client.get_client(
-                url="https://biothings.ncats.io/ncit"
-            )
+            ncit_api = biothings_client.get_client(url="https://biothings.ncats.io/ncit")
             ncit_id_list = [f"NCIT:{ncit}" for ncit in ncit_id_list]
             ncit_res = ncit_api.getnodes(ncit_id_list, fields="def")
             ncit_def_d = {}
@@ -264,9 +261,7 @@ def append_prefix(id, prefix):
 class Annotator:
     annotator_clients = {
         "gene": {
-            "client": {
-                "biothing_type": "gene"
-            },  # the kwargs passed to biothings_client.get_client
+            "client": {"biothing_type": "gene"},  # the kwargs passed to biothings_client.get_client
             "fields": [
                 "name",
                 "symbol",
@@ -380,9 +375,7 @@ class Annotator:
         },
     }
 
-    def get_client(
-        self, node_type: str
-    ) -> tuple[biothings_client.BiothingClient, None]:
+    def get_client(self, node_type: str) -> tuple[biothings_client.BiothingClient, None]:
         """lazy load the biothings client for the given node_type, return the client or None if failed."""
         client_or_kwargs = self.annotator_clients[node_type]["client"]
         if isinstance(client_or_kwargs, biothings_client.BiothingClient):
@@ -407,9 +400,7 @@ class Annotator:
         _prefix, _id = curie.split(":", 1)
         _type = BIOLINK_PREFIX_to_BioThings.get(_prefix, {}).get("type", None)
         if return_id:
-            if not _type or BIOLINK_PREFIX_to_BioThings[_prefix].get(
-                "keep_prefix", False
-            ):
+            if not _type or BIOLINK_PREFIX_to_BioThings[_prefix].get("keep_prefix", False):
                 _id = curie
             cvtr = BIOLINK_PREFIX_to_BioThings.get(_prefix, {}).get("converter", None)
             if cvtr:
@@ -453,9 +444,7 @@ class Annotator:
         """perform any transformation on the annotation object, but in-place also returned object
         res_by_id is the output of query_biothings, node_type is the same passed to query_biothings
         """
-        logger.info(
-            "Transforming output annotations for %s %ss...", len(res_by_id), node_type
-        )
+        logger.info("Transforming output annotations for %s %ss...", len(res_by_id), node_type)
         transformer = ResponseTransformer(res_by_id, node_type)
         transformer.transform()
         logger.info("Done.")
@@ -470,9 +459,7 @@ class Annotator:
         ####
         return res_by_id
 
-    def annotate_trapi(
-        self, trapi_input, append=False, raw=False, fields=None, limit=None
-    ):
+    def annotate_trapi(self, trapi_input, append=False, raw=False, fields=None, limit=None):
         """Annotate a TRAPI input message with node annotator annotations"""
         try:
             node_d = get_dotfield_value("message.knowledge_graph.nodes", trapi_input)
@@ -503,18 +490,14 @@ class Annotator:
                 else:
                     node_list_by_type[node_type].append(node_id)
         for node_type in node_list_by_type:
-            if (
-                node_type not in self.annotator_clients
-                or not node_list_by_type[node_type]
-            ):
+            if node_type not in self.annotator_clients or not node_list_by_type[node_type]:
                 # skip for now
                 continue
             # this is the list of original node ids like NCBIGene:1017, should be a unique list
             node_list = node_list_by_type[node_type]
             # this is the list of query ids like 1017
             query_list = [
-                self.parse_curie(_id, return_type=False, return_id=True)
-                for _id in node_list_by_type[node_type]
+                self.parse_curie(_id, return_type=False, return_id=True) for _id in node_list_by_type[node_type]
             ]
             # query_id to original id mapping
             node_id_d = dict(zip(query_list, node_list))
@@ -564,9 +547,7 @@ class AnnotatorHandler(BaseAPIHandler):
         curie = args[0] if args else None
         if curie:
             try:
-                annotated_node = annotator.annotate_curie(
-                    curie, raw=self.args.raw, fields=self.args.fields
-                )
+                annotated_node = annotator.annotate_curie(curie, raw=self.args.raw, fields=self.args.fields)
             except ValueError as e:
                 raise HTTPError(400, reason=repr(e))
             self.finish(annotated_node)

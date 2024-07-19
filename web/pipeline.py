@@ -13,13 +13,13 @@ class PendingQueryPipeline(AsyncESQueryPipeline):
     async def graph_search(self, q, **options):
 
         # result formatter will consume this
-        options['_q'] = q
+        options["_q"] = q
 
         # define multi-query response format
         if isinstance(q, GraphQueries):
-            options['templates'] = (dict(query=_q.to_dict()) for _q in q)
-            options['template_miss'] = dict(notfound=True)
-            options['template_hit'] = dict()
+            options["templates"] = (dict(query=_q.to_dict()) for _q in q)
+            options["template_miss"] = dict(notfound=True)
+            options["template_hit"] = dict()
 
         return await super().search(q, **options)
 
@@ -86,12 +86,15 @@ class GraphResultTransform(ESResultFormatter):
 
     def transform_hit(self, path, doc, hit, options):
 
-        if path == '':
+        if path == "":
 
-            if options.reversed and all((  # is reversed query
-                options._q.predicate, options.reverse,
-                options._q.predicate in options._q.PREDICATE_MAPPING
-            )):
+            if options.reversed and all(
+                (  # is reversed query
+                    options._q.predicate,
+                    options.reverse,
+                    options._q.predicate in options._q.PREDICATE_MAPPING,
+                )
+            ):
                 try:
                     obj = GraphObject.from_dict(doc)
                     _predicate = options._q.PREDICATE_MAPPING[options._q.predicate]
