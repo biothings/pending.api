@@ -58,6 +58,7 @@ class NarrowerRelationshipService(TermExpansionService):
 
     If the structure of this file changed, we must change this service class accordingly
     """
+
     term_prefix = "UMLS:"
 
     def __init__(self, umls_resource_client: UMLSResourceClient, add_input_prefix: bool, remove_output_prefix: bool):
@@ -73,7 +74,7 @@ class NarrowerRelationshipService(TermExpansionService):
         return self.term_prefix + term
 
     def remove_prefix(self, term: str) -> str:
-        return term[len(self.term_prefix):]
+        return term[len(self.term_prefix) :]
 
     def expand(self, term: str) -> List[str]:
         if self.add_input_prefix:

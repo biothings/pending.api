@@ -1,1 +1,1 @@
-from .pfocr import PFOCRBackend # noqa: F401
+from .pfocr import PFOCRBackend  # noqa: F401

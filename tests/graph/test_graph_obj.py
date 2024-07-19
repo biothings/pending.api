@@ -6,24 +6,22 @@ reference = {  # from text_mining_targeted_association api
     "_score": 1,
     "association": {
         "edge_label": "negatively_regulates_entity_to_entity",
-        "evidence": [{
-            "object_spans": "start: 41, end: 45",
-            "provided_by": "TMProvider",
-            "publications": "PMID:25080814",
-            "relation_spans": "",
-            "score": "0.99955386",
-            "sentence": "The nalidixic acid significantly ...",
-            "subject_spans": "start: 4, end: 18"}],
+        "evidence": [
+            {
+                "object_spans": "start: 41, end: 45",
+                "provided_by": "TMProvider",
+                "publications": "PMID:25080814",
+                "relation_spans": "",
+                "score": "0.99955386",
+                "sentence": "The nalidixic acid significantly ...",
+                "subject_spans": "start: 4, end: 18",
+            }
+        ],
         "evidence_count": "1",
-        "relation": "RO:0002212"},
-    "object": {
-        "PR": "PR:000023452",
-        "id": "PR:000023452",
-        "type": "GeneOrGeneProduct"},
-    "subject": {
-        "CHEBI": "CHEBI:100147",
-        "id": "CHEBI:100147",
-        "type": "ChemicalSubstance"}
+        "relation": "RO:0002212",
+    },
+    "object": {"PR": "PR:000023452", "id": "PR:000023452", "type": "GeneOrGeneProduct"},
+    "subject": {"CHEBI": "CHEBI:100147", "id": "CHEBI:100147", "type": "ChemicalSubstance"},
 }
 
 

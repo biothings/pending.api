@@ -24,11 +24,7 @@ class PfocrQueryBuilder(ESQueryBuilder):
         assert isinstance(scopes, (list, tuple, str)) and scopes
 
         # 3 default params
-        _params = {
-            "fields": scopes,
-            "operator": "AND",
-            "lenient": True
-        }
+        _params = {"fields": scopes, "operator": "AND", "lenient": True}
 
         # preserve the default params if no option is passed in
         if options.operator:
