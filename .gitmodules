@@ -180,3 +180,6 @@
 [submodule "plugins/hmdb"]
 	path = plugins/hmdb
 	url = https://github.com/lucyzhang95/HMDB_data
+[submodule "plugins/gmmad2"]
+	path = plugins/gmmad2
+	url = https://github.com/lucyzhang95/GMMAD2_data
