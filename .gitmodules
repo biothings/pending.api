@@ -174,3 +174,12 @@
 [submodule "plugins/multiomics_clinicaltrials_kp"]
 	path = plugins/multiomics_clinicaltrials_kp
 	url = https://github.com/multiomicsKP/clinical_trials_kp
+[submodule "plugins/GMMAD2_data"]
+	path = plugins/GMMAD2_data
+	url = https://github.com/lucyzhang95/GMMAD2_data
+[submodule "plugins/Disbiome_data"]
+	path = plugins/Disbiome_data
+	url = https://github.com/lucyzhang95/Disbiome_data
+[submodule "plugins/HMDB_data"]
+	path = plugins/HMDB_data
+	url = https://github.com/lucyzhang95/HMDB_data
