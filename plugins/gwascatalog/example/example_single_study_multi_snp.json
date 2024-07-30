@@ -1,0 +1,29 @@
+{
+  "_id": "chr8:g.86467538A>G",
+  "gwascatalog": {
+    "associations": {
+      "efo": {
+        "name": "age-related hearing impairment",
+        "id": "EFO_0005782"
+      },
+      "study": {
+        "name": "Genome-wide association analysis demonstrates the highly polygenic character of age-related hearing impairment.",
+        "platform": "Illumina [629437] (imputed)",
+        "accession": "GCST002487"
+      },
+      "snps": [
+        "rs10102392",
+        "rs11238734"
+      ],
+      "pubmed": 24939585,
+      "date_added": "2015-02-20",
+      "trait": "Age-related hearing impairment (SNP x SNP interaction)",
+      "p_val": 7e-9
+    },
+    "rsid": "rs10102392",
+    "region": "8q21.2",
+    "chrom": "8",
+    "pos": 85555309,
+    "context": "intergenic_variant"
+  }
+}
