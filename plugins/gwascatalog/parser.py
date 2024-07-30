@@ -24,7 +24,7 @@ def batch_query_hgvs_from_rsid(rsid_list):
         res = variant_client.getvariants(params, fields="_id")
         for _doc in res:
             if '_id' not in _doc:
-                logging.warning('can not convert', _doc)
+                logging.warning('can not convert %s', _doc)
             hgvs_rsid_dict[_doc['query']] = _doc['_id'] if '_id' in _doc else _doc["query"]
     return hgvs_rsid_dict
 
@@ -62,7 +62,7 @@ def reorganize_field(field_value, seperator, num_snps):
             new_value += [None] * (num_snps - len(new_value))
             return new_value
         else:
-            logging.info('new value', new_value, num_snps)
+            logging.info('new value: %s, num_snps: %d', new_value, num_snps)
 
 
 def parse_separator_and_snps(row):
@@ -83,7 +83,6 @@ def parse_separator_and_snps(row):
     else:
         row["SNPS"] = row["SNPS"].replace('_', ":").replace('-', ':').split(':')
         if len(row["SNPS"]) == 4:
-            HGVS = True
             chrom, pos, ref, alt = row["SNPS"]
             chrom = str(chrom).replace('chr', '')
             try:
@@ -97,7 +96,8 @@ def parse_separator_and_snps(row):
 
 def load_data(data_folder):
     input_file = os.path.join(data_folder, "alternative")
-    assert os.path.exists(input_file), "Can't find input file '%s'" % input_file
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Can't find input file '{input_file}'")
     with open_anyfile(input_file) as in_f:
 
         # Remove duplicated lines if any
