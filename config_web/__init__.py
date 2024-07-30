@@ -1,6 +1,7 @@
 # import os
 
 from . import agr
+from . import atc
 from . import biggim  # use plugin "biggim_kp"
 from . import biggim_drugresponse_kp  # use plugin "BigGIM_Parser"
 from . import bindingdb  # use plugin "BindingDB"
@@ -25,6 +26,7 @@ from . import clinicaltrials_gov
 from . import ddinter
 from . import denovodb
 from . import dgidb  # use plugin "DGIdb"
+from . import disbiome
 from . import diseases
 from . import doid
 from . import ebigene2phenotype  # use plugin "ebi_gene2phenotype"
@@ -34,13 +36,15 @@ from . import fda_drugs
 from . import foodb  # use plugin "foodb_json"
 from . import fooddata  # use plugin "FoodData_parser"
 from . import geneset  # use plugin "geneset1"
+from . import gmmad2
 from . import go
 from . import go_bp
 from . import go_cc
 from . import go_mf
 from . import gtrx
 from . import gwascatalog
-from . import hmdb  # use plugin "prot_meta_assc_hmdb"
+from . import hmdb  # use plugin "hmdb"
+from . import hmdbv4  # use plugin "prot_meta_assc_hmdb"
 from . import hpo
 from . import idisk
 from . import innatedb

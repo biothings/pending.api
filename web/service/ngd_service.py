@@ -95,8 +95,14 @@ class TermExpansionService(ABC):
 
 
 class DocStatsService:
-    def __init__(self, es_async_client: AsyncElasticsearch, es_index_name: str,
-                 subject_field_name: str, object_field_name: str, doc_freq_agg_name: str):
+    def __init__(
+        self,
+        es_async_client: AsyncElasticsearch,
+        es_index_name: str,
+        subject_field_name: str,
+        object_field_name: str,
+        doc_freq_agg_name: str,
+    ):
         # SemmedNGDHandler will receive configuration values from config_web/xxx.py, and initialize DocStatsService accordingly
         self.es_async_client = es_async_client
         self.es_index_name = es_index_name  # e.g. "semmeddb_20210831_okplrch8" or "pending-semmeddb" (from `ES_INDEX` in config_web/xxx.py)
@@ -127,7 +133,9 @@ class DocStatsService:
         resp = await self.es_async_client.search(body=search.to_dict(), index=self.es_index_name)
 
         if "aggregations" not in resp:
-            raise ValueError(f"No aggregation result in response. Got {search.to_dict()} to index {self.es_index_name}, response being {resp}")
+            raise ValueError(
+                f"No aggregation result in response. Got {search.to_dict()} to index {self.es_index_name}, response being {resp}"
+            )
         doc_freq = resp["aggregations"][self.doc_freq_agg_name]["value"]
         return int(doc_freq)  # ES will return this aggregation value as a float; convert to int here
 
@@ -210,8 +218,12 @@ class DocStatsService:
         """
         all_terms_x = list(term_pair[0].all_string_terms_within())
         all_terms_y = list(term_pair[1].all_string_terms_within())
-        filter_xy = Q("terms", **{self.subject_field_name: all_terms_x}) & Q("terms", **{self.object_field_name: all_terms_y})
-        filter_yx = Q("terms", **{self.subject_field_name: all_terms_y}) & Q("terms", **{self.object_field_name: all_terms_x})
+        filter_xy = Q("terms", **{self.subject_field_name: all_terms_x}) & Q(
+            "terms", **{self.object_field_name: all_terms_y}
+        )
+        filter_yx = Q("terms", **{self.subject_field_name: all_terms_y}) & Q(
+            "terms", **{self.object_field_name: all_terms_x}
+        )
         # size=0 means the query result will include 0 hits (so only the aggregation value will be returned)
         search = Search().query("bool", filter=filter_xy | filter_yx).extra(size=0)
 
@@ -241,6 +253,7 @@ class NGDCache:
     """
     A cache class to store the normalized Google distance.
     """
+
     def __init__(self, capacity):
         self.distance_cache = LRUCache(capacity)
 
@@ -259,6 +272,7 @@ class DocStatsCache:
     2. An LRU cache for unary doc frequencies.
     3. An LRU cache for bipartite doc frequencies.
     """
+
     def __init__(self, unary_capacity, bipartite_capacity):
         self.total_cache: int = None
 
@@ -285,8 +299,13 @@ class DocStatsCache:
 
 
 class NGDService:
-    def __init__(self, doc_stats_service: DocStatsService, term_expansion_service: TermExpansionService,
-                 doc_stats_cache: DocStatsCache, ngd_cache: NGDCache):
+    def __init__(
+        self,
+        doc_stats_service: DocStatsService,
+        term_expansion_service: TermExpansionService,
+        doc_stats_cache: DocStatsCache,
+        ngd_cache: NGDCache,
+    ):
         self.doc_stats_service = doc_stats_service
         self.term_expansion_service = term_expansion_service
 

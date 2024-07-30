@@ -6,23 +6,23 @@ from biothings.utils.loggers import setup_default_log
 import logging
 import os
 
-DATA_HUB_DB_DATABASE = "biothings_hubdb"   # db containing the following (internal use)
-DATA_SRC_MASTER_COLLECTION = 'src_master'  # for metadata of each src collections
-DATA_SRC_DUMP_COLLECTION = 'src_dump'      # for src data download information
-DATA_SRC_BUILD_COLLECTION = 'src_build'    # for src data build information
-DATA_SRC_BUILD_CONFIG_COLLECTION = 'src_build_config'
-DATA_PLUGIN_COLLECTION = 'data_plugin'     # for data plugins information
-API_COLLECTION = 'api'                     # for api information (running under hub control)
-CMD_COLLECTION = 'cmd'                     # for cmd launched from the hub
-EVENT_COLLECTION = 'event'                 # for event propagation
+DATA_HUB_DB_DATABASE = "biothings_hubdb"  # db containing the following (internal use)
+DATA_SRC_MASTER_COLLECTION = "src_master"  # for metadata of each src collections
+DATA_SRC_DUMP_COLLECTION = "src_dump"  # for src data download information
+DATA_SRC_BUILD_COLLECTION = "src_build"  # for src data build information
+DATA_SRC_BUILD_CONFIG_COLLECTION = "src_build_config"
+DATA_PLUGIN_COLLECTION = "data_plugin"  # for data plugins information
+API_COLLECTION = "api"  # for api information (running under hub control)
+CMD_COLLECTION = "cmd"  # for cmd launched from the hub
+EVENT_COLLECTION = "event"  # for event propagation
 
-DATA_TARGET_MASTER_COLLECTION = 'db_master'
+DATA_TARGET_MASTER_COLLECTION = "db_master"
 
 # Redis config to cache IDs when doing cold/hot merge
 REDIS_CONNECTION_PARAMS = {}
 
 # where to store info about processes launched by the hub
-RUN_DIR = '/tmp/run'
+RUN_DIR = "/tmp/run"
 
 # reporting diff results, number of IDs to consider (to avoid too much mem usage)
 MAX_REPORTED_IDS = 1000
@@ -79,11 +79,11 @@ INDEX_CONFIG = {
         "test": {
             "host": "http://localhost:9200",
             "indexer": {
-                    "args": {
-                        "timeout": 300,
-                        "retry_on_timeout": True,
-                        "max_retries": 10,
-                    },
+                "args": {
+                    "timeout": 300,
+                    "retry_on_timeout": True,
+                    "max_retries": 10,
+                },
             },
             "index": [],
         }
@@ -135,19 +135,19 @@ CACHE_FOLDER = None
 DATA_SRC_SERVER = ConfigurationError("Define hostname for source database")
 DATA_SRC_PORT = ConfigurationError("Define port for source database")
 DATA_SRC_DATABASE = ConfigurationError("Define name for source database")
-DATA_SRC_SERVER_USERNAME = ConfigurationError(
-    "Define username for source database connection (or None if not needed)")
-DATA_SRC_SERVER_PASSWORD = ConfigurationError(
-    "Define password for source database connection (or None if not needed)")
+DATA_SRC_SERVER_USERNAME = ConfigurationError("Define username for source database connection (or None if not needed)")
+DATA_SRC_SERVER_PASSWORD = ConfigurationError("Define password for source database connection (or None if not needed)")
 
 # Target (merged collection) database connection
 DATA_TARGET_SERVER = ConfigurationError("Define hostname for target database (merged collections)")
 DATA_TARGET_PORT = ConfigurationError("Define port for target database (merged collections)")
 DATA_TARGET_DATABASE = ConfigurationError("Define name for target database (merged collections)")
 DATA_TARGET_SERVER_USERNAME = ConfigurationError(
-    "Define username for target database connection (or None if not needed)")
+    "Define username for target database connection (or None if not needed)"
+)
 DATA_TARGET_SERVER_PASSWORD = ConfigurationError(
-    "Define password for target database connection (or None if not needed)")
+    "Define password for target database connection (or None if not needed)"
+)
 
 HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 # Internal backend. Default to mongodb
@@ -166,54 +166,57 @@ HUB_DB_BACKEND = ConfigurationError("Define Hub DB connection")
 #        "host" : "localhost:9200",
 #        }
 
-#ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
+# ES_HOST = ConfigurationError("Define ElasticSearch host used for index creation (eg localhost:9200)")
 
 TORNADO_SETTINGS = {
     # max 10GiB upload
-    "max_buffer_size": 10*1024*1024*1024,
+    "max_buffer_size": 10
+    * 1024
+    * 1024
+    * 1024,
 }
 
 # Path to a folder to store all downloaded files, logs, caches, etc...
 DATA_ARCHIVE_ROOT = ConfigurationError(
-    "Define path to folder which will contain all downloaded data, cache files, etc...")
+    "Define path to folder which will contain all downloaded data, cache files, etc..."
+)
 
 # Path to a folder to store all 3rd party parsers, dumpers, etc...
 DATA_PLUGIN_FOLDER = ConfigurationError(
-    "Define path to folder which will contain all 3rd party parsers, dumpers, etc...")
+    "Define path to folder which will contain all 3rd party parsers, dumpers, etc..."
+)
 
 DATA_UPLOAD_FOLDER = ConfigurationError("Define path to folder where uploads to API are stored")
 
 # Path to folder containing diff files
 DIFF_PATH = ConfigurationError("Define path to folder which will contain output files from diff")
 # Usually inside DATA_ARCHIVE_ROOT
-#DIFF_PATH = os.path.join(DATA_ARCHIVE_ROOT,"diff")
+# DIFF_PATH = os.path.join(DATA_ARCHIVE_ROOT,"diff")
 
 # Path to folder containing release note files
 RELEASE_PATH = ConfigurationError("Define path to folder which will contain release files")
 # Usually inside DATA_ARCHIVE_ROOT
-#RELEASE_PATH = os.path.join(DATA_ARCHIVE_ROOT,"release")
+# RELEASE_PATH = os.path.join(DATA_ARCHIVE_ROOT,"release")
 
 # this dir must be created manually
 LOG_FOLDER = ConfigurationError("Define path to folder which will contain log files")
 # Usually inside DATA_ARCHIVE_ROOT
-#LOG_FOLDER = os.path.join(DATA_ARCHIVE_ROOT,'logs')
+# LOG_FOLDER = os.path.join(DATA_ARCHIVE_ROOT,'logs')
 
 # When ES repository type is "fs", where snapshot should be stored
-ES_BACKUPS_FOLDER = ConfigurationError(
-    "Define path to folder which will contain ES snapshot when type='fs'")
+ES_BACKUPS_FOLDER = ConfigurationError("Define path to folder which will contain ES snapshot when type='fs'")
 
 # List of versions.json URLs, Hub will handle these as sources for data releases
 VERSION_URLS = []
 
 # default hub logger
-logger = ConfigurationError(
-    "Provider a default hub logger instance (use setup_default_log(name,log_folder)")
+logger = ConfigurationError("Provider a default hub logger instance (use setup_default_log(name,log_folder)")
 # Usually use default setup
-#logger = setup_default_log("hub", LOG_FOLDER)
+# logger = setup_default_log("hub", LOG_FOLDER)
 
 # shut some mouths...
 logging.getLogger("elasticsearch").setLevel(logging.ERROR)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 logging.getLogger("requests").setLevel(logging.ERROR)
-logging.getLogger('botocore').setLevel(logging.ERROR)
-logging.getLogger('boto3').setLevel(logging.ERROR)
+logging.getLogger("botocore").setLevel(logging.ERROR)
+logging.getLogger("boto3").setLevel(logging.ERROR)
