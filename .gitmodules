@@ -108,10 +108,6 @@
 	path = plugins/pfocr
 	url = https://github.com/kevinxin90/pfocr.git
 	ignore = dirty
-[submodule "plugins/phewas"]
-	path = plugins/phewas
-	url = https://github.com/kevinxin90/phewas
-	ignore = dirty
 [submodule "plugins/prot_meta_assc_hmdb"]
         path = plugins/prot_meta_assc_hmdb
         url = https://github.com/NikkiBytes/prot_meta_assc_hmdb
