@@ -64,11 +64,6 @@
 	path = plugins/geneset1
 	url = https://github.com/kevinxin90/geneset1
 	ignore = dirty
-[submodule "plugins/go"]
-	path = plugins/go
-	url = https://github.com/ericz1803/go
-	branch = main
-	ignore = dirty
 [submodule "plugins/go_bp"]
 	path = plugins/go_bp
 	url = https://github.com/kevinxin90/go_bp
