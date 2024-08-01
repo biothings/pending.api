@@ -64,11 +64,6 @@
 	path = plugins/geneset1
 	url = https://github.com/kevinxin90/geneset1
 	ignore = dirty
-[submodule "plugins/go"]
-	path = plugins/go
-	url = https://github.com/ericz1803/go
-	branch = main
-	ignore = dirty
 [submodule "plugins/go_bp"]
 	path = plugins/go_bp
 	url = https://github.com/kevinxin90/go_bp
@@ -112,10 +107,6 @@
 [submodule "plugins/pfocr"]
 	path = plugins/pfocr
 	url = https://github.com/kevinxin90/pfocr.git
-	ignore = dirty
-[submodule "plugins/phewas"]
-	path = plugins/phewas
-	url = https://github.com/kevinxin90/phewas
 	ignore = dirty
 [submodule "plugins/prot_meta_assc_hmdb"]
         path = plugins/prot_meta_assc_hmdb
