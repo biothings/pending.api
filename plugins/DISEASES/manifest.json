@@ -13,7 +13,7 @@
         ],
         "uncompress": false,
         "release": "version:get_release",
-        "schedule": "0 2 * * *"
+        "schedule": "0 2 * * 0"
     },
     "uploader": {
         "parser": "parser:load_data",
