@@ -7,7 +7,8 @@
             "https://raw.githubusercontent.com/AlexanderPico/pfocr-files/main/bte_chemicals_diseases_genes_synonyms.ndjson"
         ],
         "uncompress": false,
-        "release": "version:get_release"
+        "release": "version:get_release",
+        "schedule": "0 0 * * *"
     },
     "uploaders": [
         {
