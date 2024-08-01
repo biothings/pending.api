@@ -30,7 +30,8 @@ def batch_query_hgvs_from_rsid(rsid_list):
 def load_data(data_folder):
 
     input_file = os.path.join(data_folder, "phewas-catalog.csv")
-    assert os.path.exists(input_file), "Can't find input file '%s'" % input_file
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Can't find input file '{input_file}'")
     with open_anyfile(input_file) as in_f:
 
         # Remove duplicated lines if any
@@ -42,7 +43,8 @@ def load_data(data_folder):
         results = defaultdict(list)
         for row in reader:
             variant = {"associations": {"phenotype": {}}, "variant": {}}
-            assert re.match("^rs\d+$", row["snp"]) != None
+            if not re.match("^rs\d+$", row["snp"]):
+                raise ValueError(f"Invalid SNP format: {row['snp']}")
             variant["variant"]["rsid"] = row["snp"]
             variant["associations"]["phenotype"]["name"] = row["phewas phenotype"]
             variant["associations"]["cases"] = row["cases"]
