@@ -10,7 +10,7 @@
         "data_url" : "https://www.ebi.ac.uk/gwas/api/search/downloads/alternative",
         "uncompress" : false,
         "release" : "version:get_release",
-        "schedule": "0 5 * * *"
+        "schedule": "0 2 * * *"
     },
     "uploader" : {
         "parser" : "parser:load_data",
