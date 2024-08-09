@@ -9,10 +9,10 @@ deployment:
     rollingUpdate:
       # This setting ensures that no existing pods are taken down before new ones are up and running.
       # This configuration guarantees that there will be no downtime during the update.
-      maxUnavailable: 0
+      maxUnavailable: 1
       # This allows Kubernetes to create one additional pod above the desired number of replicas during the update.
       # It ensures that a new pod is ready before taking an old pod down.
-      maxSurge: 1
+      maxSurge: 0
 
 image:
   repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
