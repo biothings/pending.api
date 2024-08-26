@@ -3,8 +3,16 @@
 # Declare variables to be passed into your templates.
 
 deployment:
-  strategyType: Recreate
-  replicaCount: 1
+  replicaCount: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # This setting ensures that no existing pods are taken down before new ones are up and running.
+      # This configuration guarantees that there will be no downtime during the update.
+      maxUnavailable: 1
+      # This allows Kubernetes to create one additional pod above the desired number of replicas during the update.
+      # It ensures that a new pod is ready before taking an old pod down.
+      maxSurge: 0
 
 image:
   repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
@@ -16,7 +24,36 @@ containers:
   name: pendingapiserver
   es_host: ES_HOST_VALUE
   port: 9000
-
+  # To determine if a container application has started successfully.
+  startupProbe:
+    httpGet:
+      path: /rhea/status
+      port: 9000
+    initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
+    periodSeconds: 5  # How often (in seconds) to perform the startup probe.
+    timeoutSeconds: 3  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container started successfully.
+    failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
+  # To determine when the container is ready to start accepting traffic
+  readinessProbe:
+    httpGet:
+      path: /rhea/status
+      port: 9000
+    initialDelaySeconds: 10  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+    periodSeconds: 5  # How often (in seconds) to perform the readiness probe.
+    timeoutSeconds: 3  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
+    failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
+  # To determine if a container is still running
+  livenessProbe:
+    httpGet:
+      path: /rhea/status
+      port: 9000
+    initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
+    periodSeconds: 60  # How often (in seconds) to perform the liveness probe.
+    timeoutSeconds: 30  # The number of seconds after which the probe times out.
+    successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
+    failureThreshold: 3  # The number of consecutive failures required to consider the container unhealthy and restart it.
 env:
   OPENTELEMETRY_ENABLED_VALUE: True
   #OPENTELEMETRY_JAEGER_HOST: OPENTELEMETRY_JAEGER_HOST_VALUE
@@ -88,3 +125,4 @@ resources:
   limits:
     memory: 58Gi
     cpu: 14000m 
+

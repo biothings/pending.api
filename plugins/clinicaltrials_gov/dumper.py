@@ -19,6 +19,7 @@ except ImportError:
 class ClinicalTrialsGovDumper(APIDumper):
     SRC_NAME = "clinicaltrials_gov"
     SRC_ROOT_FOLDER = os.path.join(DATA_ARCHIVE_ROOT, SRC_NAME)
+    SCHEDULE = "30 0 * * 0"
 
     @staticmethod
     def get_release():
@@ -77,7 +78,7 @@ def _load_studies():
 
         if 'nextPageToken' in page:
             next_page = page['nextPageToken']
-        
+
         yield page, page_idx
 
         # time.sleep(DOWNLOAD_DELAY)

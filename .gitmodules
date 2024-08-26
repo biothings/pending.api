@@ -64,11 +64,6 @@
 	path = plugins/geneset1
 	url = https://github.com/kevinxin90/geneset1
 	ignore = dirty
-[submodule "plugins/go"]
-	path = plugins/go
-	url = https://github.com/ericz1803/go
-	branch = main
-	ignore = dirty
 [submodule "plugins/go_bp"]
 	path = plugins/go_bp
 	url = https://github.com/kevinxin90/go_bp
@@ -85,10 +80,6 @@
 	path = plugins/GTRx
 	url = https://github.com/biothings/GTRx
 	branch = main
-	ignore = dirty
-[submodule "plugins/gwascatalog"]
-	path = plugins/gwascatalog
-	url = https://github.com/erikyao/gwascatalog
 	ignore = dirty
 [submodule "plugins/iDisk"]
 	path = plugins/iDisk
@@ -111,10 +102,6 @@
 [submodule "plugins/pfocr"]
 	path = plugins/pfocr
 	url = https://github.com/kevinxin90/pfocr.git
-	ignore = dirty
-[submodule "plugins/phewas"]
-	path = plugins/phewas
-	url = https://github.com/kevinxin90/phewas
 	ignore = dirty
 [submodule "plugins/prot_meta_assc_hmdb"]
         path = plugins/prot_meta_assc_hmdb
@@ -169,3 +156,12 @@
 [submodule "plugins/multiomics_clinicaltrials_kp"]
 	path = plugins/multiomics_clinicaltrials_kp
 	url = https://github.com/multiomicsKP/clinical_trials_kp
+[submodule "plugins/GMMAD2_data"]
+	path = plugins/GMMAD2_data
+	url = https://github.com/lucyzhang95/GMMAD2_data
+[submodule "plugins/Disbiome_data"]
+	path = plugins/Disbiome_data
+	url = https://github.com/lucyzhang95/Disbiome_data
+[submodule "plugins/HMDB_data"]
+	path = plugins/HMDB_data
+	url = https://github.com/lucyzhang95/HMDB_data

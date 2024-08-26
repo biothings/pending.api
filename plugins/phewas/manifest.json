@@ -1,0 +1,19 @@
+{
+    "version": "0.1",
+    "requires" : "biothings_client",
+    "__metadata__" : {
+        "license_url" : "https://creativecommons.org/licenses/by/4.0/",
+        "licence" : "CC BY 4.0",
+        "url" : "https://phewascatalog.org/"
+    },
+    "dumper" : {
+        "data_url" : "https://phewascatalog.org/files/phewas-catalog.csv.zip",
+        "uncompress" : true,
+        "release" : "version:get_release",
+        "schedule": "0 1 * * 0"
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "on_duplicates" : "error"
+    }
+}

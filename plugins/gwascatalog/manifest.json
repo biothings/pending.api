@@ -1,0 +1,19 @@
+{
+    "version": "0.2",
+    "requires": "biothings_client",
+    "__metadata__" : {
+        "license_url" : "https://www.ebi.ac.uk/about/terms-of-use",
+        "licence" : "EBI terms of use",
+        "url" : "https://www.ebi.ac.uk/gwas/"
+    },
+    "dumper" : {
+        "data_url" : "https://www.ebi.ac.uk/gwas/api/search/downloads/alternative",
+        "uncompress" : false,
+        "release" : "version:get_release",
+        "schedule": "0 2 * * 0"
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "on_duplicates": "error"
+    }
+}

@@ -13,7 +13,7 @@
         "data_url": "http://purl.obolibrary.org/obo/uberon.obo",
         "uncompress": false,
         "release": "version:get_release",
-        "schedule": "0 6 * * *"
+        "schedule": "0 3 * * 0"
     },
     "uploader": {
         "parser": "parser:load_data",

@@ -1,0 +1,69 @@
+{
+  "_id": "chr16:g.68304392C>A",
+  "gwascatalog": {
+    "associations": [
+      {
+        "efo": {
+          "name": "blood metabolite measurement",
+          "id": "EFO_0005664"
+        },
+        "study": {
+          "name": "An atlas of genetic influences on human blood metabolites.",
+          "platform": "Affymetrix, Illumina [2100000] (imputed)",
+          "accession": "GCST002442"
+        },
+        "snps": "rs8056893",
+        "pubmed": 24816252,
+        "date_added": "2014-12-10",
+        "trait": "Blood metabolite ratios",
+        "raf": 0.73,
+        "p_val": 3e-39
+      },
+      {
+        "efo": {
+          "name": [
+            "glomerular filtration rate",
+            " serum creatinine measurement"
+          ],
+          "id": [
+            "EFO_0005208",
+            "EFO_0004518"
+          ]
+        },
+        "study": {
+          "name": "Genetic associations at 53 loci highlight cell types and biological pathways relevant for kidney function.",
+          "platform": "Affymetrix, Illumina [~ 2500000] (imputed)",
+          "accession": "GCST003372"
+        },
+        "snps": "rs8056893",
+        "pubmed": 26831199,
+        "date_added": "2016-11-25",
+        "trait": "Glomerular filtration rate (creatinine)",
+        "raf": 0.72,
+        "p_val": 1e-7
+      },
+      {
+        "efo": {
+          "name": "blood metabolite measurement",
+          "id": "EFO_0005664"
+        },
+        "study": {
+          "name": "An atlas of genetic influences on human blood metabolites.",
+          "platform": "Affymetrix, Illumina [2100000] (imputed)",
+          "accession": "GCST002443"
+        },
+        "snps": "rs8056893",
+        "pubmed": 24816252,
+        "date_added": "2014-12-10",
+        "trait": "Blood metabolite levels",
+        "raf": 0.73,
+        "p_val": 2e-30
+      }
+    ],
+    "gene": "SLC7A6",
+    "region": "16q22.1",
+    "pos": 68270489,
+    "context": "intron_variant",
+    "rsid": "rs8056893"
+  }
+}
