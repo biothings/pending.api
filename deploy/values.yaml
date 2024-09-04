@@ -3,13 +3,13 @@
 # Declare variables to be passed into your templates.
 
 deployment:
-  replicaCount: 2
+  replicaCount: 4
   strategy:
     type: RollingUpdate
     rollingUpdate:
       # This setting ensures that no existing pods are taken down before new ones are up and running.
       # This configuration guarantees that there will be no downtime during the update.
-      maxUnavailable: 1
+      maxUnavailable: 2
       # This allows Kubernetes to create one additional pod above the desired number of replicas during the update.
       # It ensures that a new pod is ready before taking an old pod down.
       maxSurge: 0
@@ -39,9 +39,9 @@ containers:
     httpGet:
       path: /rhea/status
       port: 9000
-    initialDelaySeconds: 10  #  The number of seconds to wait after the container has started before performing the first readiness probe.
-    periodSeconds: 5  # How often (in seconds) to perform the readiness probe.
-    timeoutSeconds: 3  # The number of seconds after which the probe times out.
+    initialDelaySeconds: 30  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+    periodSeconds: 60  # How often (in seconds) to perform the readiness probe.
+    timeoutSeconds: 30  # The number of seconds after which the probe times out.
     successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
     failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
   # To determine if a container is still running
@@ -120,9 +120,9 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 resources:
   requests:
-    memory: 42Gi
-    cpu: 8000m
+    memory: 21Gi # 42Gi / 2
+    cpu: 4000m # 8000m / 2
   limits:
-    memory: 58Gi
-    cpu: 14000m 
+    memory: 29Gi # 58Gi / 2
+    cpu: 7000m # 14000m / 2 
 
