@@ -1,23 +1,26 @@
 {
     "version": "0.2",
-    "__metadata__" : {
-        "url" : "https://www.ebi.ac.uk/chebi/aboutChebiForward.do/",
-        "license_url" : "hhttps://creativecommons.org/licenses/by/4.0/",
-        "licence" : "CC BY 4.0",
-        "author" : {
-            "name" : "Eric Zhou",
-            "url" : "https://github.com/ericz1803"
+    "__metadata__": {
+        "url": "https://www.ebi.ac.uk/chebi/aboutChebiForward.do/",
+        "license_url": "hhttps://creativecommons.org/licenses/by/4.0/",
+        "licence": "CC BY 4.0",
+        "author": {
+            "name": "Eric Zhou",
+            "url": "https://github.com/ericz1803"
         }
     },
-    "dumper" : {
-        "data_url" : "http://purl.obolibrary.org/obo/chebi.obo",
-        "uncompress" : false,
+    "dumper": {
+        "data_url": "http://purl.obolibrary.org/obo/chebi.obo",
+        "uncompress": false,
         "release": "version:get_release",
         "schedule": "0 1 * * 0"
     },
-    "uploader" : {
-        "parser" : "hub.dataload.data_parsers:load_obo",
-        "parser_kwargs": {"obofile": "chebi.obo"},
-        "on_duplicates" : "error"
+    "uploader": {
+        "parser": "hub.dataload.data_parsers:load_obo",
+        "parser_kwargs": {
+            "obofile": "chebi.obo",
+            "prefix": "CHEBI"
+        },
+        "on_duplicates": "error"
     }
 }

@@ -94,11 +94,6 @@
 	path = plugins/mgi_gene2phenotype
 	url = https://github.com/kevinxin90/mgi_gene2phenotype.git
 	ignore = dirty
-[submodule "plugins/mondo"]
-	path = plugins/mondo
-	url = https://github.com/ericz1803/mondo
-	branch = main
-	ignore = dirty
 [submodule "plugins/multiomics_wellness_kp"]
 	path = plugins/multiomics_wellness_kp
 	url = https://github.com/Hadlock-Lab/multiomics_wellness_kp

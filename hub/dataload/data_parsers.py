@@ -1,35 +1,124 @@
-import networkx
-import obonet
 import os
+import re
+from collections import defaultdict
+
+import networkx as nx
+import obonet
 
 
-def load_obo(data_folder, obofile):
-    graph = obonet.read_obo(os.path.join(data_folder, obofile))
+class OntologyHelper:
+    IS_A_EDGE_TYPE = "is_a"
+    SYNONYM_PATTERN = re.compile(r"\"(.+?)\"")
+    XREF_INVALID_PREFIXES = {"https", "http"}
+    XREF_ALWAYS_PREFIXED = {"DOID", "HP", "MP", "OBI", "EFO"}
 
-    IGNORE_FIELDS = ["is_a"]  # captured in parent field already
+    def __init__(self, prefix):
+        self.prefix = prefix
 
-    for node in graph.nodes(data=True):
-        children = list(graph.predecessors(node[0]))
-        parents = list(graph.successors(node[0]))
-        descendants = list(networkx.ancestors(graph, node[0]))
-        ancestors = list(networkx.descendants(graph, node[0]))
+    def load_obo_network(self, filepath: str) -> nx.MultiDiGraph:
+        graph = obonet.read_obo(filepath, ignore_obsolete=False)
+        edges_to_remove = [(u, v, key) for (u, v, key) in graph.edges(keys=True) if key != self.IS_A_EDGE_TYPE]
+        graph.remove_edges_from(edges_to_remove)
+        return graph
 
-        n = {
-            "_id": node[0],
-            "parents": parents,  # predecessors/successors mean the opposite in networkx
-            "children": children,
-            "ancestors": ancestors,  # networkx ancestors/descendants are opposite as well
-            "descendants": descendants,
-            "num_parents": len(parents),
-            "num_children": len(children),
-            "num_ancestors": len(ancestors),
-            "num_descendants": len(descendants),
-            **{
-                k: v for k, v in node[1].items() if k not in IGNORE_FIELDS
-            },  # unpack fields like name, def, comment, synonym, xref, etc.
-        }
+    def parse_synonyms(self, node_obj: dict) -> dict:
+        if "synonym" not in node_obj:
+            return {}
+        exact_synonyms = []
+        related_synonyms = []
+        for synonym_description in node_obj["synonym"]:
+            if "EXACT" in synonym_description:
+                exact_synonyms += self.SYNONYM_PATTERN.findall(synonym_description)
+            elif "RELATED" in synonym_description:
+                related_synonyms += self.SYNONYM_PATTERN.findall(synonym_description)
+        synonyms = {}
+        if exact_synonyms:
+            synonyms["exact"] = exact_synonyms
+        if related_synonyms:
+            synonyms["related"] = related_synonyms
+        return synonyms
 
-        if "def" in n and n["def"].startswith('"') and n["def"].endswith('" []'):
-            n["def"] = n["def"][1:-4]
+    def parse_xref(self, node_obj: dict) -> dict:
+        if "xref" not in node_obj:
+            return {}
+        xrefs = defaultdict(set)
+        for curie in node_obj.get("xref"):
+            curie_prefix, curie_id = curie.split(":", 1)
+            if curie_prefix in self.XREF_INVALID_PREFIXES:
+                continue
+            if curie_prefix in self.XREF_ALWAYS_PREFIXED:
+                xrefs[curie_prefix.lower()].add(curie)
+            else:
+                xrefs[curie_prefix.lower()].add(curie_id)
+        for curie_prefix in xrefs:
+            xrefs[curie_prefix] = list(xrefs[curie_prefix])
+        return xrefs
 
-        yield n
+    def parse_relationship(self, node_obj: dict) -> dict:
+        if "relationship" not in node_obj:
+            return {}
+        rels = {}
+        for relationship_description in node_obj.get("relationship"):
+            predicate, curie = relationship_description.split(" ")
+            curie_prefix = curie.split(":")[0]
+            if predicate not in rels:
+                rels[predicate] = defaultdict(set)
+            rels[predicate][curie_prefix.lower()].add(curie)
+        for predicate in rels:
+            for curie_prefix in rels[predicate]:
+                rels[predicate][curie_prefix] = list(rels[predicate][curie_prefix])
+            rels[predicate] = dict(rels[predicate])
+        return rels
+
+    def is_obsolete(self, node_obj: dict) -> bool:
+        return node_obj.get("is_obsolete", "false") == "true"
+
+    def is_target_prefix(self, node_id: str) -> bool:
+        return node_id.startswith(self.prefix)
+
+    def get_ontological_predecessors(self, graph: nx.MultiDiGraph, node_id: str):
+        return list(graph.successors(node_id))
+
+    def get_ontological_successors(self, graph: nx.MultiDiGraph, node_id: str):
+        return list(graph.predecessors(node_id))
+
+    def get_ontological_ancestors(self, graph: nx.MultiDiGraph, node_id: str):
+        return list(nx.descendants(graph, node_id))
+
+    def get_ontological_descendants(self, graph: nx.MultiDiGraph, node_id: str):
+        return list(nx.ancestors(graph, node_id))
+
+def load_obo(data_folder, obofile, prefix):
+    path = os.path.join(data_folder, obofile)
+    helper = OntologyHelper(prefix)
+    graph = helper.load_obo_network(path)
+
+    for node_id in graph.nodes(data=False):
+        if not helper.is_target_prefix(node_id):
+            continue
+
+        node_doc = {"_id": node_id}
+        node_obj = graph.nodes[node_id]
+
+        node_doc["parents"] = helper.get_ontological_predecessors(graph, node_id)
+        node_doc["children"] = helper.get_ontological_successors(graph, node_id)
+        node_doc["ancestors"] = helper.get_ontological_ancestors(graph, node_id)
+        node_doc["descendants"] = helper.get_ontological_descendants(graph, node_id)
+
+        if helper.is_obsolete(node_obj):
+            node_doc["is_obsolete"] = True
+            replaced_by = node_obj.get("replaced_by", None)
+            if replaced_by:
+                node_doc["replaced_by"] = replaced_by[0]
+            node_doc["consider"] = node_obj.get("consider", None)
+
+        node_doc["synonym"] = helper.parse_synonyms(node_obj)
+        node_doc["xrefs"] = helper.parse_xref(node_obj)
+        node_doc.update(helper.parse_relationship(node_obj))
+
+        node_doc["definition"] = node_obj.get("def", "").replace('"', '')
+        node_doc["label"] = node_obj.get("name")
+
+        node_doc = {k: v for k, v in node_doc.items() if v not in [None, [], ""]}
+
+        yield node_doc
