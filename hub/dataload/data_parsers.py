@@ -61,12 +61,9 @@ class OntologyHelper:
         for relationship_description in node_obj.get("relationship"):
             predicate, curie = relationship_description.split(" ")
             curie_prefix = curie.split(":")[0].lower()
-
             rels[curie_prefix].add(curie)
-
         for curie_prefix in rels:
             rels[curie_prefix] = list(rels[curie_prefix])
-
         return dict(rels)
 
     def is_obsolete(self, node_obj: dict) -> bool:
