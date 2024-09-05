@@ -21,6 +21,7 @@
             "obofile": "ncit.obo",
             "prefix": "NCIT"
         },
-        "on_duplicates": "error"
+        "on_duplicates": "error",
+        "mapping" : "mapping:get_customized_mapping"
     }
 }
