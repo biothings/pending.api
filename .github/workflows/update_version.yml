@@ -1,0 +1,40 @@
+name: Update Version
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update_version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Check if version.txt exists
+      run: |
+        if [ ! -f version.txt ]; then
+          echo "version.txt not found, creating new file."
+          echo "0.0.1" > version.txt
+        else
+          echo "version.txt exists, updating version."
+        fi
+
+    - name: Generate version from latest commit hash
+      run: |
+        VERSION=$(git rev-parse --short HEAD)
+        echo "Version: $VERSION"
+        echo $VERSION > version.txt
+
+    - name: Commit version change
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add version.txt
+        git commit -m "Update version to $VERSION"
+        git push origin master
+
+    - name: Notify version update
+      run: echo "Version updated successfully to $(cat version.txt)"
