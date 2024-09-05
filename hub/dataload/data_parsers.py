@@ -67,6 +67,8 @@ class OntologyHelper:
         for curie_prefix in rels:
             rels[curie_prefix] = list(rels[curie_prefix])
 
+        return dict(rels)
+
     def is_obsolete(self, node_obj: dict) -> bool:
         return node_obj.get("is_obsolete", "false") == "true"
 
