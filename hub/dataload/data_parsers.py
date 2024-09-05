@@ -110,7 +110,7 @@ def load_obo(data_folder, obofile, prefix):
 
         node_doc["synonym"] = helper.parse_synonyms(node_obj)
         node_doc["xrefs"] = helper.parse_xref(node_obj)
-        node_doc.update(helper.parse_relationship(node_obj))
+        node_doc["relationships"] = helper.parse_relationship(node_obj)
 
         node_doc["definition"] = node_obj.get("def", "").replace('"', '')
         node_doc["label"] = node_obj.get("name")
