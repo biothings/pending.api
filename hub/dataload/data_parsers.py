@@ -57,18 +57,14 @@ class OntologyHelper:
     def parse_relationship(self, node_obj: dict) -> dict:
         if "relationship" not in node_obj:
             return {}
-        rels = {}
+        rels = defaultdict(set)
         for relationship_description in node_obj.get("relationship"):
             predicate, curie = relationship_description.split(" ")
-            curie_prefix = curie.split(":")[0]
-            if predicate not in rels:
-                rels[predicate] = defaultdict(set)
-            rels[predicate][curie_prefix.lower()].add(curie)
-        for predicate in rels:
-            for curie_prefix in rels[predicate]:
-                rels[predicate][curie_prefix] = list(rels[predicate][curie_prefix])
-            rels[predicate] = dict(rels[predicate])
-        return rels
+            curie_prefix = curie.split(":")[0].lower()
+            rels[curie_prefix].add(curie)
+        for curie_prefix in rels:
+            rels[curie_prefix] = list(rels[curie_prefix])
+        return dict(rels)
 
     def is_obsolete(self, node_obj: dict) -> bool:
         return node_obj.get("is_obsolete", "false") == "true"
