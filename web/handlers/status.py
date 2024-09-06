@@ -17,11 +17,12 @@ class StatusHandler(BaseAPIHandler):
 
         # Get application host and port
         # host, port = self.request.host.split(':')
-        port = os.getenv("APP_PORT", "8000")
+        # port = str(os.getenv("APP_PORT", "8000"))
 
         try:
             # Make an asynchronous GET request to the /rhea/status endpoint
-            response = await http_client.fetch(f"http://127.0.0.1:{port}/rhea/status")
+            # response = await http_client.fetch(f"http://127.0.0.1:{port}/rhea/status")
+            response = await http_client.fetch("http://127.0.0.1:9000/rhea/status")
 
             # Check if the response status code is 200
             if response.code == 200:
