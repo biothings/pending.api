@@ -38,14 +38,6 @@ spec:
             - name: http
               containerPort: {{ .Values.containers.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           startupProbe:  # To determine if a container application has started successfully.
             httpGet:
               path: /rhea/status
