@@ -16,6 +16,8 @@ from jinja2 import Environment, FileSystemLoader
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
+from .status import StatusHandler
+from .version import VersionHandler
 
 from config_web import (
     OPENTELEMETRY_ENABLED,
@@ -127,6 +129,8 @@ class ApiViewHandler(tornado.web.RequestHandler):
 
 EXTRA_HANDLERS = [
     (r"/", FrontPageHandler),
+    (r"/status", StatusHandler),
+    (r"/version", VersionHandler),
     (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
 ]
