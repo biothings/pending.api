@@ -17,14 +17,15 @@ class StatusHandler(BaseAPIHandler):
 
         # Get application host and port
         host, port = self.request.host.split(':')
-        logger.debug(f"host: {host}")
-        logger.debug(f"port: {port}")
+        logger.info(f"host: {host}")
+        logger.info(f"port: {port}")
+        url_check = f"http://{host}:{port}/rhea/status"
 
-        port = str(os.getenv("APP_PORT", "8000"))
-        logger.debug(f"port: {port}")
+        # port = str(os.getenv("APP_PORT", "8000"))
+        # logger.info(f"port: {port}")
+        # url_check = f"http://127.0.0.1:{port}/rhea/status"
 
-        url_check = f"http://127.0.0.1:{port}/rhea/status"
-        logger.debug(f"url_check: {url_check}")
+        logger.info(f"url_check: {url_check}")
 
         try:
             # Make an asynchronous GET request to the /rhea/status endpoint
