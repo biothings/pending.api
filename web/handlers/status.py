@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 from biothings.web.handlers import BaseAPIHandler
 from tornado.web import HTTPError
@@ -14,33 +15,26 @@ class StatusHandler(BaseAPIHandler):
 
     async def get(self, *args, **kwargs):
         http_client = AsyncHTTPClient()
-
-        # Get application host and port
-        host, port = self.request.host.split(':')
-        logger.info(f"host: {host}")
-        logger.info(f"port: {port}")
-        url_check = f"http://{host}:{port}/rhea/status"
-
-        # port = str(os.getenv("APP_PORT", "8000"))
-        # logger.info(f"port: {port}")
-        # url_check = f"http://127.0.0.1:{port}/rhea/status"
-
+        host = str(os.getenv("ES_HOST", "http://localhost:9200"))
+        url_check = f"{host}/pending-rhea/_count"
         logger.info(f"url_check: {url_check}")
 
         try:
-            # Make an asynchronous GET request to the /rhea/status endpoint
             response = await http_client.fetch(url_check)
+            response_data = json.loads(response.body.decode())
 
-            # Check if the response status code is 200
             if response.code == 200:
-                # Return success if the response is OK
-                self.write({"success": True})
+                count = response_data.get('count', 0)
+
+                if count > 0:
+                    self.write({"success": True})
+                else:
+                    logger.error(f"Error fetching _count from Elasticsearch: {response.body.decode()}")
+                    raise HTTPError(response.code, f"Error fetching _count: {response.body.decode()}")
             else:
-                # Raise an error if the response is not 200
-                logger.error(f"Received non-200 response from /rhea/status: {response.code}")
-                raise HTTPError(response.code, f"Error fetching /rhea/status: {response.body.decode()}")
+                logger.error(f"Received non-200 response from Elasticsearch _count endpoint: {response.code}")
+                raise HTTPError(response.code, f"Error fetching _count: {response.body.decode()}")
 
         except TornadoHTTPError as e:
-            # Log and raise the error if the request failed
-            logger.error(f"Error fetching /rhea/status: {e}")
-            raise HTTPError(e.code, f"Error fetching /rhea/status: {e.message}")
+            logger.error(f"Error fetching _count from Elasticsearch: {e}")
+            raise HTTPError(e.code, f"Error fetching _count: {e.message}")
