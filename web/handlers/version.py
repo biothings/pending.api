@@ -1,5 +1,7 @@
 import logging
 import os
+import pathlib
+import git
 
 from git import Repo
 from biothings.web.handlers import BaseAPIHandler
@@ -12,8 +14,15 @@ class VersionHandler(BaseAPIHandler):
     def get_github_commit_hash(self):
         """Retrieve the current GitHub commit hash using gitpython."""
         try:
-            # Assuming the .git directory is located in the root of the project
-            repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))  # Adjust the path to reach the repo root
+            # Resolve the absolute path to the current file
+            file_path = pathlib.Path(__file__).resolve()
+
+            # Use git.Repo to find the root of the repository
+            repo = git.Repo(file_path, search_parent_directories=True)
+
+            # Get the absolute path to the repository root
+            repo_dir = repo.working_tree_dir
+
             logger.info(f"Repository directory: {repo_dir}")
 
             # Initialize the Repo object
