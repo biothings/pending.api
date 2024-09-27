@@ -5,6 +5,9 @@
 import json
 import logging
 import os
+import psutil
+import threading
+import time
 import types
 
 import tornado.httpclient
@@ -12,9 +15,6 @@ import tornado.web
 from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
 
-# from config_web import opentelemetry
-from .graph import GraphQueryHandler
-from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 from .status import StatusDefaultHandler
 from .version import VersionHandler
@@ -25,6 +25,40 @@ from config_web import (
     OPENTELEMETRY_JAEGER_PORT,
     OPENTELEMETRY_SERVICE_NAME,
 )
+
+def get_system_metrics(span):
+    # Get system metrics
+    cpu_usage = psutil.cpu_percent()
+    memory_info = psutil.virtual_memory()
+    memory_usage = memory_info.percent
+    disk_io_counters = psutil.disk_io_counters()
+    disk_io_read = disk_io_counters.read_bytes
+    disk_io_write = disk_io_counters.write_bytes
+    net_io_counters = psutil.net_io_counters()
+    net_io_read = net_io_counters.bytes_recv
+    net_io_write = net_io_counters.bytes_sent
+
+    # Set metrics as attributes on the span
+    span.set_attributes({
+        "cpu_usage": cpu_usage,
+        "memory_usage": memory_usage,
+        "disk_io_read": disk_io_read,
+        "disk_io_write": disk_io_write,
+        "net_io_read": net_io_read,
+        "net_io_write": net_io_write,
+    })
+
+def metrics_collector(tracer, interval=5):
+    while True:
+        with tracer.start_as_current_span("Metrics:get") as span:
+            get_system_metrics(span)
+        time.sleep(interval)
+
+def start_metrics_thread(tracer, interval=15):
+    # Start a background thread to collect metrics every `interval` seconds
+    thread = threading.Thread(target=metrics_collector, args=(tracer, interval), daemon=True)
+    thread.start()
+
 
 OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
 
@@ -55,6 +89,12 @@ if OPENTELEMETRY_ENABLED == "true":
 
     # Set the trace provider globally
     trace.set_tracer_provider(trace_provider)
+
+    # Get metrics and send to Jaeger
+    tracer = trace.get_tracer(__name__)
+    interval = 30
+    start_metrics_thread(tracer, interval)
+
 
 log = logging.getLogger("pending")
 
