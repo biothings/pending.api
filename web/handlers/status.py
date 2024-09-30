@@ -11,7 +11,7 @@ class StatusDefaultHandler(BaseAPIHandler):
     name = "status"
 
     async def get(self, *args, **kwargs):
-        self.request.uri = "/rhea/status"
+        self.request.uri = "/idisk/status"
         status_handler = StatusHandler(
             self.application, self.request, **kwargs
         )
@@ -20,7 +20,7 @@ class StatusDefaultHandler(BaseAPIHandler):
 
 
     async def head(self, *args, **kwargs):
-        self.request.uri = "/rhea/status"
+        self.request.uri = "/idisk/status"
         status_handler = StatusHandler(
             self.application, self.request, **kwargs
         )
