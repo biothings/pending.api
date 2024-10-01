@@ -16,7 +16,10 @@
     },
     "uploader" : {
         "parser" : "hub.dataload.data_parsers:load_obo",
-        "parser_kwargs": {"obofile": "go.obo"},
+        "parser_kwargs": {
+            "obofile": "go.obo",
+            "prefix": "GO"
+        },
         "on_duplicates" : "error"
     }
 }
