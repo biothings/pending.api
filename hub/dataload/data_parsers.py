@@ -202,13 +202,43 @@ def load_obo(data_folder, obofile, prefix=None):
     """
     Load an OBO ontology file and yield processed node documents.
 
+    This function reads an OBO-formatted ontology file and processes its contents
+    to extract relevant information for each node (term) in the ontology. It filters
+    nodes based on an optional prefix and yields a dictionary for each node containing
+    various ontological details such as synonyms, cross-references, relationships,
+    and hierarchical information like parents and children.
+
     Args:
         data_folder (str): The directory containing the OBO file.
-        obofile (str): The name of the OBO file.
-        prefix (str, optional): The prefix to filter ontology terms. Defaults to None.
+        obofile (str): The name of the OBO file to load.
+        prefix (str, optional): A prefix string to filter ontology terms. Only terms
+            whose IDs start with this prefix will be processed. If None, all terms
+            in the ontology are processed. Defaults to None.
 
     Yields:
-        dict: A dictionary representing a node with processed ontology information.
+        dict: A dictionary representing a node (ontology term) with processed
+        ontology information. The dictionary includes:
+
+            - "_id" (str): The unique identifier of the node.
+            - "label" (str): The name of the node.
+            - "definition" (str): The textual definition of the node.
+            - "synonym" (dict): A dictionary of synonyms categorized as "exact" or "related".
+            - "xrefs" (dict): Cross-references to other databases or ontologies.
+            - "relationships" (dict): Relationships to other ontology terms.
+            - "parents" (list): Immediate parent node IDs in the ontology hierarchy.
+            - "children" (list): Immediate child node IDs in the ontology hierarchy.
+            - "ancestors" (list): All ancestor node IDs (transitive closure).
+            - "descendants" (list): All descendant node IDs (transitive closure).
+            - "is_obsolete" (bool): Indicates if the node is obsolete.
+            - "replaced_by" (str): The node ID that replaces this obsolete node.
+            - "consider" (list): A list of node IDs to consider instead of the obsolete node.
+
+    Notes:
+        - The function uses the `OntologyHelper` class to parse and extract information.
+        - Only 'is_a' relationships are considered in the ontology graph.
+        - Obsolete terms are included and marked with the "is_obsolete" flag.
+        - The function skips nodes that do not match the provided prefix, if any.
+
     """
     path = os.path.join(data_folder, obofile)
     helper = OntologyHelper(prefix)
