@@ -7,103 +7,68 @@ def pfocr_mapping(cls):
     Examples Entries:
     pfocr_all:
     {
-        "_id": "PMC10003241__ijms-24-04893-g003",
+        "_id": "PMC10088895__jcav14p0850g001",
         "associatedWith": {
-            "title": "Metabolic Features of Osteoblasts: Implications for Multiple Myeloma (MM) Bone Disease",
-            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10003241__ijms-24-04893-g003.html",
-            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10003241/bin/ijms-24-04893-g003.jpg",
-            "pmc": "PMC10003241",
+            "title": "PD-1/PD-L1 pathway plays a role in immunosuppression",
+            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10088895__jcav14p0850g001.html",
+            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10088895/bin/jcav14p0850g001.jpg",
+            "pmc": "PMC10088895",
             "mentions": {
                 "chemicals": {
-                    "mesh": [
-                        "C076685",
-                        "D005978",
-                        "C065987",
-                        "C528802",
-                        "D005947",
-                        "C108952",
-                        "D005227",
-                        "D000255",
-                        "D011773",
-                        "C000589078"
+                    "mesh": [],
+                    "chebi": [
+                        "63620",
+                        "28398"
                     ]
                 },
                 "diseases": {
-                    "mesh": [
-                        "D011488"
-                    ]
+                    "mesh": [],
+                    "doid": []
                 },
                 "genes": {
                     "ncbigene": [
-                        "51761",
-                        "121340",
-                        "7482",
-                        "80326",
-                        "7481",
-                        "2475",
-                        "7477",
-                        "7478",
-                        "4040",
-                        "253260",
-                        "7483",
-                        "6507",
-                        "7484",
-                        "9056",
-                        "1376",
-                        "57521",
-                        "1301",
-                        "2744",
-                        "79109",
-                        "7479",
-                        "1277",
-                        "3069",
-                        "7480",
-                        "1374",
-                        "7472",
-                        "7476",
-                        "6517",
-                        "56994",
-                        "10254",
-                        "8321",
-                        "8324",
-                        "4041",
-                        "8326",
-                        "6515",
-                        "27165",
+                        "940",
+                        "23595",
+                        "6957",
+                        "7535",
+                        "5133",
+                        "3845",
+                        "5290",
+                        "2048",
+                        "5291",
+                        "27040",
                         "207",
-                        "7475",
-                        "4281",
-                        "7471",
-                        "81029",
-                        "208",
-                        "54407",
-                        "8322",
-                        "4846",
-                        "8325",
+                        "5595",
+                        "5624",
+                        "8503",
+                        "3265",
+                        "5293",
+                        "100526842",
+                        "30849",
+                        "5605",
+                        "146850",
+                        "23533",
+                        "83985",
+                        "6965",
                         "10000",
-                        "2535",
-                        "54361",
-                        "7976",
-                        "8323",
-                        "7884",
-                        "6510",
-                        "860",
-                        "3952",
-                        "473",
-                        "64223",
-                        "7474",
-                        "566",
-                        "7855",
-                        "6513",
-                        "50865",
-                        "11211",
-                        "51384",
-                        "7473",
-                        "27",
-                        "89780",
-                        "4843",
-                        "440",
-                        "4842"
+                        "5781",
+                        "208",
+                        "29126",
+                        "6964",
+                        "5294",
+                        "5604",
+                        "5295",
+                        "324",
+                        "3107",
+                        "5594",
+                        "1493",
+                        "6139",
+                        "6962",
+                        "6955",
+                        "4893",
+                        "5728",
+                        "5296",
+                        "5609"
                     ]
                 }
             }
@@ -112,44 +77,31 @@ def pfocr_mapping(cls):
 
     pfocr_strict:
     {
-        "_id": "PMC10003241__ijms-24-04893-g003",
+        "_id": "PMC10088895__jcav14p0850g001",
         "associatedWith": {
-            "title": "Metabolic Features of Osteoblasts: Implications for Multiple Myeloma (MM) Bone Disease",
-            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10003241__ijms-24-04893-g003.html",
-            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10003241/bin/ijms-24-04893-g003.jpg",
-            "pmc": "PMC10003241",
+            "title": "PD-1/PD-L1 pathway plays a role in immunosuppression",
+            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10088895__jcav14p0850g001.html",
+            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10088895/bin/jcav14p0850g001.jpg",
+            "pmc": "PMC10088895",
             "mentions": {
                 "chemicals": {
-                    "mesh": [
-                        "C076685",
-                        "D005978",
-                        "C065987",
-                        "C528802",
-                        "D005947",
-                        "C108952",
-                        "D005227",
-                        "D000255",
-                        "D011773",
-                        "C000589078"
+                    "mesh": [],
+                    "chebi": [
+                        "63620",
+                        "28398"
                     ]
                 },
                 "diseases": {
-                    "mesh": [
-                        "D011488"
-                    ]
+                    "mesh": [],
+                    "doid": []
                 },
                 "genes": {
                     "ncbigene": [
-                        "2744",
-                        "1277",
-                        "4040",
-                        "54407",
-                        "6507",
-                        "6510",
-                        "9056",
-                        "860",
-                        "440",
-                        "4041"
+                        "940",
+                        "7535",
+                        "324",
+                        "5728",
+                        "27040"
                     ]
                 }
             }
@@ -158,99 +110,86 @@ def pfocr_mapping(cls):
 
     pfocr_synoynms:
     {
-        "_id": "PMC10003241__ijms-24-04893-g003",
+        "_id": "PMC10088895__jcav14p0850g001",
         "associatedWith": {
-            "title": "Metabolic Features of Osteoblasts: Implications for Multiple Myeloma (MM) Bone Disease",
-            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10003241__ijms-24-04893-g003.html",
-            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10003241/bin/ijms-24-04893-g003.jpg",
-            "pmc": "PMC10003241",
+            "title": "PD-1/PD-L1 pathway plays a role in immunosuppression",
+            "pfocrUrl": "https://pfocr.wikipathways.org/figures/PMC10088895__jcav14p0850g001.html",
+            "figureUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10088895/bin/jcav14p0850g001.jpg",
+            "pmc": "PMC10088895",
             "mentions": {
                 "chemicals": {
-                    "mesh": [
-                        "C076685",
-                        "D005978",
-                        "C065987",
-                        "C528802",
-                        "D005947",
-                        "C108952",
-                        "D005227",
-                        "D000255",
-                        "D011773",
-                        "C000589078"
+                    "mesh": [],
+                    "chebi": [
+                        "63620",
+                        "28398"
                     ]
                 },
                 "diseases": {
-                    "mesh": [
-                        "D011488"
-                    ]
+                    "mesh": [],
+                    "doid": []
                 },
                 "genes": {
                     "ncbigene": [
-                        "51761",
-                        "121340",
-                        "4040",
-                        "6507",
-                        "9056",
-                        "1376",
-                        "1301",
-                        "2744",
-                        "1277",
-                        "3069",
-                        "1374",
-                        "6517",
-                        "56994",
-                        "10254",
-                        "27165",
-                        "4041",
-                        "6515",
+                        "940",
+                        "23595",
+                        "7535",
+                        "5133",
+                        "5290",
+                        "2048",
+                        "5291",
+                        "27040",
                         "207",
-                        "4281",
-                        "54407",
-                        "7884",
-                        "6510",
-                        "860",
-                        "3952",
-                        "473",
-                        "566",
-                        "6513",
-                        "50865",
-                        "27",
-                        "4843",
-                        "440",
-                        "4842"
+                        "5624",
+                        "5293",
+                        "100526842",
+                        "83985",
+                        "5781",
+                        "29126",
+                        "5294",
+                        "324",
+                        "3107",
+                        "5594",
+                        "1493",
+                        "6139",
+                        "6962",
+                        "5728",
+                        "5609"
                     ]
                 }
             }
         }
     }
-
     """
     elasticsearch_mapping = {
         "associatedWith": {
             "properties": {
-                "title": {"type": "keyword"},
-                "pfocrUrl": {"type": "keyword"},
-                "figureUrl": {"type": "keyword"},
-                "pmc": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"},
+                "title": {"type": "text"},
+                "pfocrUrl": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                "figureUrl": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                "pmc": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
                 "mentions": {
                     "properties": {
                         "chemicals": {
-                            "properties": {"mesh": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"}}
+                            "properties": {
+                                "mesh": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                                "chebi": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                            }
                         },
                         "diseases": {
-                            "properties": {"mesh": {"type": "keyword", "normalizer": "keyword_lowercase_normalizer"}}
+                            "properties": {
+                                "mesh": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                                "doid": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                            }
                         },
                         "genes": {
                             "properties": {
-                                "ncbigene": {
-                                    "type": "keyword",
-                                }
+                                "ncbigene": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"}
                             }
                         },
                     }
                 },
             }
-        },
+        }
     }
 
     return elasticsearch_mapping
