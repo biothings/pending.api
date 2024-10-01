@@ -92,8 +92,8 @@ affinity:
 resources:
   requests:
     memory: 21Gi # 42Gi / 2
-    cpu: 4000m # 8000m / 2
+    cpu: 3000m # 8000m / 2
   limits:
     memory: 29Gi # 58Gi / 2
-    cpu: 7000m # 14000m / 2 
+    cpu: 5000m # 14000m / 2 
 
