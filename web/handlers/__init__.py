@@ -4,10 +4,6 @@
 
 import json
 import logging
-import os
-import psutil
-import threading
-import time
 import types
 
 import tornado.httpclient
@@ -15,91 +11,19 @@ import tornado.web
 from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
 
+from .graph import GraphQueryHandler
+from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
 from .status import StatusDefaultHandler
 from .version import VersionHandler
-
-from config_web import (
-    OPENTELEMETRY_ENABLED,
-    OPENTELEMETRY_JAEGER_HOST,
-    OPENTELEMETRY_JAEGER_PORT,
-    OPENTELEMETRY_SERVICE_NAME,
-)
-
-def get_system_metrics(span):
-    # Get system metrics
-    cpu_usage = psutil.cpu_percent()
-    memory_info = psutil.virtual_memory()
-    memory_usage = memory_info.percent
-    disk_io_counters = psutil.disk_io_counters()
-    disk_io_read = disk_io_counters.read_bytes
-    disk_io_write = disk_io_counters.write_bytes
-    net_io_counters = psutil.net_io_counters()
-    net_io_read = net_io_counters.bytes_recv
-    net_io_write = net_io_counters.bytes_sent
-
-    # Set metrics as attributes on the span
-    span.set_attributes({
-        "cpu_usage": cpu_usage,
-        "memory_usage": memory_usage,
-        "disk_io_read": disk_io_read,
-        "disk_io_write": disk_io_write,
-        "net_io_read": net_io_read,
-        "net_io_write": net_io_write,
-    })
-
-def metrics_collector(tracer, interval=5):
-    while True:
-        with tracer.start_as_current_span("Metrics:get") as span:
-            get_system_metrics(span)
-        time.sleep(interval)
-
-def start_metrics_thread(tracer, interval=15):
-    # Start a background thread to collect metrics every `interval` seconds
-    thread = threading.Thread(target=metrics_collector, args=(tracer, interval), daemon=True)
-    thread.start()
-
-
-OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
-
-if OPENTELEMETRY_ENABLED == "true":
-    OPENTELEMETRY_JAEGER_HOST = os.getenv("OPENTELEMETRY_JAEGER_HOST", OPENTELEMETRY_JAEGER_HOST)
-    OPENTELEMETRY_JAEGER_PORT = int(os.getenv("OPENTELEMETRY_JAEGER_PORT", OPENTELEMETRY_JAEGER_PORT))
-    OPENTELEMETRY_SERVICE_NAME = os.getenv("OPENTELEMETRY_SERVICE_NAME", OPENTELEMETRY_SERVICE_NAME)
-
-    from opentelemetry.instrumentation.tornado import TornadoInstrumentor
-
-    TornadoInstrumentor().instrument()
-
-    # Configure the OpenTelemetry exporter
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry import trace
-
-    trace_exporter = JaegerExporter(
-        agent_host_name=OPENTELEMETRY_JAEGER_HOST,
-        agent_port=OPENTELEMETRY_JAEGER_PORT,
-        udp_split_oversized_batches=True,
-    )
-
-    trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: OPENTELEMETRY_SERVICE_NAME}))
-    trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
-
-    # Set the trace provider globally
-    trace.set_tracer_provider(trace_provider)
-
-    # Get metrics and send to Jaeger
-    tracer = trace.get_tracer(__name__)
-    interval = 30
-    start_metrics_thread(tracer, interval)
-
+from .observability import Observability
 
 log = logging.getLogger("pending")
 
 templateLoader = FileSystemLoader(searchpath="web/templates/")
 templateEnv = Environment(loader=templateLoader, cache_size=0)
+
+Observability()
 
 
 def hostname_to_site(hostname: str) -> str:
