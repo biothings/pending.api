@@ -1,6 +1,7 @@
 biothings[web_extra]==0.12.5
 Jinja2>=2.9.6
 GitPython>=3.1.43
+psutil>=6.0.0
 
 # for annotator handler
 biothings_client>=0.3.0
