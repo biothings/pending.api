@@ -9,6 +9,7 @@ from config_web import (
     OPENTELEMETRY_JAEGER_HOST,
     OPENTELEMETRY_JAEGER_PORT,
     OPENTELEMETRY_SERVICE_NAME,
+    OPENTELEMETRY_METRICS_INTERVAL,
 )
 
 logger = logging.getLogger(__name__)
@@ -102,6 +103,7 @@ class Observability():
             self.OPENTELEMETRY_JAEGER_HOST = os.getenv("OPENTELEMETRY_JAEGER_HOST", OPENTELEMETRY_JAEGER_HOST)
             self.OPENTELEMETRY_JAEGER_PORT = int(os.getenv("OPENTELEMETRY_JAEGER_PORT", OPENTELEMETRY_JAEGER_PORT))
             self.OPENTELEMETRY_SERVICE_NAME = os.getenv("OPENTELEMETRY_SERVICE_NAME", OPENTELEMETRY_SERVICE_NAME)
+            self.OPENTELEMETRY_METRICS_INTERVAL = os.getenv("OPENTELEMETRY_METRICS_INTERVAL", OPENTELEMETRY_METRICS_INTERVAL)
 
             from opentelemetry.instrumentation.tornado import TornadoInstrumentor
 
@@ -128,5 +130,5 @@ class Observability():
 
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
-            interval = 30
+            interval = self.OPENTELEMETRY_METRICS_INTERVAL
             self.start_metrics_thread(tracer, interval)
