@@ -2,7 +2,6 @@
 
 from . import agr
 from . import annotator_extra
-from . import atc
 from . import biggim  # use plugin "biggim_kp"
 from . import biggim_drugresponse_kp  # use plugin "BigGIM_Parser"
 from . import bindingdb  # use plugin "BindingDB"
