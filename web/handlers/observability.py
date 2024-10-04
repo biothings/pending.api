@@ -3,6 +3,8 @@ import os
 import psutil
 import threading
 import time
+import pathlib
+import git
 
 from config_web import (
     OPENTELEMETRY_ENABLED,
@@ -16,7 +18,41 @@ logger = logging.getLogger(__name__)
 
 class Observability():
 
+    def get_github_commit_hash(self):
+        """Retrieve the current GitHub commit hash using gitpython."""
+        try:
+            # Check if the hash is already cached
+            if Observability.cached_commit_hash:
+                logger.info("Returning cached GitHub commit hash")
+                return Observability.cached_commit_hash
+
+            # Resolve the absolute path to the current file
+            file_path = pathlib.Path(__file__).resolve()
+
+            # Use git.Repo to find the root of the repository
+            repo = git.Repo(file_path, search_parent_directories=True)
+
+            if repo.bare:
+                # Get the absolute path to the repository root
+                repo_dir = repo.working_tree_dir
+                logger.error(f"Git repository not found in directory: {repo_dir}")
+                return "Unknown"
+
+            # Get the latest commit hash
+            commit_hash = repo.head.commit.hexsha
+
+            # Cache the commit hash
+            Observability.cached_commit_hash = commit_hash
+            return commit_hash
+        except Exception as e:
+            logger.error(f"Error getting GitHub commit hash: {e}")
+            return "Unknown"
+
+
     def get_system_metrics(self, span):
+        # Collect application version
+        application_version = self.get_github_commit_hash()
+
         # Collect CPU metrics
         cpu_percent = psutil.cpu_percent(interval=1)
         cpu_times = psutil.cpu_times()
@@ -39,6 +75,9 @@ class Observability():
             load_avg = psutil.getloadavg()
         else:
             load_avg = (0, 0, 0)
+
+        # Set span attributes for application version
+        span.set_attribute("application.version", application_version)
 
         # Set span attributes for CPU metrics
         span.set_attribute("system.cpu.percent", cpu_percent)
