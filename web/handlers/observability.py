@@ -18,6 +18,9 @@ logger = logging.getLogger(__name__)
 
 class Observability():
 
+    # Cache the GitHub commit hash
+    cached_commit_hash = None
+
     def get_github_commit_hash(self):
         """Retrieve the current GitHub commit hash using gitpython."""
         try:
