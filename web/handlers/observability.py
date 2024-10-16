@@ -52,15 +52,15 @@ class Observability():
             return "Unknown"
 
 
-    def get_system_metrics(self, span):
+    def get_observability_metrics(self, span):
         # Collect application version
         application_version = self.get_github_commit_hash()
 
         # Collect CPU metrics
         cpu_percent = psutil.cpu_percent(interval=1)
-        # cpu_times = psutil.cpu_times()
-        # cpu_count_logical = psutil.cpu_count(logical=True)
-        # cpu_count_physical = psutil.cpu_count(logical=False)
+        cpu_times = psutil.cpu_times()
+        cpu_count_logical = psutil.cpu_count(logical=True)
+        cpu_count_physical = psutil.cpu_count(logical=False)
 
         # Collect memory metrics
         memory_info = psutil.virtual_memory()
@@ -84,11 +84,11 @@ class Observability():
 
         # Set span attributes for CPU metrics
         span.set_attribute("system.cpu.percent", cpu_percent)
-        # span.set_attribute("system.cpu.count_logical", cpu_count_logical)
-        # span.set_attribute("system.cpu.count_physical", cpu_count_physical)
-        # span.set_attribute("system.cpu.times.user", cpu_times.user)
-        # span.set_attribute("system.cpu.times.system", cpu_times.system)
-        # span.set_attribute("system.cpu.times.idle", cpu_times.idle)
+        span.set_attribute("system.cpu.count_logical", cpu_count_logical)
+        span.set_attribute("system.cpu.count_physical", cpu_count_physical)
+        span.set_attribute("system.cpu.times.user", cpu_times.user)
+        span.set_attribute("system.cpu.times.system", cpu_times.system)
+        span.set_attribute("system.cpu.times.idle", cpu_times.idle)
 
         # Set span attributes for memory metrics
         span.set_attribute("system.memory.total", memory_info.total)
@@ -126,9 +126,9 @@ class Observability():
 
     def metrics_collector(self, tracer, interval):
         while True:
-            with tracer.start_as_current_span("system_metrics") as span:
+            with tracer.start_as_current_span("observability_metrics") as span:
                 try:
-                    self.get_system_metrics(span)
+                    self.get_observability_metrics(span)
                 except Exception as e:
                     logger.error(f"Error collecting observability metrics: {e}")
             time.sleep(interval)
