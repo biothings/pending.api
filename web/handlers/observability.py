@@ -58,20 +58,20 @@ class Observability():
 
         # Collect CPU metrics
         cpu_percent = psutil.cpu_percent(interval=1)
-        cpu_times = psutil.cpu_times()
-        cpu_count_logical = psutil.cpu_count(logical=True)
-        cpu_count_physical = psutil.cpu_count(logical=False)
+        # cpu_times = psutil.cpu_times()
+        # cpu_count_logical = psutil.cpu_count(logical=True)
+        # cpu_count_physical = psutil.cpu_count(logical=False)
 
         # Collect memory metrics
         memory_info = psutil.virtual_memory()
-        swap_info = psutil.swap_memory()
+        # swap_info = psutil.swap_memory()
 
         # Collect disk metrics
-        disk_usage = psutil.disk_usage('/')
-        disk_io = psutil.disk_io_counters()
+        # disk_usage = psutil.disk_usage('/')
+        # disk_io = psutil.disk_io_counters()
 
         # Collect network metrics
-        net_io = psutil.net_io_counters()
+        # net_io = psutil.net_io_counters()
 
         # Collect load average (Linux-specific)
         if hasattr(psutil, "getloadavg"):
@@ -84,44 +84,44 @@ class Observability():
 
         # Set span attributes for CPU metrics
         span.set_attribute("system.cpu.percent", cpu_percent)
-        span.set_attribute("system.cpu.count_logical", cpu_count_logical)
-        span.set_attribute("system.cpu.count_physical", cpu_count_physical)
-        span.set_attribute("system.cpu.times.user", cpu_times.user)
-        span.set_attribute("system.cpu.times.system", cpu_times.system)
-        span.set_attribute("system.cpu.times.idle", cpu_times.idle)
+        # span.set_attribute("system.cpu.count_logical", cpu_count_logical)
+        # span.set_attribute("system.cpu.count_physical", cpu_count_physical)
+        # span.set_attribute("system.cpu.times.user", cpu_times.user)
+        # span.set_attribute("system.cpu.times.system", cpu_times.system)
+        # span.set_attribute("system.cpu.times.idle", cpu_times.idle)
 
         # Set span attributes for memory metrics
         span.set_attribute("system.memory.total", memory_info.total)
         span.set_attribute("system.memory.available", memory_info.available)
         span.set_attribute("system.memory.used", memory_info.used)
         span.set_attribute("system.memory.percent", memory_info.percent)
-        span.set_attribute("system.swap.total", swap_info.total)
-        span.set_attribute("system.swap.used", swap_info.used)
-        span.set_attribute("system.swap.free", swap_info.free)
-        span.set_attribute("system.swap.percent", swap_info.percent)
+        # span.set_attribute("system.swap.total", swap_info.total)
+        # span.set_attribute("system.swap.used", swap_info.used)
+        # span.set_attribute("system.swap.free", swap_info.free)
+        # span.set_attribute("system.swap.percent", swap_info.percent)
 
         # Set span attributes for disk metrics
-        span.set_attribute("system.disk.total", disk_usage.total)
-        span.set_attribute("system.disk.used", disk_usage.used)
-        span.set_attribute("system.disk.free", disk_usage.free)
-        span.set_attribute("system.disk.percent", disk_usage.percent)
-        span.set_attribute("system.disk.read_count", disk_io.read_count)
-        span.set_attribute("system.disk.write_count", disk_io.write_count)
-        span.set_attribute("system.disk.read_bytes", disk_io.read_bytes)
-        span.set_attribute("system.disk.write_bytes", disk_io.write_bytes)
+        # span.set_attribute("system.disk.total", disk_usage.total)
+        # span.set_attribute("system.disk.used", disk_usage.used)
+        # span.set_attribute("system.disk.free", disk_usage.free)
+        # span.set_attribute("system.disk.percent", disk_usage.percent)
+        # span.set_attribute("system.disk.read_count", disk_io.read_count)
+        # span.set_attribute("system.disk.write_count", disk_io.write_count)
+        # span.set_attribute("system.disk.read_bytes", disk_io.read_bytes)
+        # span.set_attribute("system.disk.write_bytes", disk_io.write_bytes)
 
         # Set span attributes for network metrics
-        span.set_attribute("system.network.bytes_sent", net_io.bytes_sent)
-        span.set_attribute("system.network.bytes_recv", net_io.bytes_recv)
-        span.set_attribute("system.network.packets_sent", net_io.packets_sent)
-        span.set_attribute("system.network.packets_recv", net_io.packets_recv)
+        # span.set_attribute("system.network.bytes_sent", net_io.bytes_sent)
+        # span.set_attribute("system.network.bytes_recv", net_io.bytes_recv)
+        # span.set_attribute("system.network.packets_sent", net_io.packets_sent)
+        # span.set_attribute("system.network.packets_recv", net_io.packets_recv)
 
         # Set span attributes for load average
         span.set_attribute("system.loadavg.1min", load_avg[0])
         span.set_attribute("system.loadavg.5min", load_avg[1])
         span.set_attribute("system.loadavg.15min", load_avg[2])
 
-        logger.info("System metrics collected and logged to Jaeger.")
+        logger.info("Observability metrics collected.")
 
 
     def metrics_collector(self, tracer, interval):
@@ -130,7 +130,7 @@ class Observability():
                 try:
                     self.get_system_metrics(span)
                 except Exception as e:
-                    logger.error(f"Error collecting system metrics: {e}")
+                    logger.error(f"Error collecting observability metrics: {e}")
             time.sleep(interval)
 
     def start_metrics_thread(self, tracer, interval):
