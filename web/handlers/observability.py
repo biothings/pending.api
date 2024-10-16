@@ -26,7 +26,6 @@ class Observability():
         try:
             # Check if the hash is already cached
             if Observability.cached_commit_hash:
-                logger.info("Returning cached GitHub commit hash")
                 return Observability.cached_commit_hash
 
             # Resolve the absolute path to the current file
