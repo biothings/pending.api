@@ -130,11 +130,11 @@ class Observability():
         span.set_attribute("system.loadavg.15min", load_avg[2])
 
         # Set kubernetes metrics if they exists
-        kubernetes_metrics = CGroupMetrics()
-        memory_metrics = kubernetes_metrics.get_memory_metrics()
-        cpu_metrics = kubernetes_metrics.get_cpu_metrics()
-        span.set_attribute("kubernetes.memory", memory_metrics)
-        span.set_attribute("kubernetes.cpu", cpu_metrics)
+        # kubernetes_metrics = CGroupMetrics()
+        # memory_metrics = kubernetes_metrics.get_memory_metrics()
+        # cpu_metrics = kubernetes_metrics.get_cpu_metrics()
+        # span.set_attribute("kubernetes.memory", memory_metrics)
+        # span.set_attribute("kubernetes.cpu", cpu_metrics)
 
         logger.info("Observability metrics collected.")
 
