@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import socket
 import os
@@ -154,21 +155,21 @@ class Observability():
     #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
     #     thread.start()
 
-    def metrics_collector(self, tracer, use_span, context, interval):
+    async def metrics_collector(self, tracer, interval):
+        # Run an infinite loop to collect metrics asynchronously
         while True:
+            # Start a new span
             with tracer.start_as_current_span("observability_metrics") as span:
                 try:
-                    current_context = context
-                    with use_span(span, end_on_exit=True), current_context:
-                        self.get_observability_metrics(span)
+                    # Collect observability metrics
+                    await self.get_observability_metrics(span)
                 except Exception as e:
-                    raise e
-            time.sleep(interval)
+                    # Handle exceptions gracefully
+                    logger.error(f"Error collecting metrics: {e}")
 
-    def start_metrics_thread(self, tracer, use_span, context, interval):
-        # Start a background thread to collect metrics
-        thread = threading.Thread(target=self.metrics_collector, args=(tracer, use_span, context, interval), daemon=True)
-        thread.start()
+            # Asynchronously wait for the next collection interval
+            await asyncio.sleep(interval)
+
 
     def __init__(self):
         self.OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
@@ -179,6 +180,8 @@ class Observability():
             self.OPENTELEMETRY_SERVICE_NAME = os.getenv("OPENTELEMETRY_SERVICE_NAME", OPENTELEMETRY_SERVICE_NAME)
             self.OPENTELEMETRY_METRICS_INTERVAL = os.getenv("OPENTELEMETRY_METRICS_INTERVAL", OPENTELEMETRY_METRICS_INTERVAL)
 
+            import tornado.ioloop
+            import tornado.web
             from opentelemetry.instrumentation.tornado import TornadoInstrumentor
 
             TornadoInstrumentor().instrument()
@@ -207,7 +210,7 @@ class Observability():
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
-            self.start_metrics_thread(tracer, use_span, Context(), interval)
+            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, interval)
 
 
 class CGroupMetrics:
