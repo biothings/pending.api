@@ -1,4 +1,5 @@
 import logging
+import socket
 import os
 import psutil
 import threading
@@ -55,6 +56,10 @@ class Observability():
         # Collect application version
         application_version = self.get_github_commit_hash()
 
+        # Retrieve pod name and IP dynamically
+        pod_name = socket.gethostname()
+        pod_ip = socket.gethostbyname(pod_name)
+
         # Collect CPU metrics
         cpu_percent = psutil.cpu_percent(interval=1)
         cpu_times = psutil.cpu_times()
@@ -80,6 +85,10 @@ class Observability():
 
         # Set span attributes for application version
         span.set_attribute("application.version", application_version)
+
+        # Set span attributes for Kubernetes pod information
+        span.set_attribute("kubernetes.pod.name", pod_name)
+        span.set_attribute("net.host.ip", pod_ip)
 
         # Set span attributes for CPU metrics
         span.set_attribute("system.cpu.percent", cpu_percent)
