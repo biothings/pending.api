@@ -227,7 +227,7 @@ class CGroupMetrics:
             cpu_stat = self.read_cpu_stat_v1()
         elif self.cgroup_version == 2:
             cpu_stat = self.read_cpu_stat_v2()
-        else
+        else:
             return {}
 
         return cpu_stat
@@ -266,6 +266,6 @@ class CGroupMetrics:
             with open(path, "r") as f:
                 return f.read().strip()
         except FileNotFoundError:
-            raise RuntimeError(f"File not found: {path}")
+            logger.warning(f"Observability: File not found: {path}")
         except Exception as e:
-            raise RuntimeError(f"Error reading {path}: {e}")
+            logger.warning(f"Observability: Error reading {path}: {e}")
