@@ -129,6 +129,13 @@ class Observability():
         span.set_attribute("system.loadavg.5min", load_avg[1])
         span.set_attribute("system.loadavg.15min", load_avg[2])
 
+        # Set kubernetes metrics if they exists
+        kubernetes_metrics = CGroupMetrics()
+        memory_metrics = kubernetes_metrics.get_memory_metrics()
+        cpu_metrics = kubernetes_metrics.get_cpu_metrics()
+        span.set_attribute("kubernetes.memory", memory_metrics)
+        span.set_attribute("kubernetes.cpu", cpu_metrics)
+
         logger.info("Observability metrics collected.")
 
 
@@ -182,3 +189,83 @@ class Observability():
             tracer = trace.get_tracer(__name__)
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
             self.start_metrics_thread(tracer, interval)
+
+
+class CGroupMetrics:
+    def __init__(self):
+        self.cgroup_version = self.detect_cgroup_version()
+
+    def detect_cgroup_version(self):
+        """Detect whether the system is using cgroup v1 or v2."""
+        if os.path.exists("/sys/fs/cgroup/cgroup.controllers"):
+            return 2  # cgroup v2
+        elif os.path.exists("/sys/fs/cgroup/cpu/cpu.stat"):
+            return 1  # cgroup v1
+        else:
+            logger.warning("Observability: Unknown cgroup version or unsupported system.")
+            return 0
+
+    def get_memory_metrics(self):
+        """Get memory metrics based on the cgroup version."""
+        if self.cgroup_version == 1:
+            memory_usage = self.read_file("/sys/fs/cgroup/memory/memory.usage_in_bytes")
+            memory_limit = self.read_file("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+        elif self.cgroup_version == 2:
+            memory_usage = self.read_file("/sys/fs/cgroup/memory.current")
+            memory_limit = self.read_file("/sys/fs/cgroup/memory.max")
+        else:
+            return {}
+
+        return {
+            "memory_usage": int(memory_usage),
+            "memory_limit": int(memory_limit)
+        }
+
+    def get_cpu_metrics(self):
+        """Get CPU metrics based on the cgroup version."""
+        if self.cgroup_version == 1:
+            cpu_stat = self.read_cpu_stat_v1()
+        elif self.cgroup_version == 2:
+            cpu_stat = self.read_cpu_stat_v2()
+        else
+            return {}
+
+        return cpu_stat
+
+    def read_cpu_stat_v1(self):
+        """Read CPU stats for cgroup v1."""
+        cpu_usage = self.read_file("/sys/fs/cgroup/cpu/cpuacct.usage")
+        cpu_stat = self.read_file("/sys/fs/cgroup/cpu/cpu.stat")
+        return {
+            "cpu_usage": int(cpu_usage),
+            "cpu_stat": self.parse_cpu_stat(cpu_stat)
+        }
+
+    def read_cpu_stat_v2(self):
+        """Read CPU stats for cgroup v2."""
+        cpu_usage = self.read_file("/sys/fs/cgroup/cpu.stat")
+        return self.parse_cpu_stat(cpu_usage)
+
+    def parse_cpu_stat(self, cpu_stat):
+        """Parse CPU stat file to extract idle, user, system times."""
+        stat_lines = cpu_stat.splitlines()
+        cpu_metrics = {}
+        for line in stat_lines:
+            if line.startswith("usage_usec"):
+                cpu_metrics["usage_usec"] = int(line.split()[1])
+            elif line.startswith("user_usec"):
+                cpu_metrics["user_usec"] = int(line.split()[1])
+            elif line.startswith("system_usec"):
+                cpu_metrics["system_usec"] = int(line.split()[1])
+        return cpu_metrics
+
+    @staticmethod
+    def read_file(path):
+        """Safely read the content of a file."""
+        try:
+            with open(path, "r") as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            raise RuntimeError(f"File not found: {path}")
+        except Exception as e:
+            raise RuntimeError(f"Error reading {path}: {e}")
