@@ -56,7 +56,7 @@ class Observability():
         # Collect application version
         application_version = self.get_github_commit_hash()
 
-        # Retrieve pod name and IP dynamically
+        # Retrieve host name and IP
         host_name = socket.gethostname()
         host_ip = socket.gethostbyname(host_name)
 
@@ -86,7 +86,7 @@ class Observability():
         # Set span attributes for application version
         span.set_attribute("application.version", application_version)
 
-        # Set span attributes for Kubernetes pod information
+        # Set span attributes for host information
         span.set_attribute("net.host.name", host_name)
         span.set_attribute("net.host.ip", host_ip)
 
