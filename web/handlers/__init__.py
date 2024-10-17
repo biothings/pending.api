@@ -4,12 +4,14 @@
 
 import json
 import logging
+import os
 import types
 
 import tornado.httpclient
 import tornado.web
 from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
+from config_web import (OPENTELEMETRY_ENABLED)
 
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
@@ -23,7 +25,9 @@ log = logging.getLogger("pending")
 templateLoader = FileSystemLoader(searchpath="web/templates/")
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
-Observability()
+OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
+if OPENTELEMETRY_ENABLED == "true":
+    Observability()
 
 
 def hostname_to_site(hostname: str) -> str:
