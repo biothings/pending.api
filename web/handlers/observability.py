@@ -139,18 +139,35 @@ class Observability():
         logger.info("Observability metrics collected.")
 
 
-    def metrics_collector(self, tracer, interval):
+    # def metrics_collector(self, tracer, interval):
+    #     while True:
+    #         with tracer.start_as_current_span("observability_metrics") as span:
+    #             try:
+    #                 self.get_observability_metrics(span)
+    #             except Exception as e:
+    #                 # logger.error(f"Error collecting observability metrics: {e}")
+    #                 raise e
+    #         time.sleep(interval)
+
+    # def start_metrics_thread(self, tracer, interval):
+    #     # Start a background thread to collect metrics every `interval` seconds
+    #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
+    #     thread.start()
+
+    def metrics_collector(self, tracer, use_span, context, interval):
         while True:
             with tracer.start_as_current_span("observability_metrics") as span:
                 try:
-                    self.get_observability_metrics(span)
+                    current_context = context
+                    with use_span(span, end_on_exit=True), current_context:
+                        self.get_observability_metrics(span)
                 except Exception as e:
-                    logger.error(f"Error collecting observability metrics: {e}")
+                    raise e
             time.sleep(interval)
 
-    def start_metrics_thread(self, tracer, interval):
-        # Start a background thread to collect metrics every `interval` seconds
-        thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
+    def start_metrics_thread(self, tracer, use_span, context, interval):
+        # Start a background thread to collect metrics
+        thread = threading.Thread(target=self.metrics_collector, args=(tracer, use_span, context, interval), daemon=True)
         thread.start()
 
     def __init__(self):
@@ -171,6 +188,8 @@ class Observability():
             from opentelemetry.sdk.resources import SERVICE_NAME, Resource
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
+            from opentelemetry.context import Context
+            from opentelemetry.trace import use_span
             from opentelemetry import trace
 
             trace_exporter = JaegerExporter(
@@ -188,7 +207,7 @@ class Observability():
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
-            self.start_metrics_thread(tracer, interval)
+            self.start_metrics_thread(tracer, use_span, Context(), interval)
 
 
 class CGroupMetrics:
