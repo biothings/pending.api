@@ -307,7 +307,7 @@ class CGroupMetrics:
                 return 0
 
             num_cores = cpu_quota_ns / cpu_period_ns
-            cpu_percent = (cpu_usage_delta * 1000 / (cpu_period_ns * num_cores * 1e9)) * 100
+            cpu_percent = (cpu_usage_delta * 1000000 / (cpu_period_ns * num_cores * 1e9)) * 100
             cpu_percent = round(cpu_percent, 1)
             return cpu_percent
         else:
@@ -321,7 +321,7 @@ class CGroupMetrics:
                     key, value = line.split()
                     cpu_stat[key] = int(value)
         except FileNotFoundError as e:
-            print(f"Error reading {self.cpu_stat_file}: {e}")
+            logger.error(f"Error reading {self.cpu_stat_file}: {e}")
         return cpu_stat
 
     def parse_cpu_max_v2(self):
@@ -333,7 +333,7 @@ class CGroupMetrics:
                 cpu_quota, cpu_period = value.split()
                 return int(cpu_quota), int(cpu_period)
         except FileNotFoundError as e:
-            print(f"Error reading {self.cpu_max_file}: {e}")
+            logger.error(f"Error reading {self.cpu_max_file}: {e}")
             return 0, 100000000  # Default values if reading fails
 
     def get_memory_usage_percent(self):
