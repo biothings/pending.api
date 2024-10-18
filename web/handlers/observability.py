@@ -134,13 +134,21 @@ class Observability():
             # # Set kubernetes metrics if they exists
             kubernetes_metrics = CGroupMetrics()
             kubernetes_cpu_usage = kubernetes_metrics.get_cpu_usage_percent()
-            kubernetes_memory_usage = kubernetes_metrics.get_memory_usage_percent()
             logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
-            logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
             span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
-            span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
+
+            # kubernetes_memory_usage = kubernetes_metrics.get_memory_usage_percent()
+            # logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
+            # span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
+            kubernetes_memory_current, kubernetes_memory_max, kubernetes_memory_percent = kubernetes_metrics.get_memory_usage_percent()
+            logger.info(f"kubernetes_memory_current: {kubernetes_memory_current}")
+            logger.info(f"kubernetes_memory_max: {kubernetes_memory_max}")
+            logger.info(f"kubernetes_memory_percent: {kubernetes_memory_percent}")
+            span.set_attribute("kubernetes.memory_current", kubernetes_memory_current)
+            span.set_attribute("kubernetes.memory_max", kubernetes_memory_max)
+            span.set_attribute("kubernetes.memory_percent", kubernetes_memory_percent)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
         logger.info("Observability metrics collected.")
 
@@ -240,7 +248,7 @@ class CGroupMetrics:
             self.cpu_max_file = "/sys/fs/cgroup/cpu.max"
             self.memory_current_file = "/sys/fs/cgroup/memory.current"
             self.memory_max_file = "/sys/fs/cgroup/memory.max"
-    
+
     def detect_cgroup_version(self):
         """Detect whether the system is using cgroup v1 or v2."""
         if os.path.exists("/sys/fs/cgroup/cgroup.controllers"):
@@ -275,7 +283,7 @@ class CGroupMetrics:
             cpu_usage_delta = cpu_usage_2 - cpu_usage_1
 
             # If there's no quota, return 0 (unlimited)
-            if cpu_quota == 0:
+            if cpu_quota == "max":
                 return 0
 
             # Calculate CPU usage percent
@@ -294,7 +302,7 @@ class CGroupMetrics:
             cpu_quota_ns, cpu_period_ns = self.parse_cpu_max_v2()
 
             # If no quota is set, return 0 (unlimited)
-            if cpu_quota_ns == 0:
+            if cpu_quota_ns == "max":
                 return 0
 
             num_cores = cpu_quota_ns / cpu_period_ns
@@ -333,11 +341,12 @@ class CGroupMetrics:
             memory_max = self.read_cgroup_value(self.memory_max_file)
 
             # If memory max is unlimited, return 0
-            if memory_max == 0:
-                return 0
+            if memory_max == "max":
+                return 0, 0, 0
 
-            # Calculate memory usage percentage
+            # # Calculate memory usage percentage
             memory_percent = (memory_current / memory_max) * 100
-            return memory_percent
+            # return memory_percent
+            return memory_current, memory_max, memory_percent
         else:
             return 0
