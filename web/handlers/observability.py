@@ -220,7 +220,6 @@ class Observability():
 
 
 class CGroupMetrics:
-
     def __init__(self):
         # Detect if we are using cgroup v1 or v2
         self.cgroup_version = self.detect_cgroup_version()
@@ -235,14 +234,13 @@ class CGroupMetrics:
             self.cpu_period_file = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
             self.memory_current_file = "/sys/fs/cgroup/memory/memory.usage_in_bytes"
             self.memory_max_file = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
-        elif self.cgroup_version == 2:
+        else:
             # Set file paths for cgroup v2
             self.cpu_stat_file = "/sys/fs/cgroup/cpu.stat"
             self.cpu_max_file = "/sys/fs/cgroup/cpu.max"
             self.memory_current_file = "/sys/fs/cgroup/memory.current"
             self.memory_max_file = "/sys/fs/cgroup/memory.max"
-
-
+    
     def detect_cgroup_version(self):
         """Detect whether the system is using cgroup v1 or v2."""
         if os.path.exists("/sys/fs/cgroup/cgroup.controllers"):
@@ -252,8 +250,7 @@ class CGroupMetrics:
         else:
             logger.warning("Observability: Unknown cgroup version or unsupported system.")
             return 0
-
-
+    
     def read_cgroup_value(self, file_path):
         try:
             with open(file_path, 'r') as file:
@@ -262,7 +259,7 @@ class CGroupMetrics:
                     return 0  # Return 0 if the value is 'max' (unlimited)
                 return int(value)
         except (FileNotFoundError, ValueError) as e:
-            logger.error(f"Error reading {file_path}: {e}")
+            print(f"Error reading {file_path}: {e}")
             return 0
 
     def get_cpu_usage_percent(self):
@@ -294,8 +291,7 @@ class CGroupMetrics:
             cpu_usage_delta = cpu_stat_2['usage_usec'] - cpu_stat_1['usage_usec']
 
             # Read CPU quota and period
-            cpu_max = self.read_cgroup_value(self.cpu_max_file)
-            cpu_quota_ns, cpu_period_ns = self.parse_cpu_max_v2(cpu_max)
+            cpu_quota_ns, cpu_period_ns = self.parse_cpu_max_v2()
 
             # If no quota is set, return 0 (unlimited)
             if cpu_quota_ns == 0:
@@ -315,18 +311,22 @@ class CGroupMetrics:
                     key, value = line.split()
                     cpu_stat[key] = int(value)
         except FileNotFoundError as e:
-            logger.error(f"Error reading {self.cpu_stat_file}: {e}")
+            print(f"Error reading {self.cpu_stat_file}: {e}")
         return cpu_stat
 
-    def dockerparse_cpu_max_v2(self, cpu_max_value):
-        if cpu_max_value == "max":
-            return 0, 100000000  # Default period is 100ms (100,000,000 ns)
-        else:
-            cpu_quota, cpu_period = cpu_max_value.split()
-            return int(cpu_quota) * 1000, int(cpu_period) * 1000  # Convert to nanoseconds
+    def parse_cpu_max_v2(self):
+        try:
+            with open(self.cpu_max_file, 'r') as file:
+                value = file.read().strip()
+                if value == "max":
+                    return 0, 100000000  # Default period is 100ms (100,000,000 ns)
+                cpu_quota, cpu_period = value.split()
+                return int(cpu_quota), int(cpu_period)
+        except FileNotFoundError as e:
+            print(f"Error reading {self.cpu_max_file}: {e}")
+            return 0, 100000000  # Default values if reading fails
 
     def get_memory_usage_percent(self):
-        
         if self.cgroup_version == 1 or self.cgroup_version == 2:
             # Read memory usage
             memory_current = self.read_cgroup_value(self.memory_current_file)
