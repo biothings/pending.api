@@ -168,19 +168,19 @@ class Observability():
     #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
     #     thread.start()
 
-    async def metrics_collector(self, tracer, interval):
+    async def metrics_collector(self, span, interval):
         # Run an infinite loop to collect metrics asynchronously
         while True:
             # Start a new span
-            with tracer.start_as_current_span(name="observability_metrics") as span:
+            # with tracer.start_as_current_span(name="observability_metrics") as span:
             # with trace.get_current_span()(name="observability_metrics") as span:
-                try:
-                    # Collect observability metrics
-                    await self.get_observability_metrics(span)
-                except Exception as e:
-                    # Handle exceptions gracefully
-                    logger.error(f"Error collecting metrics: {e}")
-                    raise e
+            try:
+                # Collect observability metrics
+                await self.get_observability_metrics(span)
+            except Exception as e:
+                # Handle exceptions gracefully
+                logger.error(f"Error collecting metrics: {e}")
+                raise e
 
             # Asynchronously wait for the next collection interval
             await asyncio.sleep(interval)
@@ -207,6 +207,8 @@ class Observability():
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
             from opentelemetry import trace
+            from opentelemetry.trace import get_current_span
+
 
             trace_exporter = JaegerExporter(
                 agent_host_name=self.OPENTELEMETRY_JAEGER_HOST,
@@ -221,10 +223,11 @@ class Observability():
             trace.set_tracer_provider(trace_provider)
 
             # Get metrics and send to Jaeger
-            tracer = trace.get_tracer(__name__)
+            # tracer = trace.get_tracer(__name__)
+            span = get_current_span()
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
             # self.start_metrics_thread(tracer, interval)
-            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, interval)
+            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, span, interval)
 
 
 class CGroupMetrics:
@@ -352,4 +355,4 @@ class CGroupMetrics:
 
             return memory_current, memory_max, memory_percent
         else:
-            return 0
+            return 0, 0, 0
