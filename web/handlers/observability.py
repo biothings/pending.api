@@ -191,8 +191,6 @@ class Observability():
             from opentelemetry.sdk.resources import SERVICE_NAME, Resource
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
-            from opentelemetry.context import Context
-            from opentelemetry.trace import use_span
             from opentelemetry import trace
 
             trace_exporter = JaegerExporter(
@@ -210,6 +208,7 @@ class Observability():
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
+            # self.start_metrics_thread(tracer, interval)
             tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, interval)
 
 
