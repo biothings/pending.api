@@ -150,6 +150,8 @@ class Observability():
         except Exception as e:
             logger.error(e)
 
+        span.add_event("Metrics collection completed")
+
         logger.info("Observability metrics collected.")
 
 
