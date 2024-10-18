@@ -53,7 +53,7 @@ class Observability():
             return "Unknown"
 
 
-    async def get_observability_metrics(self, span):
+    async def get_observability_metrics(self, span, kubernetes_metrics):
         # Collect application version
         application_version = self.get_github_commit_hash()
 
@@ -132,7 +132,7 @@ class Observability():
 
         try:
             # # Set kubernetes metrics if they exists
-            kubernetes_metrics = CGroupMetrics()
+            # kubernetes_metrics = CGroupMetrics()
             kubernetes_cpu_usage = kubernetes_metrics.get_cpu_usage_percent()
             logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
             span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
@@ -150,7 +150,7 @@ class Observability():
         except Exception as e:
             logger.error(e)
 
-        span.add_event("Metrics collection completed")
+        # span.add_event("Metrics collection completed")
 
         logger.info("Observability metrics collected.")
 
@@ -170,7 +170,7 @@ class Observability():
     #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
     #     thread.start()
 
-    async def metrics_collector(self, span, interval):
+    async def metrics_collector(self, span, kubernetes_metrics, interval):
         # Run an infinite loop to collect metrics asynchronously
         while True:
             # Start a new span
@@ -178,7 +178,7 @@ class Observability():
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
-                await self.get_observability_metrics(span)
+                await self.get_observability_metrics(span, kubernetes_metrics)
             except Exception as e:
                 # Handle exceptions gracefully
                 logger.error(f"Error collecting metrics: {e}")
@@ -221,15 +221,17 @@ class Observability():
             trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
             trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
 
-            # Set the trace provider globally
-            trace.set_tracer_provider(trace_provider)
-
             # Get metrics and send to Jaeger
             # tracer = trace.get_tracer(__name__)
             span = get_current_span()
+            kubernetes_metrics = CGroupMetrics()
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
             # self.start_metrics_thread(tracer, interval)
-            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, span, interval)
+            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, span, kubernetes_metrics, interval)
+
+            # Set the trace provider globally
+            trace.set_tracer_provider(trace_provider)
+
 
 
 class CGroupMetrics:
