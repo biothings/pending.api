@@ -143,37 +143,37 @@ class Observability():
         logger.info("Observability metrics collected.")
 
 
-    # def metrics_collector(self, tracer, interval):
-    #     while True:
-    #         with tracer.start_as_current_span("observability_metrics") as span:
-    #             try:
-    #                 self.get_observability_metrics(span)
-    #             except Exception as e:
-    #                 # logger.error(f"Error collecting observability metrics: {e}")
-    #                 raise e
-    #         time.sleep(interval)
-
-    # def start_metrics_thread(self, tracer, interval):
-    #     # Start a background thread to collect metrics every `interval` seconds
-    #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
-    #     thread.start()
-
-    async def metrics_collector(self, tracer, interval):
-        # Run an infinite loop to collect metrics asynchronously
+    def metrics_collector(self, tracer, interval):
         while True:
-            # Start a new span
-            with tracer.start_as_current_span(name="observability_metrics") as span:
-            # with trace.get_current_span()(name="observability_metrics") as span:
+            with tracer.start_as_current_span("observability_metrics") as span:
                 try:
-                    # Collect observability metrics
-                    await self.get_observability_metrics(span)
+                    self.get_observability_metrics(span)
                 except Exception as e:
-                    # Handle exceptions gracefully
-                    logger.error(f"Error collecting metrics: {e}")
+                    # logger.error(f"Error collecting observability metrics: {e}")
                     raise e
+            time.sleep(interval)
 
-            # Asynchronously wait for the next collection interval
-            await asyncio.sleep(interval)
+    def start_metrics_thread(self, tracer, interval):
+        # Start a background thread to collect metrics every `interval` seconds
+        thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
+        thread.start()
+
+    # async def metrics_collector(self, tracer, interval):
+    #     # Run an infinite loop to collect metrics asynchronously
+    #     while True:
+    #         # Start a new span
+    #         with tracer.start_as_current_span(name="observability_metrics") as span:
+    #         # with trace.get_current_span()(name="observability_metrics") as span:
+    #             try:
+    #                 # Collect observability metrics
+    #                 await self.get_observability_metrics(span)
+    #             except Exception as e:
+    #                 # Handle exceptions gracefully
+    #                 logger.error(f"Error collecting metrics: {e}")
+    #                 raise e
+
+    #         # Asynchronously wait for the next collection interval
+    #         await asyncio.sleep(interval)
 
 
     def __init__(self):
@@ -213,8 +213,8 @@ class Observability():
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
-            # self.start_metrics_thread(tracer, interval)
-            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, interval)
+            self.start_metrics_thread(tracer, interval)
+            # tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, interval)
 
 
 class CGroupMetrics:
