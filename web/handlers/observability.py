@@ -130,15 +130,17 @@ class Observability():
         span.set_attribute("system.loadavg.5min", load_avg[1])
         span.set_attribute("system.loadavg.15min", load_avg[2])
 
-        # # Set kubernetes metrics if they exists
-        # kubernetes_metrics = CGroupMetrics()
-        # kubernetes_cpu_usage = kubernetes_metrics.get_cpu_metrics()
-        # kubernetes_memory_usage = kubernetes_metrics.get_memory_metrics()
-        # logger.info(span.items)
-        # logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
-        # logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
-        # span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
-        # span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
+        try:
+            # # Set kubernetes metrics if they exists
+            kubernetes_metrics = CGroupMetrics()
+            kubernetes_cpu_usage = kubernetes_metrics.get_cpu_usage_percent()
+            kubernetes_memory_usage = kubernetes_metrics.get_memory_usage_percent()
+            logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
+            logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
+            # span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
+            # span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
+        except Exception as e:
+            print(e)
 
         logger.info("Observability metrics collected.")
 
@@ -233,18 +235,24 @@ class CGroupMetrics:
             self.cpu_period_file = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
             self.memory_current_file = "/sys/fs/cgroup/memory/memory.usage_in_bytes"
             self.memory_max_file = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
-        else:
+        elif self.cgroup_version == 2:
             # Set file paths for cgroup v2
             self.cpu_stat_file = "/sys/fs/cgroup/cpu.stat"
             self.cpu_max_file = "/sys/fs/cgroup/cpu.max"
             self.memory_current_file = "/sys/fs/cgroup/memory.current"
             self.memory_max_file = "/sys/fs/cgroup/memory.max"
 
+
     def detect_cgroup_version(self):
-        # Check if cgroup v2 is used by looking at /sys/fs/cgroup/cgroup.controllers
+        """Detect whether the system is using cgroup v1 or v2."""
         if os.path.exists("/sys/fs/cgroup/cgroup.controllers"):
-            return 2
-        return 1
+            return 2  # cgroup v2
+        elif os.path.exists("/sys/fs/cgroup/cpu/cpu.stat"):
+            return 1  # cgroup v1
+        else:
+            logger.warning("Observability: Unknown cgroup version or unsupported system.")
+            return 0
+
 
     def read_cgroup_value(self, file_path):
         try:
@@ -296,6 +304,8 @@ class CGroupMetrics:
             num_cores = cpu_quota_ns / cpu_period_ns
             cpu_percent = (cpu_usage_delta * 1000 / (cpu_period_ns * num_cores * 1e9)) * 100
             return cpu_percent
+        else:
+            return 0
 
     def read_cpu_stat_v2(self):
         cpu_stat = {}
@@ -316,14 +326,18 @@ class CGroupMetrics:
             return int(cpu_quota) * 1000, int(cpu_period) * 1000  # Convert to nanoseconds
 
     def get_memory_usage_percent(self):
-        # Read memory usage
-        memory_current = self.read_cgroup_value(self.memory_current_file)
-        memory_max = self.read_cgroup_value(self.memory_max_file)
+        
+        if self.cgroup_version == 1 or self.cgroup_version == 2:
+            # Read memory usage
+            memory_current = self.read_cgroup_value(self.memory_current_file)
+            memory_max = self.read_cgroup_value(self.memory_max_file)
 
-        # If memory max is unlimited, return 0
-        if memory_max == 0:
+            # If memory max is unlimited, return 0
+            if memory_max == 0:
+                return 0
+
+            # Calculate memory usage percentage
+            memory_percent = (memory_current / memory_max) * 100
+            return memory_percent
+        else:
             return 0
-
-        # Calculate memory usage percentage
-        memory_percent = (memory_current / memory_max) * 100
-        return memory_percent
