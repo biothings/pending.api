@@ -53,7 +53,7 @@ class Observability():
             return "Unknown"
 
 
-    def get_observability_metrics(self, span):
+    async def get_observability_metrics(self, span):
         # Collect application version
         application_version = self.get_github_commit_hash()
 
@@ -159,7 +159,7 @@ class Observability():
         # Run an infinite loop to collect metrics asynchronously
         while True:
             # Start a new span
-            with tracer.start_as_current_span(name="observability_metrics", context=None) as span:
+            with tracer.start_as_current_span(name="observability_metrics") as span:
                 try:
                     # Collect observability metrics
                     await self.get_observability_metrics(span)
