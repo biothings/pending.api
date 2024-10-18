@@ -150,8 +150,6 @@ class Observability():
         except Exception as e:
             logger.error(e)
 
-        # span.add_event("Metrics collection completed")
-
         logger.info("Observability metrics collected.")
 
 
@@ -172,17 +170,34 @@ class Observability():
 
     async def metrics_collector(self, span, kubernetes_metrics, interval):
         # Run an infinite loop to collect metrics asynchronously
+
+        from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+        from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+
+        trace_exporter = JaegerExporter(
+            agent_host_name=self.OPENTELEMETRY_JAEGER_HOST,
+            agent_port=self.OPENTELEMETRY_JAEGER_PORT,
+            udp_split_oversized_batches=True,
+        )
+
+        trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
+        trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
+        tracer = trace_provider.get_tracer(__name__)
+
         while True:
             # Start a new span
-            # with tracer.start_as_current_span(name="observability_metrics") as span:
-            # with trace.get_current_span()(name="observability_metrics") as span:
-            try:
-                # Collect observability metrics
-                await self.get_observability_metrics(span, kubernetes_metrics)
-            except Exception as e:
-                # Handle exceptions gracefully
-                logger.error(f"Error collecting metrics: {e}")
-                raise e
+            with tracer.start_as_current_span(name="observability_metrics") as span:
+                # with trace.get_current_span()(name="observability_metrics") as span:
+                try:
+                    # Collect observability metrics
+                    await self.get_observability_metrics(span, kubernetes_metrics)
+                except Exception as e:
+                    # Handle exceptions gracefully
+                    logger.error(f"Error collecting metrics: {e}")
+                    raise e
 
             # Asynchronously wait for the next collection interval
             await asyncio.sleep(interval)
@@ -221,17 +236,16 @@ class Observability():
             trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
             trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
 
-            # Get metrics and send to Jaeger
-            # tracer = trace.get_tracer(__name__)
-            span = get_current_span()
-            kubernetes_metrics = CGroupMetrics()
-            interval = self.OPENTELEMETRY_METRICS_INTERVAL
-            # self.start_metrics_thread(tracer, interval)
-            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, span, kubernetes_metrics, interval)
-
             # Set the trace provider globally
             trace.set_tracer_provider(trace_provider)
 
+            # Get metrics and send to Jaeger
+            tracer = trace.get_tracer(__name__)
+            # span = get_current_span()
+            interval = self.OPENTELEMETRY_METRICS_INTERVAL
+            # self.start_metrics_thread(tracer, interval)
+            kubernetes_metrics = CGroupMetrics()
+            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, kubernetes_metrics, interval)
 
 
 class CGroupMetrics:
