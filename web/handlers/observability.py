@@ -134,6 +134,9 @@ class Observability():
         kubernetes_metrics = CGroupMetrics()
         kubernetes_cpu_usage = kubernetes_metrics.get_cpu_metrics()
         kubernetes_memory_usage = kubernetes_metrics.get_memory_metrics()
+        logger.info(span.items)
+        logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
+        logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
         span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
         span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
 
@@ -251,7 +254,7 @@ class CGroupMetrics:
                     return 0  # Return 0 if the value is 'max' (unlimited)
                 return int(value)
         except (FileNotFoundError, ValueError) as e:
-            print(f"Error reading {file_path}: {e}")
+            logger.error(f"Error reading {file_path}: {e}")
             return 0
 
     def get_cpu_usage_percent(self):
@@ -302,10 +305,10 @@ class CGroupMetrics:
                     key, value = line.split()
                     cpu_stat[key] = int(value)
         except FileNotFoundError as e:
-            print(f"Error reading {self.cpu_stat_file}: {e}")
+            logger.error(f"Error reading {self.cpu_stat_file}: {e}")
         return cpu_stat
 
-    def parse_cpu_max_v2(self, cpu_max_value):
+    def dockerparse_cpu_max_v2(self, cpu_max_value):
         if cpu_max_value == "max":
             return 0, 100000000  # Default period is 100ms (100,000,000 ns)
         else:
