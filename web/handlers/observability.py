@@ -258,7 +258,7 @@ class CGroupMetrics:
         else:
             logger.warning("Observability: Unknown cgroup version or unsupported system.")
             return 0
-    
+
     def read_cgroup_value(self, file_path):
         try:
             with open(file_path, 'r') as file:
@@ -289,6 +289,7 @@ class CGroupMetrics:
             # Calculate CPU usage percent
             num_cores = cpu_quota / cpu_period
             cpu_percent = (cpu_usage_delta / (cpu_period * num_cores * 1e9)) * 100
+            cpu_percent = round(cpu_percent, 1)
             return cpu_percent
 
         elif self.cgroup_version == 2:
@@ -307,6 +308,7 @@ class CGroupMetrics:
 
             num_cores = cpu_quota_ns / cpu_period_ns
             cpu_percent = (cpu_usage_delta * 1000 / (cpu_period_ns * num_cores * 1e9)) * 100
+            cpu_percent = round(cpu_percent, 1)
             return cpu_percent
         else:
             return 0
@@ -346,7 +348,8 @@ class CGroupMetrics:
 
             # # Calculate memory usage percentage
             memory_percent = (memory_current / memory_max) * 100
-            # return memory_percent
+            memory_percent = round(memory_percent, 1)
+
             return memory_current, memory_max, memory_percent
         else:
             return 0
