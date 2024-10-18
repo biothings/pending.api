@@ -132,11 +132,10 @@ class Observability():
 
         # Set kubernetes metrics if they exists
         kubernetes_metrics = CGroupMetrics()
-        memory_usage, memory_limit = kubernetes_metrics.get_memory_metrics()
-        cpu_metrics = kubernetes_metrics.get_cpu_metrics()
-        span.set_attribute("kubernetes.memory_usage", memory_usage)
-        span.set_attribute("kubernetes.memory_limit", memory_limit)
-        span.set_attribute("kubernetes.cpu", cpu_metrics)
+        kubernetes_cpu_usage = kubernetes_metrics.get_cpu_metrics()
+        kubernetes_memory_usage = kubernetes_metrics.get_memory_metrics()
+        span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
+        span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
 
         logger.info("Observability metrics collected.")
 
@@ -161,12 +160,14 @@ class Observability():
         while True:
             # Start a new span
             with tracer.start_as_current_span(name="observability_metrics") as span:
+            # with trace.get_current_span()(name="observability_metrics") as span:
                 try:
                     # Collect observability metrics
                     await self.get_observability_metrics(span)
                 except Exception as e:
                     # Handle exceptions gracefully
                     logger.error(f"Error collecting metrics: {e}")
+                    raise e
 
             # Asynchronously wait for the next collection interval
             await asyncio.sleep(interval)
@@ -214,78 +215,112 @@ class Observability():
 
 
 class CGroupMetrics:
+
     def __init__(self):
+        # Detect if we are using cgroup v1 or v2
         self.cgroup_version = self.detect_cgroup_version()
+        self.cpu_stat_file = None
+        self.memory_current_file = None
+        self.memory_max_file = None
+
+        if self.cgroup_version == 1:
+            # Set file paths for cgroup v1
+            self.cpu_stat_file = "/sys/fs/cgroup/cpu/cpuacct.usage"
+            self.cpu_quota_file = "/sys/fs/cgroup/cpu/cpu.cfs_quota_us"
+            self.cpu_period_file = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
+            self.memory_current_file = "/sys/fs/cgroup/memory/memory.usage_in_bytes"
+            self.memory_max_file = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
+        else:
+            # Set file paths for cgroup v2
+            self.cpu_stat_file = "/sys/fs/cgroup/cpu.stat"
+            self.cpu_max_file = "/sys/fs/cgroup/cpu.max"
+            self.memory_current_file = "/sys/fs/cgroup/memory.current"
+            self.memory_max_file = "/sys/fs/cgroup/memory.max"
 
     def detect_cgroup_version(self):
-        """Detect whether the system is using cgroup v1 or v2."""
+        # Check if cgroup v2 is used by looking at /sys/fs/cgroup/cgroup.controllers
         if os.path.exists("/sys/fs/cgroup/cgroup.controllers"):
-            return 2  # cgroup v2
-        elif os.path.exists("/sys/fs/cgroup/cpu/cpu.stat"):
-            return 1  # cgroup v1
-        else:
-            logger.warning("Observability: Unknown cgroup version or unsupported system.")
+            return 2
+        return 1
+
+    def read_cgroup_value(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                value = file.read().strip()
+                if value == "max":
+                    return 0  # Return 0 if the value is 'max' (unlimited)
+                return int(value)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Error reading {file_path}: {e}")
             return 0
 
-    def get_memory_metrics(self):
-        """Get memory metrics based on the cgroup version."""
+    def get_cpu_usage_percent(self):
         if self.cgroup_version == 1:
-            memory_usage = self.read_file("/sys/fs/cgroup/memory/memory.usage_in_bytes")
-            memory_limit = self.read_file("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+            # Read CPU usage for cgroup v1
+            cpu_usage_1 = self.read_cgroup_value(self.cpu_stat_file)
+            cpu_quota = self.read_cgroup_value(self.cpu_quota_file)
+            cpu_period = self.read_cgroup_value(self.cpu_period_file)
+
+            # Wait and get the CPU usage again
+            time.sleep(1)
+            cpu_usage_2 = self.read_cgroup_value(self.cpu_stat_file)
+            cpu_usage_delta = cpu_usage_2 - cpu_usage_1
+
+            # If there's no quota, return 0 (unlimited)
+            if cpu_quota == 0:
+                return 0
+
+            # Calculate CPU usage percent
+            num_cores = cpu_quota / cpu_period
+            cpu_percent = (cpu_usage_delta / (cpu_period * num_cores * 1e9)) * 100
+            return cpu_percent
+
         elif self.cgroup_version == 2:
-            memory_usage = self.read_file("/sys/fs/cgroup/memory.current")
-            memory_limit = self.read_file("/sys/fs/cgroup/memory.max")
-        else:
-            memory_usage = 0
-            memory_limit = 0
+            # Read CPU usage for cgroup v2
+            cpu_stat_1 = self.read_cpu_stat_v2()
+            time.sleep(1)
+            cpu_stat_2 = self.read_cpu_stat_v2()
+            cpu_usage_delta = cpu_stat_2['usage_usec'] - cpu_stat_1['usage_usec']
 
-        return int(memory_usage), int(memory_limit)
+            # Read CPU quota and period
+            cpu_max = self.read_cgroup_value(self.cpu_max_file)
+            cpu_quota_ns, cpu_period_ns = self.parse_cpu_max_v2(cpu_max)
 
-    def get_cpu_metrics(self):
-        """Get CPU metrics based on the cgroup version."""
-        if self.cgroup_version == 1:
-            cpu_stat = self.read_cpu_stat_v1()
-        elif self.cgroup_version == 2:
-            cpu_stat = self.read_cpu_stat_v2()
-        else:
-            cpu_stat = 0
+            # If no quota is set, return 0 (unlimited)
+            if cpu_quota_ns == 0:
+                return 0
 
-        return cpu_stat
-
-    def read_cpu_stat_v1(self):
-        """Read CPU stats for cgroup v1."""
-        cpu_usage = self.read_file("/sys/fs/cgroup/cpu/cpuacct.usage")
-        cpu_stat = self.read_file("/sys/fs/cgroup/cpu/cpu.stat")
-        return {
-            "cpu_usage": int(cpu_usage),
-            "cpu_stat": self.parse_cpu_stat(cpu_stat)
-        }
+            num_cores = cpu_quota_ns / cpu_period_ns
+            cpu_percent = (cpu_usage_delta * 1000 / (cpu_period_ns * num_cores * 1e9)) * 100
+            return cpu_percent
 
     def read_cpu_stat_v2(self):
-        """Read CPU stats for cgroup v2."""
-        cpu_usage = self.read_file("/sys/fs/cgroup/cpu.stat")
-        return self.parse_cpu_stat(cpu_usage)
-
-    def parse_cpu_stat(self, cpu_stat):
-        """Parse CPU stat file to extract idle, user, system times."""
-        stat_lines = cpu_stat.splitlines()
-        cpu_metrics = {}
-        for line in stat_lines:
-            if line.startswith("usage_usec"):
-                cpu_metrics["usage_usec"] = int(line.split()[1])
-            elif line.startswith("user_usec"):
-                cpu_metrics["user_usec"] = int(line.split()[1])
-            elif line.startswith("system_usec"):
-                cpu_metrics["system_usec"] = int(line.split()[1])
-        return cpu_metrics
-
-    @staticmethod
-    def read_file(path):
-        """Safely read the content of a file."""
+        cpu_stat = {}
         try:
-            with open(path, "r") as f:
-                return f.read().strip()
-        except FileNotFoundError:
-            logger.warning(f"Observability: File not found: {path}")
-        except Exception as e:
-            logger.warning(f"Observability: Error reading {path}: {e}")
+            with open(self.cpu_stat_file, 'r') as file:
+                for line in file:
+                    key, value = line.split()
+                    cpu_stat[key] = int(value)
+        except FileNotFoundError as e:
+            print(f"Error reading {self.cpu_stat_file}: {e}")
+        return cpu_stat
+
+    def parse_cpu_max_v2(self, cpu_max_value):
+        if cpu_max_value == "max":
+            return 0, 100000000  # Default period is 100ms (100,000,000 ns)
+        else:
+            cpu_quota, cpu_period = cpu_max_value.split()
+            return int(cpu_quota) * 1000, int(cpu_period) * 1000  # Convert to nanoseconds
+
+    def get_memory_usage_percent(self):
+        # Read memory usage
+        memory_current = self.read_cgroup_value(self.memory_current_file)
+        memory_max = self.read_cgroup_value(self.memory_max_file)
+
+        # If memory max is unlimited, return 0
+        if memory_max == 0:
+            return 0
+
+        # Calculate memory usage percentage
+        memory_percent = (memory_current / memory_max) * 100
+        return memory_percent
