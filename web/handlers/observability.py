@@ -131,11 +131,12 @@ class Observability():
         span.set_attribute("system.loadavg.15min", load_avg[2])
 
         # Set kubernetes metrics if they exists
-        # kubernetes_metrics = CGroupMetrics()
-        # memory_metrics = kubernetes_metrics.get_memory_metrics()
-        # cpu_metrics = kubernetes_metrics.get_cpu_metrics()
-        # span.set_attribute("kubernetes.memory", memory_metrics)
-        # span.set_attribute("kubernetes.cpu", cpu_metrics)
+        kubernetes_metrics = CGroupMetrics()
+        memory_usage, memory_limit = kubernetes_metrics.get_memory_metrics()
+        cpu_metrics = kubernetes_metrics.get_cpu_metrics()
+        span.set_attribute("kubernetes.memory_usage", memory_usage)
+        span.set_attribute("kubernetes.memory_limit", memory_limit)
+        span.set_attribute("kubernetes.cpu", cpu_metrics)
 
         logger.info("Observability metrics collected.")
 
@@ -235,12 +236,10 @@ class CGroupMetrics:
             memory_usage = self.read_file("/sys/fs/cgroup/memory.current")
             memory_limit = self.read_file("/sys/fs/cgroup/memory.max")
         else:
-            return {}
+            memory_usage = 0
+            memory_limit = 0
 
-        return {
-            "memory_usage": int(memory_usage),
-            "memory_limit": int(memory_limit)
-        }
+        return int(memory_usage), int(memory_limit)
 
     def get_cpu_metrics(self):
         """Get CPU metrics based on the cgroup version."""
@@ -249,7 +248,7 @@ class CGroupMetrics:
         elif self.cgroup_version == 2:
             cpu_stat = self.read_cpu_stat_v2()
         else:
-            return {}
+            cpu_stat = 0
 
         return cpu_stat
 
