@@ -137,8 +137,8 @@ class Observability():
             kubernetes_memory_usage = kubernetes_metrics.get_memory_usage_percent()
             logger.info(f"kubernetes_cpu_usage: {kubernetes_cpu_usage}")
             logger.info(f"kubernetes_memory_usage: {kubernetes_memory_usage}")
-            # span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
-            # span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
+            span.set_attribute("kubernetes.cpu_usage", kubernetes_cpu_usage)
+            span.set_attribute("kubernetes.memory_usage", kubernetes_memory_usage)
         except Exception as e:
             print(e)
 
