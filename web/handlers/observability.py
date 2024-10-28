@@ -191,36 +191,24 @@ class Observability():
         tracer = trace.get_tracer(__name__)
 
 
-        # # while True:
-        # # Start a new span
-        # # with tracer.start_as_current_span(name="observability_metrics") as span:
-        # # span = tracer.start_span(name="observability_metrics")
-        # # with use_span(span, end_on_exit=True) as span:
+        # while True:
+        # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
-        #     # with trace.get_current_span()(name="observability_metrics") as span:
-        #     try:
-        #         # Collect observability metrics
-        #         self.get_observability_metrics(span, kubernetes_metrics)
-        #     except Exception as e:
-        #         # Handle exceptions gracefully
-        #         logger.error(f"Error collecting metrics: {e}")
-        #         raise e
-        #     # finally:
-        #     #     span.end()
+        span = tracer.start_span(name="observability_metrics")
+        with use_span(span, end_on_exit=True) as span:
+            # with trace.get_current_span()(name="observability_metrics") as span:
+            try:
+                # Collect observability metrics
+                self.get_observability_metrics(span, kubernetes_metrics)
+            except Exception as e:
+                # Handle exceptions gracefully
+                logger.error(f"Error collecting metrics: {e}")
+                raise e
+            # finally:
+            #     span.end()
 
-        # # # Asynchronously wait for the next collection interval
-        # # await asyncio.sleep(interval)
-
-        async def collect_metrics():
-            with tracer.start_as_current_span(name="observability_metrics") as span:
-                try:
-                    self.get_observability_metrics(span, kubernetes_metrics)
-                except Exception as e:
-                    logger.error(f"Error collecting metrics: {e}")
-                # finally:
-                #     span.end()  # Explicitly end the span
-
-        asyncio.create_task(collect_metrics())
+        # # Asynchronously wait for the next collection interval
+        # await asyncio.sleep(interval)
 
 
     def __init__(self):
