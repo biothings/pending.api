@@ -195,7 +195,7 @@ class Observability():
         # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
         span = tracer.start_span(name="observability_metrics")
-        with use_span(span):
+        with use_span(span, end_on_exit=True):
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
@@ -204,6 +204,8 @@ class Observability():
                 # Handle exceptions gracefully
                 logger.error(f"Error collecting metrics: {e}")
                 raise e
+            # finally:
+            #     span.end()
 
         # # Asynchronously wait for the next collection interval
         # await asyncio.sleep(interval)
@@ -245,7 +247,7 @@ class Observability():
             # TornadoInstrumentor().instrument()
 
             # Set the trace provider globally
-            # trace.set_tracer_provider(trace_provider)
+            trace.set_tracer_provider(trace_provider)
 
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
