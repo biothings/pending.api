@@ -175,6 +175,7 @@ class Observability():
         from opentelemetry.sdk.resources import SERVICE_NAME, Resource
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry import trace
         from opentelemetry.trace import use_span
 
 
@@ -186,7 +187,9 @@ class Observability():
 
         trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
         trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
-        tracer = trace_provider.get_tracer(__name__)
+        # tracer = trace_provider.get_tracer(__name__)
+        tracer = trace.get_tracer("metrics")
+
 
         # while True:
         # Start a new span
