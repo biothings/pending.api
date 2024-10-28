@@ -188,14 +188,14 @@ class Observability():
         trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
         trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
         # tracer = trace_provider.get_tracer(__name__)
-        tracer = trace.get_tracer("metrics")
+        tracer = trace.get_tracer(__name__)
 
 
         # while True:
         # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
-        span = tracer.start_span(name="observability_metrics")
-        with use_span(span, end_on_exit=True):
+        span = tracer.start_as_current_span(name="observability_metrics")
+        with use_span(span):
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
