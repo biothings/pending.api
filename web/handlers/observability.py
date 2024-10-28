@@ -175,6 +175,7 @@ class Observability():
         from opentelemetry.sdk.resources import SERVICE_NAME, Resource
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.trace import use_span
 
 
         trace_exporter = JaegerExporter(
@@ -190,7 +191,8 @@ class Observability():
         # while True:
         # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
-        with tracer.start_span(name="observability_metrics") as span:
+        span = tracer.start_span(name="observability_metrics")
+        with use_span(span, end_on_exit=True):
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
