@@ -53,7 +53,7 @@ class Observability():
             return "Unknown"
 
 
-    async def get_observability_metrics(self, span, kubernetes_metrics):
+    def get_observability_metrics(self, span, kubernetes_metrics):
         # Collect application version
         application_version = self.get_github_commit_hash()
 
@@ -168,7 +168,7 @@ class Observability():
     #     thread = threading.Thread(target=self.metrics_collector, args=(tracer, interval), daemon=True)
     #     thread.start()
 
-    async def metrics_collector(self, span, kubernetes_metrics, interval):
+    def metrics_collector(self, span, kubernetes_metrics, interval):
         # Run an infinite loop to collect metrics asynchronously
 
         from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -193,7 +193,7 @@ class Observability():
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
-                await self.get_observability_metrics(span, kubernetes_metrics)
+                self.get_observability_metrics(span, kubernetes_metrics)
             except Exception as e:
                 # Handle exceptions gracefully
                 logger.error(f"Error collecting metrics: {e}")
