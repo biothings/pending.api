@@ -187,20 +187,20 @@ class Observability():
         trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
         tracer = trace_provider.get_tracer(__name__)
 
-        while True:
-            # Start a new span
-            with tracer.start_as_current_span(name="observability_metrics") as span:
-                # with trace.get_current_span()(name="observability_metrics") as span:
-                try:
-                    # Collect observability metrics
-                    await self.get_observability_metrics(span, kubernetes_metrics)
-                except Exception as e:
-                    # Handle exceptions gracefully
-                    logger.error(f"Error collecting metrics: {e}")
-                    raise e
+        # while True:
+        # Start a new span
+        with tracer.start_as_current_span(name="observability_metrics") as span:
+            # with trace.get_current_span()(name="observability_metrics") as span:
+            try:
+                # Collect observability metrics
+                await self.get_observability_metrics(span, kubernetes_metrics)
+            except Exception as e:
+                # Handle exceptions gracefully
+                logger.error(f"Error collecting metrics: {e}")
+                raise e
 
-            # Asynchronously wait for the next collection interval
-            await asyncio.sleep(interval)
+        # # Asynchronously wait for the next collection interval
+        # await asyncio.sleep(interval)
 
 
     def __init__(self):
@@ -249,7 +249,11 @@ class Observability():
             kubernetes_metrics = CGroupMetrics()
 
             TornadoInstrumentor().instrument()
-            tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, kubernetes_metrics, interval)
+
+            # tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, kubernetes_metrics, interval)
+            from tornado.ioloop import PeriodicCallback
+            metrics_recorder = PeriodicCallback(lambda: self.metrics_collector(tracer, kubernetes_metrics, interval), 5000)  # 5 seconds
+            metrics_recorder.start()
 
 
 class CGroupMetrics:
