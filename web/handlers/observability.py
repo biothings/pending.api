@@ -245,7 +245,7 @@ class Observability():
             # TornadoInstrumentor().instrument()
 
             # Set the trace provider globally
-            trace.set_tracer_provider(trace_provider)
+            # trace.set_tracer_provider(trace_provider)
 
             # Get metrics and send to Jaeger
             tracer = trace.get_tracer(__name__)
