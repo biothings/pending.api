@@ -189,7 +189,8 @@ class Observability():
 
         # while True:
         # Start a new span
-        with tracer.start_as_current_span(name="observability_metrics") as span:
+        # with tracer.start_as_current_span(name="observability_metrics") as span:
+        with tracer.start_span(name="observability_metrics") as span:
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
                 # Collect observability metrics
