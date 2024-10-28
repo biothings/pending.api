@@ -216,7 +216,7 @@ class Observability():
             import tornado.web
             from opentelemetry.instrumentation.tornado import TornadoInstrumentor
 
-            TornadoInstrumentor().instrument()
+            # TornadoInstrumentor().instrument()
 
             # Configure the OpenTelemetry exporter
             from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -235,6 +235,8 @@ class Observability():
 
             trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: self.OPENTELEMETRY_SERVICE_NAME}))
             trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
+
+            # TornadoInstrumentor().instrument()
 
             # Set the trace provider globally
             trace.set_tracer_provider(trace_provider)
