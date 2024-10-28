@@ -247,6 +247,8 @@ class Observability():
             interval = self.OPENTELEMETRY_METRICS_INTERVAL
             # self.start_metrics_thread(tracer, interval)
             kubernetes_metrics = CGroupMetrics()
+
+            TornadoInstrumentor().instrument()
             tornado.ioloop.IOLoop.current().spawn_callback(self.metrics_collector, tracer, kubernetes_metrics, interval)
 
 
