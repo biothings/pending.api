@@ -194,7 +194,7 @@ class Observability():
         # while True:
         # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
-        span = tracer.start_as_current_span(name="observability_metrics")
+        span = tracer.start_span(name="observability_metrics")
         with use_span(span):
             # with trace.get_current_span()(name="observability_metrics") as span:
             try:
@@ -204,8 +204,6 @@ class Observability():
                 # Handle exceptions gracefully
                 logger.error(f"Error collecting metrics: {e}")
                 raise e
-            finally:
-                span.end()
 
         # # Asynchronously wait for the next collection interval
         # await asyncio.sleep(interval)
