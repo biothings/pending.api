@@ -192,15 +192,17 @@ class Observability():
         # Start a new span
         # with tracer.start_as_current_span(name="observability_metrics") as span:
         span = tracer.start_span(name="observability_metrics")
-        # with use_span(span, end_on_exit=True):
+        with use_span(span, end_on_exit=True):
             # with trace.get_current_span()(name="observability_metrics") as span:
-        try:
-            # Collect observability metrics
-            self.get_observability_metrics(span, kubernetes_metrics)
-        except Exception as e:
-            # Handle exceptions gracefully
-            logger.error(f"Error collecting metrics: {e}")
-            raise e
+            try:
+                # Collect observability metrics
+                self.get_observability_metrics(span, kubernetes_metrics)
+            except Exception as e:
+                # Handle exceptions gracefully
+                logger.error(f"Error collecting metrics: {e}")
+                raise e
+            finally:
+                span.end()
 
         # # Asynchronously wait for the next collection interval
         # await asyncio.sleep(interval)
