@@ -80,6 +80,9 @@ def hostname_to_site(hostname: str) -> str:
 
 class FrontPageHandler(BaseHandler):
 
+    # Cache the template output
+    cached_template_output = None
+
     async def _load_template(self) -> str:
         """
         Loads the front page template
@@ -90,6 +93,10 @@ class FrontPageHandler(BaseHandler):
         Then loads the template and renders it with the populated
         API list
         """
+        # Check if the template output is already cached
+        if FrontPageHandler.cached_template_output:
+            return FrontPageHandler.cached_template_output
+
         root = self.biothings.config._primary
         attrs = [getattr(root, attr) for attr in dir(root)]
         confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
@@ -98,6 +105,8 @@ class FrontPageHandler(BaseHandler):
         templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("index.html")
         output = template.render(Context=json.dumps({"List": apilist}))
+
+        FrontPageHandler.cached_template_output = output
         return output
 
     async def get(self):
