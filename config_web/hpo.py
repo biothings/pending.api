@@ -35,3 +35,5 @@ id_hpo_regex_pattern = (re.compile(r"([\w]+):([0-9]+)", re.I), ["_id"])
 ANNOTATION_ID_REGEX_LIST = [*biolink_curie_regex_list, id_hpo_regex_pattern]
 
 ANNOTATION_DEFAULT_SCOPES = ["_id", "hp"]
+PLUGIN_PENDING_API = True
+PENDING_API_DEPRECATION_STATUS = False

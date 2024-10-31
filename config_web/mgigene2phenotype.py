@@ -4,3 +4,5 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "mgigene2phenotype"
 API_VERSION = ""
+PLUGIN_PENDING_API = True
+PENDING_API_DEPRECATION_STATUS = False

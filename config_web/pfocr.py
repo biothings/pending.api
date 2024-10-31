@@ -33,3 +33,5 @@ ES_QUERY_BACKEND = "web.engine.pfocr.PFOCRBackend"
 
 # Default: ES_QUERY_BUILDER = 'biothings.web.query.ESQueryBuilder'
 ES_QUERY_BUILDER = "web.query_builders.PfocrQueryBuilder"
+PLUGIN_PENDING_API = True
+PENDING_API_DEPRECATION_STATUS = False

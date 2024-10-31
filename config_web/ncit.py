@@ -21,3 +21,5 @@ id_ncit_regex_pattern = (re.compile(r"NCIT\:[A-Z][0-9]+", re.I), ["_id"])
 ANNOTATION_ID_REGEX_LIST = [id_ncit_regex_pattern]
 
 ANNOTATION_DEFAULT_SCOPES = ["_id"]
+PLUGIN_PENDING_API = True
+PENDING_API_DEPRECATION_STATUS = False
