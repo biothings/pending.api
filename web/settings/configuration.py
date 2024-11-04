@@ -66,6 +66,6 @@ def load_configuration(config_module: str = None) -> Union[ConfigPackage, Pendin
         configuration_package = ConfigPackage(root_module, package_modules)
 
         return configuration_package
-    elif not config_module.__package_ == config_module.__name__:
+    elif not config_module.__package__ == config_module.__name__:
         singular_config_module = PendingAPIConfigModule(config=config_module, validators=validators)
         return singular_config_module
