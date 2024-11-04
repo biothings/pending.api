@@ -7,15 +7,27 @@ https://biothings.ncats.io/
 """
 
 import logging
+import os
 import sys
 import pathlib
 
-from tornado.options import options
+from tornado.options import define, options
 
 from web.handlers import EXTRA_HANDLERS
 from web.launcher import PendingAPILauncher
 
 logger = logging.getLogger(__name__)
+
+
+# Command Line Utilities
+# --------------------------
+
+define("port", default=8000, help="run on the given port")
+define("debug", default=False, help="debug settings like logging preferences")
+define("address", default=None, help="host address to listen to, default to all interfaces")
+define("autoreload", default=False, help="auto reload the web server when file change detected")
+define("conf", default="config", help="specify a config module name to import")
+define("dir", default=os.getcwd(), help="path to app directory that includes config.py")
 
 
 def main(app_handlers: list = None, app_settings: dict = None, use_curl: bool = False):
