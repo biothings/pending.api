@@ -7,11 +7,13 @@ command-line access to start Biothings APIs.
 """
 
 import logging
+import types
 from pprint import pformat
 
 import tornado.httpserver
 import tornado.ioloop
 import tornado.log
+import tornado.options
 import tornado.web
 
 from biothings import __version__
@@ -29,13 +31,27 @@ class PendingAPILauncher:
     specifically for handling the volume of plugins
     """
 
-    def __init__(self, config: str = None):
+    def __init__(self, options: tornado.options.OptionParser, app_handlers: list[tuple], app_settings: dict, use_curl: bool):
         logging.info("Biothings API %s", __version__)
-        self.settings = {"debug": False}
-        self.handlers = []
-        self.config = load_configuration(config)
+        self.handlers = app_handlers
+        self.host = options.address
+        self.settings = self._configure_settings(options, app_settings)
+        self.config = load_configuration(options.conf)
         self._configure_logging()
         self.application = PendingAPI.get_app(self.config, self.settings, self.handlers)
+
+        if use_curl:
+            self.enable_curl_httpclient()
+
+
+
+    def _configure_settings(self, options: tornado.options.OptionParser, app_settings: dict) -> dict:
+        """
+        Configure the `settings` attribute for the launcher
+        """
+        app_settings.update(debug=options.debug)
+        app_settings.update(autoreload=options.autoreload)
+        return app_settings
 
     def _configure_logging(self):
         root_logger = logging.getLogger()

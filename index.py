@@ -47,24 +47,7 @@ def main(app_handlers: list = None, app_settings: dict = None, use_curl: bool = 
     if application_directory not in sys.path:
         sys.path.append(str(application_directory))
 
-    launcher = PendingAPILauncher(options.conf)
-
-    try:
-        if app_settings:
-            launcher.settings.update(app_settings)
-        if app_handlers:
-            launcher.handlers = app_handlers
-        if use_curl:
-            launcher.enable_curl_httpclient()
-
-        launcher.host = options.address
-        launcher.settings.update(debug=options.debug)
-        launcher.settings.update(autoreload=options.autoreload)
-    except Exception as gen_exc:
-        logger.exception(gen_exc)
-        logger.error("Unable to start the pending.api launcher")
-        raise gen_exc
-
+    launcher = PendingAPILauncher(options, app_handlers, app_settings, use_curl)
     launcher.start(host=launcher.host, port=options.port)
 
 
