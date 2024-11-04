@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 class PendingAPIConfigModule(ConfigModule):
     def __init__(self, config=None, parent=None, validators: tuple = (), **kwargs):
+        super().__init__(config=config, parent=parent, validators=validators)
         self.module = config
         self.validators = validators
-        super().__init__(config=config, parent=parent, validators=validators)
         self._valid_webapi = None
 
     @property
@@ -22,7 +22,8 @@ class PendingAPIConfigModule(ConfigModule):
             valid_webapi_module_status = False
             for validator in self.validators:
                 if isinstance(validator, PendingWebApiValidator):
-                    valid_webapi_module_status = self.module in validator.api_prefixes
+                    module_api_prefix = getattr(self.module, "API_PREFIX", None)
+                    valid_webapi_module_status = module_api_prefix in validator.api_prefixes
             self._valid_webapi = valid_webapi_module_status
         return self._valid_webapi
 
