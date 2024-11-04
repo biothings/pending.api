@@ -15,10 +15,9 @@ import tornado.log
 import tornado.web
 
 from biothings import __version__
-from biothings.web.applications import BiothingsAPI
-from biothings.web.launcher import TornadoAPILauncher
 from biothings.web.settings.configs import ConfigPackage
 
+from web.application import PendingAPI
 from web.settings.configuration import load_configuration, PendingAPIConfigModule
 
 logger = logging.getLogger(__name__)
@@ -35,8 +34,8 @@ class PendingAPILauncher:
         self.settings = {"debug": False}
         self.handlers = []
         self.config = load_configuration(config)
-        self.application = BiothingsAPI.get_app(self.config, self.settings, self.handlers)
         self._configure_logging()
+        self.application = PendingAPI.get_app(self.config, self.settings, self.handlers)
 
     def _configure_logging(self):
         root_logger = logging.getLogger()
