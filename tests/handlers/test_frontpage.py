@@ -5,23 +5,19 @@ Tests for mocking the FrontPageHandler front page rendering
 import tornado
 from tornado.testing import AsyncHTTPTestCase
 
-from biothings.web.launcher import TornadoAPILauncher
-
 from web.handlers import EXTRA_HANDLERS
+from web.application import PendingAPI
+from web.settings.configuration import load_configuration
 
 
 class TestFrontPageHandler(AsyncHTTPTestCase):
 
-    def get_app(self):
+    def get_app(self) -> tornado.web.Application:
+        configuration = load_configuration("config_web")
         app_handlers = EXTRA_HANDLERS
         app_settings = {"static_path": "static"}
-
-        configuration = "config_web"
-        launcher = TornadoAPILauncher(configuration)
-        launcher.handlers = app_handlers
-        launcher.settings.update(app_settings)
-
-        return launcher.get_app()
+        application = PendingAPI.get_app(configuration, app_settings, app_handlers)
+        return application
 
     def test_get_method(self):
         """

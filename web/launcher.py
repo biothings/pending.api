@@ -31,7 +31,9 @@ class PendingAPILauncher:
     specifically for handling the volume of plugins
     """
 
-    def __init__(self, options: tornado.options.OptionParser, app_handlers: list[tuple], app_settings: dict, use_curl: bool):
+    def __init__(
+        self, options: tornado.options.OptionParser, app_handlers: list[tuple], app_settings: dict, use_curl: bool
+    ):
         logging.info("Biothings API %s", __version__)
         self.handlers = app_handlers
         self.host = options.address
@@ -42,8 +44,6 @@ class PendingAPILauncher:
 
         if use_curl:
             self.enable_curl_httpclient()
-
-
 
     def _configure_settings(self, options: tornado.options.OptionParser, app_settings: dict) -> dict:
         """

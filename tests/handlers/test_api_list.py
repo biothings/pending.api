@@ -1,27 +1,24 @@
 """
 Tests for mocking the ApiList handling
 """
+import json
 
 import tornado
 from tornado.testing import AsyncHTTPTestCase
 
-from biothings.web.launcher import TornadoAPILauncher
-
 from web.handlers import EXTRA_HANDLERS
+from web.application import PendingAPI
+from web.settings.configuration import load_configuration
 
 
 class TestApiListHandler(AsyncHTTPTestCase):
 
-    def get_app(self):
+    def get_app(self) -> tornado.web.Application:
+        configuration = load_configuration("config_web")
         app_handlers = EXTRA_HANDLERS
         app_settings = {"static_path": "static"}
-
-        configuration = "config_web"
-        launcher = TornadoAPILauncher(configuration)
-        launcher.handlers = app_handlers
-        launcher.settings.update(app_settings)
-
-        return launcher.get_app()
+        application = PendingAPI.get_app(configuration, app_settings, app_handlers)
+        return application
 
     def test_get_method(self):
         """
@@ -44,12 +41,77 @@ class TestApiListHandler(AsyncHTTPTestCase):
             ('User-Agent', 'Tornado/6.4'),
         ]
         """
-        api_list_endpoint = r"/api/list/"
+        api_list_endpoint = r"/api/list"
         http_method = "GET"
+        expected_endpoints = [
+            "/DISEASES/.*",
+            "/agr/.*",
+            "/annotator_extra/.*",
+            "/biggim/.*",
+            "/biggim_drugresponse_kp/.*",
+            "/bindingdb/.*",
+            "/biomuta/.*",
+            "/bioplanet_pathway_disease/.*",
+            "/bioplanet_pathway_gene/.*",
+            "/ccle/.*",
+            "/cell_ontology/.*",
+            "/chebi/.*",
+            "/clinicaltrials/.*",
+            "/ddinter/.*",
+            "/denovodb/.*",
+            "/dgidb/.*",
+            "/disbiome/.*",
+            "/doid/.*",
+            "/ebigene2phenotype/.*",
+            "/fda_drugs/.*",
+            "/foodb/.*",
+            "/fooddata/.*",
+            "/geneset/.*",
+            "/gmmad2/.*",
+            "/go/.*",
+            "/go_bp/.*",
+            "/go_cc/.*",
+            "/go_mf/.*",
+            "/gtrx/.*",
+            "/gwascatalog/.*",
+            "/hmdb/.*",
+            "/hmdbv4/.*",
+            "/hpo/.*",
+            "/idisk/.*",
+            "/innatedb/.*",
+            "/kaviar/.*",
+            "/mgigene2phenotype/.*",
+            "/mondo/.*",
+            "/mrcoc/.*",
+            "/multiomics_clinicaltrials_kp/.*",
+            "/multiomics_drug_approvals_kp/.*",
+            "/multiomics_ehr_risk_kp/.*",
+            "/multiomics_wellness_kp/.*",
+            "/ncit/.*",
+            "/node-expansion/.*",
+            "/pfocr/.*",
+            "/phewas/.*",
+            "/pseudocap_go/.*",
+            "/pubtator3/.*",
+            "/rare_source/.*",
+            "/repodb/.*",
+            "/rhea/.*",
+            "/semmeddb/.*",
+            "/suppkg/.*",
+            "/tcga_mut_freq_kp/.*",
+            "/text_mining_targeted_association/.*",
+            "/tissues/.*",
+            "/ttd/.*",
+            "/uberon/.*",
+            "/umlschem/.*",
+            "/upheno_ontology/.*",
+        ]
 
         response = self.fetch(api_list_endpoint, method=http_method)
+
+        decoded_body = json.loads(response.body.decode("utf-8"))
         self.assertEqual(response.code, 200)
-        self.assertEqual(response._body, None)
+        self.assertEqual(decoded_body, expected_endpoints)
         self.assertEqual(response.reason, "OK")
         self.assertFalse(response._error_is_response_code)
 
@@ -59,7 +121,7 @@ class TestApiListHandler(AsyncHTTPTestCase):
         response_header_connection = response_headers.get("Connection", None)
 
         self.assertTrue(isinstance(response_headers, tornado.httputil.HTTPHeaders))
-        self.assertEqual(response_content_type, "text/html; charset=UTF-8")
+        self.assertEqual(response_content_type, "application/json; charset=UTF-8")
         self.assertTrue(int(response_content_length) > 0)
         self.assertEqual(response_header_connection, "close")
 
