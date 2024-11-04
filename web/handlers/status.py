@@ -12,17 +12,12 @@ class StatusDefaultHandler(BaseAPIHandler):
 
     async def get(self, *args, **kwargs):
         self.request.uri = "/idisk/status"
-        status_handler = StatusHandler(
-            self.application, self.request, **kwargs
-        )
+        status_handler = StatusHandler(self.application, self.request, **kwargs)
         await status_handler._execute([])
         self._finished = True  # Ensure the request handling is marked as complete
 
-
     async def head(self, *args, **kwargs):
         self.request.uri = "/idisk/status"
-        status_handler = StatusHandler(
-            self.application, self.request, **kwargs
-        )
+        status_handler = StatusHandler(self.application, self.request, **kwargs)
         await status_handler._execute([])
         self._finished = True  # Ensure the request handling is marked as complete
