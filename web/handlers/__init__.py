@@ -16,6 +16,7 @@ from jinja2 import Environment, FileSystemLoader
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .annotator import AnnotatorHandler
+from .diseases import DiseasesHandler
 from .status import StatusDefaultHandler
 from .version import VersionHandler
 
@@ -142,4 +143,5 @@ EXTRA_HANDLERS = [
     (r"/version", VersionHandler),
     (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
+    (r"/DISEASES", DiseasesHandler),
 ]
