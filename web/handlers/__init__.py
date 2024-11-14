@@ -15,6 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 # from config_web import opentelemetry
 from .annotator import AnnotatorHandler
 from .api import ApiListHandler
+from .diseases import DiseasesHandler
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
 from .status import StatusDefaultHandler
@@ -81,6 +82,9 @@ def hostname_to_site(hostname: str) -> str:
 
 class FrontPageHandler(BaseHandler):
 
+    # Cache the template output
+    cached_template_output = {}
+
     async def _load_template(self) -> str:
         """
         Loads the front page template
@@ -91,14 +95,22 @@ class FrontPageHandler(BaseHandler):
         Then loads the template and renders it with the populated
         API list
         """
+        site = hostname_to_site(self.request.host)
+
+        # Check if the template output is already cached
+        if FrontPageHandler.cached_template_output.get(site, False):
+            return FrontPageHandler.cached_template_output[site]
+
         root = self.biothings.config._primary
         attrs = [getattr(root, attr) for attr in dir(root)]
         confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
         apilist = [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
 
-        templateEnv.globals["site"] = hostname_to_site(self.request.host)
+        templateEnv.globals["site"] = site
         template = templateEnv.get_template("index.html")
         output = template.render(Context=json.dumps({"List": apilist}))
+
+        FrontPageHandler.cached_template_output[site] = output
         return output
 
     async def get(self):
@@ -135,4 +147,5 @@ EXTRA_HANDLERS = [
     (r"/api/list", ApiListHandler),
     (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
+    (r"/DISEASES(?:/.*)?", DiseasesHandler),
 ]
