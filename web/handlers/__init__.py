@@ -145,5 +145,5 @@ EXTRA_HANDLERS = [
     (r"/version", VersionHandler),
     (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
-    (r"/DISEASES", DiseasesHandler),
+    (r"/DISEASES(?:/.*)?", DiseasesHandler),
 ]
