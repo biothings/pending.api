@@ -29,9 +29,16 @@ class PendingWebApiValidator:
         Checks for module attributes to indicate the
         module status for the pending web-api configuration
         """
-        valid_web_api = getattr(config_module, "PLUGIN_PENDING_API", False)
-        deprecation_status = getattr(config_module, "PENDING_API_DEPRECATION_STATUS", True)
-        webapi_module_state = {"webapi_module": valid_web_api, "deprecation_status": deprecation_status}
+        api_prefix = getattr(config_module, "API_PREFIX", None)
+        app_prefix = getattr(config_module, "APP_PREFIX", None)
+        is_webapi = api_prefix is not None or app_prefix is not None
+        deprecation_status = getattr(config_module, "DEPRECATION_STATUS", True)
+        webapi_module_state = {
+            "api_prefix": api_prefix,
+            "app_prefix": app_prefix,
+            "webapi_module": is_webapi,
+            "deprecation_status": deprecation_status,
+        }
         return webapi_module_state
 
     def validate(self, config_module: types.ModuleType):
@@ -45,6 +52,12 @@ class PendingWebApiValidator:
         """
         module_state = self._get_pending_api_module_state(config_module)
         if module_state["webapi_module"]:
+            if module_state["deprecation_status"]:
+                logger.warning(
+                    "Module %s with is currently deprecated. Module state:\n%s",
+                    config_module,
+                    json.dumps(module_state, indent=4),
+                )
             self._validate_api_attributes(config_module)
             self._validate_elasticsearch_attributes(config_module)
         else:
@@ -54,12 +67,18 @@ class PendingWebApiValidator:
         """
         Performs attibute checking on the module to ensure the existence
         of APP_PREFIX or APP_VERSION
+
+        We have both attributes for legacy compability from the biothings.api
+        In reality, all of the pending.api web api's should use the API_PREFIX
+        so we default to searching for that. We raise an error indicates
+
         """
         api_prefix = getattr(config_module, "API_PREFIX", None)
         api_version = getattr(config_module, "API_PREFIX", None)
 
         if api_prefix is not None:
             config_module.APP_PREFIX = config_module.API_PREFIX
+
         if api_version is not None:
             config_module.APP_VERSION = config_module.API_VERSION
 
@@ -67,21 +86,20 @@ class PendingWebApiValidator:
 
         if app_prefix is None:
             validation_error_message = (
-                "Configuration Issue: module %s requests a valid value " "for the APP_PREFIX attribute",
-                config_module,
+                "API Configuration Issue: "
+                f"module {config_module} requires a valid value for the APP_PREFIX attribute"
             )
             raise ValidationError(validation_error_message)
 
         if app_prefix in self.api_prefixes:
             validation_error_message = (
-                "Configuration Issue: duplicate APP_PREFIX value %s "
+                "API Configuration Issue: duplicate APP_PREFIX value %s "
                 "found for module %s. Each APP_PREFIX must be unique in "
                 "configuration package",
                 app_prefix,
                 config_module,
             )
             raise ValidationError(validation_error_message)
-        self.api_prefixes.add(app_prefix)
 
         if config_module.APP_VERSION is None and config_module.APP_PREFIX is None:
             debug_config_parameters = {
@@ -98,12 +116,13 @@ class PendingWebApiValidator:
             )
             raise ValidationError(validation_error_message)
 
+        self.api_prefixes.add(app_prefix)
+
     def _validate_elasticsearch_attributes(self, config_module: types.ModuleType):
         """
         Ensures that the attributes associated with the elasticsearch configuration
         for the webapi for the pending.api are properly configured
         """
-
         elasticsearch_indices = getattr(config_module, "ES_INDICES", None)
         if not isinstance(elasticsearch_indices, dict):
             validation_error_message = (
