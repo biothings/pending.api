@@ -2,6 +2,6 @@ ES_HOST = "http://localhost:9200"
 ES_INDEX = "pending-diseases"
 ES_DOC_TYPE = "disease"
 
-API_PREFIX = "DISEASES"
+API_PREFIX = "diseases"
 API_VERSION = ""
 DEPRECATION_STATUS = False
