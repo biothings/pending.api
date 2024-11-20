@@ -1,6 +1,7 @@
 """
 Tests for mocking the ApiList handling
 """
+
 import json
 
 import tornado
@@ -43,8 +44,9 @@ class TestApiListHandler(AsyncHTTPTestCase):
         """
         api_list_endpoint = r"/api/list"
         http_method = "GET"
+
+        # This is likely going to change as the pending.api changes
         expected_endpoints = [
-            "/DISEASES/.*",
             "/agr/.*",
             "/annotator_extra/.*",
             "/biggim/.*",
@@ -61,6 +63,7 @@ class TestApiListHandler(AsyncHTTPTestCase):
             "/denovodb/.*",
             "/dgidb/.*",
             "/disbiome/.*",
+            "/diseases/.*",
             "/doid/.*",
             "/ebigene2phenotype/.*",
             "/fda_drugs/.*",
