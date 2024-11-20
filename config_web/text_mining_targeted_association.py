@@ -12,4 +12,4 @@ API_VERSION = ""
 ES_QUERY_PIPELINE = "web.pipeline.PendingQueryPipeline"
 ES_QUERY_BUILDER = "web.pipeline.PendingQueryBuilder"
 ES_RESULT_TRANSFORM = "web.pipeline.GraphResultTransform"
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

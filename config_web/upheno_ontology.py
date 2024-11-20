@@ -4,4 +4,4 @@ ES_DOC_TYPE = "phenotype"
 
 API_PREFIX = "upheno_ontology"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

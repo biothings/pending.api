@@ -4,4 +4,4 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "pubtator3"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

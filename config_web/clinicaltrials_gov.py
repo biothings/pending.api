@@ -4,4 +4,4 @@ ES_DOC_TYPE = "trial"
 
 API_PREFIX = "clinicaltrials"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

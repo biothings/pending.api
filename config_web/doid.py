@@ -21,4 +21,4 @@ id_doid_regex_pattern = (re.compile(r"DOID\:[0-9]+", re.I), ["_id"])
 ANNOTATION_ID_REGEX_LIST = [id_doid_regex_pattern]
 
 ANNOTATION_DEFAULT_SCOPES = ["_id"]
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

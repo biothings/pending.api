@@ -4,4 +4,4 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "ebigene2phenotype"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

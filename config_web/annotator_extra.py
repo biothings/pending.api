@@ -4,4 +4,4 @@ ES_DOC_TYPE = "node"
 
 API_PREFIX = "annotator_extra"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False

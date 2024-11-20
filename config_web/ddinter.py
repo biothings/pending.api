@@ -4,4 +4,4 @@ ES_DOC_TYPE = "interaction"
 
 API_PREFIX = "ddinter"
 API_VERSION = ""
-PENDING_API_DEPRECATION_STATUS = False
+DEPRECATION_STATUS = False
