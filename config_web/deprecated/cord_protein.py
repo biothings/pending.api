@@ -4,3 +4,4 @@ ES_DOC_TYPE = "protein"
 
 API_PREFIX = "cord_protein"
 API_VERSION = ""
+API_DEPRECATED = True

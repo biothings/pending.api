@@ -4,3 +4,4 @@ ES_DOC_TYPE = "geneset"
 
 API_PREFIX = "cord_ma"
 API_VERSION = ""
+API_DEPRECATED = True

@@ -4,3 +4,4 @@ ES_DOC_TYPE = "disease"
 
 API_PREFIX = "semmed"
 API_VERSION = ""
+API_DEPRECATED = True

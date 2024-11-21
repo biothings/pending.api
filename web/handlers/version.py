@@ -6,6 +6,7 @@ from biothings.web.handlers import BaseAPIHandler
 
 logger = logging.getLogger(__name__)
 
+
 class VersionHandler(BaseAPIHandler):
     name = "version"
 

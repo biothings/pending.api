@@ -4,3 +4,4 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "cord_gene"
 API_VERSION = ""
+API_DEPRECATED = True

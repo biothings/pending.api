@@ -4,3 +4,4 @@ ES_DOC_TYPE = "chemical"
 
 API_PREFIX = "semmedchemical"
 API_VERSION = ""
+API_DEPRECATED = True

@@ -1,6 +1,8 @@
 """
-Tests for mocking the FrontPageHandler front page rendering
+Tests for mocking the ApiList handling
 """
+
+import json
 
 import tornado
 from tornado.testing import AsyncHTTPTestCase
@@ -10,7 +12,7 @@ from web.application import PendingAPI
 from web.settings.configuration import load_configuration
 
 
-class TestFrontPageHandler(AsyncHTTPTestCase):
+class TestApiListHandler(AsyncHTTPTestCase):
 
     def get_app(self) -> tornado.web.Application:
         configuration = load_configuration("config_web")
@@ -40,12 +42,79 @@ class TestFrontPageHandler(AsyncHTTPTestCase):
             ('User-Agent', 'Tornado/6.4'),
         ]
         """
-        frontpage_endpoint = r"/"
+        api_list_endpoint = r"/api/list"
         http_method = "GET"
 
-        response = self.fetch(frontpage_endpoint, method=http_method)
+        # This is likely going to change as the pending.api changes
+        expected_endpoints = [
+            "/agr/.*",
+            "/annotator_extra/.*",
+            "/biggim/.*",
+            "/biggim_drugresponse_kp/.*",
+            "/bindingdb/.*",
+            "/biomuta/.*",
+            "/bioplanet_pathway_disease/.*",
+            "/bioplanet_pathway_gene/.*",
+            "/ccle/.*",
+            "/cell_ontology/.*",
+            "/chebi/.*",
+            "/clinicaltrials/.*",
+            "/ddinter/.*",
+            "/denovodb/.*",
+            "/dgidb/.*",
+            "/disbiome/.*",
+            "/diseases/.*",
+            "/doid/.*",
+            "/ebigene2phenotype/.*",
+            "/fda_drugs/.*",
+            "/foodb/.*",
+            "/fooddata/.*",
+            "/geneset/.*",
+            "/gmmad2/.*",
+            "/go/.*",
+            "/go_bp/.*",
+            "/go_cc/.*",
+            "/go_mf/.*",
+            "/gtrx/.*",
+            "/gwascatalog/.*",
+            "/hmdb/.*",
+            "/hmdbv4/.*",
+            "/hpo/.*",
+            "/idisk/.*",
+            "/innatedb/.*",
+            "/kaviar/.*",
+            "/mgigene2phenotype/.*",
+            "/mondo/.*",
+            "/mrcoc/.*",
+            "/multiomics_clinicaltrials_kp/.*",
+            "/multiomics_drug_approvals_kp/.*",
+            "/multiomics_ehr_risk_kp/.*",
+            "/multiomics_wellness_kp/.*",
+            "/ncit/.*",
+            "/node-expansion/.*",
+            "/pfocr/.*",
+            "/phewas/.*",
+            "/pseudocap_go/.*",
+            "/pubtator3/.*",
+            "/rare_source/.*",
+            "/repodb/.*",
+            "/rhea/.*",
+            "/semmeddb/.*",
+            "/suppkg/.*",
+            "/tcga_mut_freq_kp/.*",
+            "/text_mining_targeted_association/.*",
+            "/tissues/.*",
+            "/ttd/.*",
+            "/uberon/.*",
+            "/umlschem/.*",
+            "/upheno_ontology/.*",
+        ]
+
+        response = self.fetch(api_list_endpoint, method=http_method)
+
+        decoded_body = json.loads(response.body.decode("utf-8"))
         self.assertEqual(response.code, 200)
-        self.assertEqual(response._body, None)
+        self.assertEqual(decoded_body, expected_endpoints)
         self.assertEqual(response.reason, "OK")
         self.assertFalse(response._error_is_response_code)
 
@@ -55,7 +124,7 @@ class TestFrontPageHandler(AsyncHTTPTestCase):
         response_header_connection = response_headers.get("Connection", None)
 
         self.assertTrue(isinstance(response_headers, tornado.httputil.HTTPHeaders))
-        self.assertEqual(response_content_type, "text/html; charset=UTF-8")
+        self.assertEqual(response_content_type, "application/json; charset=UTF-8")
         self.assertTrue(int(response_content_length) > 0)
         self.assertEqual(response_header_connection, "close")
 
@@ -75,48 +144,4 @@ class TestFrontPageHandler(AsyncHTTPTestCase):
 
         response_time = response.start_time
         request_time = get_request.start_time
-        self.assertTrue(response.request_time >= (response_time - request_time))
-
-    def test_head_method(self):
-        """
-        Test the HEAD HTTP method handler for the front page
-
-        The main difference is because we don't return any content generated
-        from the front page template, the response content length shouldn't
-        have anything and should always be length 0
-        """
-        frontpage_endpoint = r"/"
-        http_method = "HEAD"
-        response = self.fetch(frontpage_endpoint, method=http_method)
-        self.assertEqual(response.code, 200)
-        self.assertEqual(response._body, None)
-        self.assertEqual(response.reason, "OK")
-        self.assertFalse(response._error_is_response_code)
-
-        response_headers = response.headers
-        response_content_type = response_headers.get("Content-Type", None)
-        response_content_length = response_headers.get("Content-Length", "-10")
-        response_header_connection = response_headers.get("Connection", None)
-
-        self.assertTrue(isinstance(response_headers, tornado.httputil.HTTPHeaders))
-        self.assertEqual(response_content_type, "text/html; charset=UTF-8")
-        self.assertTrue(int(response_content_length) == 0)
-        self.assertEqual(response_header_connection, "close")
-
-        head_request = response.request
-        self.assertEqual(head_request.method, http_method)
-        self.assertEqual(head_request.body, None)
-
-        head_request_headers = head_request.headers
-        request_connection = head_request_headers.get("Connection", None)
-        response_user_agent = head_request_headers.get("User-Agent", None)
-        request_user_agent = head_request_headers.get("User-Agent", None)
-
-        self.assertEqual(request_connection, "close")
-        self.assertTrue(response_user_agent)
-        self.assertTrue(request_user_agent)
-        self.assertEqual(response_user_agent, request_user_agent)
-
-        response_time = response.start_time
-        request_time = head_request.start_time
         self.assertTrue(response.request_time >= (response_time - request_time))

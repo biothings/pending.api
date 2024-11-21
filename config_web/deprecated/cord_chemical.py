@@ -4,3 +4,4 @@ ES_DOC_TYPE = "chemical"
 
 API_PREFIX = "cord_chemical"
 API_VERSION = ""
+API_DEPRECATED = True

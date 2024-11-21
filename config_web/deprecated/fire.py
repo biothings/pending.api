@@ -4,3 +4,4 @@ ES_DOC_TYPE = "variant"
 
 API_PREFIX = "fire"
 API_VERSION = ""
+API_DEPRECATED = True

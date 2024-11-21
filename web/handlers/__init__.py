@@ -13,10 +13,11 @@ from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
 
 # from config_web import opentelemetry
+from .annotator import AnnotatorHandler
+from .api import ApiListHandler
+from .diseases import DiseasesHandler
 from .graph import GraphQueryHandler
 from .ngd import SemmedNGDHandler
-from .annotator import AnnotatorHandler
-from .diseases import DiseasesHandler
 from .status import StatusDefaultHandler
 from .version import VersionHandler
 
@@ -143,6 +144,7 @@ EXTRA_HANDLERS = [
     (r"/", FrontPageHandler),
     (r"/status", StatusDefaultHandler),
     (r"/version", VersionHandler),
+    (r"/api/list", ApiListHandler),
     (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
     (r"/DISEASES(?:/.*)?", DiseasesHandler),

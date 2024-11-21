@@ -4,3 +4,4 @@ ES_DOC_TYPE = "cell"
 
 API_PREFIX = "cord_cell"
 API_VERSION = ""
+API_DEPRECATED = True

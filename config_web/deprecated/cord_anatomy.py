@@ -4,3 +4,4 @@ ES_DOC_TYPE = "anatomy"
 
 API_PREFIX = "cord_anatomy"
 API_VERSION = ""
+API_DEPRECATED = True

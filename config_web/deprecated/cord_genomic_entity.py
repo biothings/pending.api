@@ -4,3 +4,4 @@ ES_DOC_TYPE = "genomicentity"
 
 API_PREFIX = "cord_genomic_entity"
 API_VERSION = ""
+API_DEPRECATED = True

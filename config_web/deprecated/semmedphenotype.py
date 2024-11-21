@@ -4,3 +4,4 @@ ES_DOC_TYPE = "phenotype"
 
 API_PREFIX = "semmedphenotype"
 API_VERSION = ""
+API_DEPRECATED = True
