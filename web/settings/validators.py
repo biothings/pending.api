@@ -32,7 +32,7 @@ class PendingWebApiValidator:
         api_prefix = getattr(config_module, "API_PREFIX", None)
         app_prefix = getattr(config_module, "APP_PREFIX", None)
         is_webapi = api_prefix is not None or app_prefix is not None
-        deprecation_status = getattr(config_module, "DEPRECATION_STATUS", True)
+        deprecation_status = getattr(config_module, "API_DEPRECATED", False)
         webapi_module_state = {
             "api_prefix": api_prefix,
             "app_prefix": app_prefix,
