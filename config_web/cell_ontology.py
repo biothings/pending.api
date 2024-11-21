@@ -4,4 +4,3 @@ ES_DOC_TYPE = "cell"
 
 API_PREFIX = "cell_ontology"
 API_VERSION = ""
-DEPRECATION_STATUS = False

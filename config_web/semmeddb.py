@@ -70,4 +70,3 @@ urlspec_kwargs = dict(
 )
 
 APP_LIST = [(r"/{pre}/{ver}/query/ngd?", "web.handlers.SemmedNGDHandler", urlspec_kwargs), *APP_LIST]
-DEPRECATION_STATUS = False

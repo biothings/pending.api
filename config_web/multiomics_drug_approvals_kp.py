@@ -4,4 +4,3 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "multiomics_drug_approvals_kp"
 API_VERSION = ""
-DEPRECATION_STATUS = False

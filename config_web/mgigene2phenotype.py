@@ -4,4 +4,3 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "mgigene2phenotype"
 API_VERSION = ""
-DEPRECATION_STATUS = False

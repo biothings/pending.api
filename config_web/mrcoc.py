@@ -4,4 +4,3 @@ ES_DOC_TYPE = "cooccurrence"
 
 API_PREFIX = "mrcoc"
 API_VERSION = ""
-DEPRECATION_STATUS = False

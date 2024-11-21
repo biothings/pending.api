@@ -4,4 +4,3 @@ ES_DOC_TYPE = "geneset"
 
 API_PREFIX = "go_mf"
 API_VERSION = ""
-DEPRECATION_STATUS = False

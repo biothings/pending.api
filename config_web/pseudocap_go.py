@@ -4,4 +4,3 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "pseudocap_go"
 API_VERSION = ""
-DEPRECATION_STATUS = False

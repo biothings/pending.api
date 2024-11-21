@@ -4,4 +4,3 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "tcga_mut_freq_kp"
 API_VERSION = ""
-DEPRECATION_STATUS = False

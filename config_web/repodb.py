@@ -4,4 +4,3 @@ ES_DOC_TYPE = "indication"
 
 API_PREFIX = "repodb"
 API_VERSION = ""
-DEPRECATION_STATUS = False

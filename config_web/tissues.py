@@ -4,4 +4,3 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "tissues"
 API_VERSION = ""
-DEPRECATION_STATUS = False

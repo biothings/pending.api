@@ -4,4 +4,3 @@ ES_DOC_TYPE = "chemical"
 
 API_PREFIX = "umlschem"
 API_VERSION = ""
-DEPRECATION_STATUS = False

@@ -4,4 +4,3 @@ ES_DOC_TYPE = "variant"
 
 API_PREFIX = "biomuta"
 API_VERSION = ""
-DEPRECATION_STATUS = False

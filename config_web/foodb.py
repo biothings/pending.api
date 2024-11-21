@@ -4,4 +4,3 @@ ES_DOC_TYPE = "food"
 
 API_PREFIX = "foodb"
 API_VERSION = ""
-DEPRECATION_STATUS = False

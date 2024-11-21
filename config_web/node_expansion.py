@@ -3,4 +3,3 @@ ES_DOC_TYPE = "node"
 
 API_PREFIX = "node-expansion"
 API_VERSION = ""
-DEPRECATION_STATUS = False

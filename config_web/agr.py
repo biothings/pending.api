@@ -4,4 +4,4 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "agr"
 API_VERSION = ""
-DEPRECATION_STATUS = False
+API_DEPRECATED = False

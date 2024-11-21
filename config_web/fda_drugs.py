@@ -4,4 +4,3 @@ ES_DOC_TYPE = "drug"
 
 API_PREFIX = "fda_drugs"
 API_VERSION = ""
-DEPRECATION_STATUS = False

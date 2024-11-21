@@ -4,4 +4,3 @@ ES_DOC_TYPE = "umls"
 
 API_PREFIX = "idisk"
 API_VERSION = ""
-DEPRECATION_STATUS = False

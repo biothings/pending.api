@@ -4,4 +4,3 @@ ES_DOC_TYPE = "anatomy"
 
 API_PREFIX = "uberon"
 API_VERSION = ""
-DEPRECATION_STATUS = False

@@ -4,4 +4,3 @@ ES_DOC_TYPE = "drug"
 
 API_PREFIX = "disbiome"
 API_VERSION = ""
-DEPRECATION_STATUS = False

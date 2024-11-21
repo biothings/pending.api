@@ -4,4 +4,3 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "bioplanet_pathway_gene"
 API_VERSION = ""
-DEPRECATION_STATUS = False

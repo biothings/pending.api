@@ -21,4 +21,3 @@ id_mondo_regex_pattern = (re.compile(r"MONDO\:[0-9]+", re.I), ["_id"])
 ANNOTATION_ID_REGEX_LIST = [id_mondo_regex_pattern]
 
 ANNOTATION_DEFAULT_SCOPES = ["_id"]
-DEPRECATION_STATUS = False

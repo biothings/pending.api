@@ -4,4 +4,3 @@ ES_DOC_TYPE = "disease"
 
 API_PREFIX = "diseases"
 API_VERSION = ""
-DEPRECATION_STATUS = False
