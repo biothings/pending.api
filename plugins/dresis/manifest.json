@@ -1,0 +1,23 @@
+{
+    "version": "0.2",
+    "__metadata__": {
+        "url": "http://dresis.idrblab.net/"
+    },
+    "author" : {
+      "name" : "Rohan Juneja",
+      "url" : "https://github.com/rjawesome"
+    },
+    "dumper" : {
+        "data_url" : [
+            "http://dresis.idrblab.net/sites/files/full_data/1-1.%20The%20pair%20information%20of%20drug-disease%20(Besides%20HIV)-molecular%20based%20resistance.txt", 
+            "http://dresis.idrblab.net/sites/files/full_data/1-11.%20The%20pair%20information%20of%20HIV-drug-molecular%20based%20resistance.txt", 
+            "http://dresis.idrblab.net/sites/files/full_data/2-1.%20The%20general%20information%20of%20drugs%20associated%20with%20resistance.txt",
+            "http://dresis.idrblab.net/sites/files/full_data/3-1.%20The%20general%20information%20of%20disease%20related%20with%20resistance.txt", 
+            "http://dresis.idrblab.net/sites/files/full_data/4-1.%20The%20general%20information%20of%20molecular%20associated%20with%20resistance.txt"
+        ]
+    },
+    "uploader" : {
+        "parser" : "parser:load_data",
+        "on_duplicates": "error"
+    }
+  }
