@@ -56,35 +56,35 @@ top: auto; /* Resets any top offset */
 }
 
 .bg-dark{
-    background-color: var(--main-dark) !important;
+    background-color: var(--main-dark);
 }
 
 .bg-dark-trans{
-    background-color: rgba(27, 38, 59, .8) !important;
+    background-color: rgba(27, 38, 59, .8);
 }
 
 .bg-med{
-    background-color: var(--main-medium) !important;
+    background-color: var(--main-medium);
 }
 
-.bg-light{
-    background-color: var(--main-light) !important;
+.bg-theme-light{
+    background-color: var(--main-light);
 }
 
 .bg-white{
-    background-color: white !important;
+    background-color: white;
 }
 
 .bg-accent{
-    background-color: var(--main-accent) !important;
+    background-color: var(--main-accent);
 }
 
-.text-dark{
-    color: var(--main-dark) !important;
+.text-theme-dark{
+    color: var(--main-dark);
 }
 
-.text-light{
-    color: var(--main-accent) !important;
+.text-theme-light{
+    color: var(--main-accent);
 }
 
 .text-white{
@@ -97,10 +97,10 @@ top: auto; /* Resets any top offset */
 }
 
 .search_input{
-    outline: none !important;
-    border-top: none !important;
-    border-right: none !important;
-    border-left: none !important;
+    outline: none;
+    border-top: none;
+    border-right: none;
+    border-left: none;
     background-color: var(--main-dark);
     border-radius: 5px;
     border-bottom: var(--main-accent) solid 2px;
@@ -115,7 +115,7 @@ top: auto; /* Resets any top offset */
 }
 
 .badge-dark{
-    background-color: black !important;
+    background-color: black;
 }
 
 .api-main-container{
@@ -142,15 +142,15 @@ top: auto; /* Resets any top offset */
 }
 
 .entity-badge:hover{
-    border: solid var(--main-accent) 1px !important;
+    border: solid var(--main-accent) 1px;
 }
 
 div.content a:hover{
-    color:var(--green-medium)!important;
+    color:var(--green-medium);
 }
 
 .navbar-brand:hover,.nav-link:hover{
-    color:white!important;
+    color:white;
 }
 
 .noListStyle{
@@ -199,7 +199,7 @@ div.content a:hover{
 }
 
 .list-group-item,.table td,.table th,.table thead th,.table tr{
-    border:none !important;
+    border:none;
 }
 
 .modal{
@@ -238,11 +238,11 @@ div.content a:hover{
 }
 
 .bold{
-    font-weight:bold!important;
+    font-weight:bold;
 }
 
 .card{
-    border:none!important;
+    border:none;
 }
 
 .btn-main{
@@ -299,8 +299,8 @@ div.content a:hover{
 .btn-main:hover{
     background:var(--main-dark);
     cursor:pointer;
-    text-decoration:none!important;
-    color:white!important;
+    text-decoration:none;
+    color:white;
     box-shadow:0 0 20px white;
 }
 
@@ -455,7 +455,7 @@ div.content a:hover{
 }
 
 #navPanel .link.depth-0{
-    color:var(--green-light)!important;
+    color:var(--green-light);
 }
 
 #header.alt{
@@ -488,22 +488,22 @@ div.content a:hover{
 
 #header>nav{
     position:fixed;
-    left:0!important;
-    top:0!important;
+    left:0;
+    top:0;
 }
 
 .navPanelToggle{
-    border-bottom:none!important;
+    border-bottom:none;
 }
 
 .navbar-dark .navbar-nav .nav-link{
-    border:none!important;
+    border:none;
 }
 
 .navbar-dark .navbar-brand{
-    border:none!important;
+    border:none;
 }
 
 .table td,.table th{
-    vertical-align:middle!important;
+    vertical-align:middle;
 }

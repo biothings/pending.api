@@ -2,7 +2,7 @@
 <header id="header">
   <nav id="nav" class="navbar bg-med navbar-expand-lg w-100 py-2">
       {% if site == "pending" %}
-      <a class="navbar-brand bold main-font text-light" href="/">
+      <a class="navbar-brand bold main-font text-theme-light" href="/">
         <img src="/static/img/infinity.svg" alt="Pending" width="50px"> Pending
       </a>
       {% else %}
@@ -12,8 +12,8 @@
         <form class="form-inline d-flex mr-4">
           <!-- <input class="form-control mr-2" type="search" v-model="q" placeholder="Search" aria-label="Search">
           <button class="btn bg-med" type="submit">Search</button> -->
-          <label for="api_select" class="text-light mr-2">Search</label>
-          <input list="apis" id="api_select" name="api_select" class="bg-accent border-0 text-dark" v-model="q"/>
+          <label for="api_select" class="text-theme-light mr-2">Search</label>
+          <input list="apis" id="api_select" name="api_select" class="bg-accent border-0 text-theme-dark" v-model="q"/>
           <datalist id="apis">
             <option v-for="api in api_list" :key="api?._id" :value="api?._id"></option>
           </datalist>

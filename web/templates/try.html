@@ -1,10 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
-<section id="try-app" class="bg-dark text-light min-height-100">
+<section id="try-app" class="bg-dark text-theme-light min-height-100">
   <div v-if="validAPI" class="m-0 min-height-100 d-flex justify-content-start align-items-stretch">
     <div v-if="metadata && metadata.src" class="bg-dark bg-hex p-5 col-sm-12 col-md-4">
       <div class="text-left">
-        <h1 class="text-light main-font" :data-text='api' v-text='api'></h1>
+        <h1 class="text-theme-light main-font" :data-text='api' v-text='api'></h1>
         <p v-if="!existingEntity">
           <small>Entity Type: </small>
           <template v-if="metadata.biothing_type">
@@ -50,7 +50,7 @@
       </div>
     </div>
 
-    <div class="bg-light col-sm-12 col-md-8 py-5 px-2">
+    <div class="bg-theme-light col-sm-12 col-md-8 py-5 px-2">
       <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
         <div class="p-1 d-inline ml-4">
           <h5 class="text-md-right" v-text="window.location.origin + '/' + api"></h5>
@@ -66,13 +66,13 @@
           <template v-if="querySelectionType==='own'">
             <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
           </template>
-          <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-danger text-light mt-2 mr-2" type="button">Clear</button>
-          <button v-if="querySelected" class="btn btn-outline-info text-light mt-2" type="submit">Submit</button>
-          <label class="text-light" v-if="!querySelected" for="api">Select a query</label>
+          <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-danger text-theme-light mt-2 mr-2" type="button">Clear</button>
+          <button v-if="querySelected" class="btn btn-outline-info text-theme-light mt-2" type="submit">Submit</button>
+          <label class="text-theme-light" v-if="!querySelected" for="api">Select a query</label>
           <div class="form-check text-left mt-3">
             <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
             <label class="form-check-label" for="exampleRadios1">
-              Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-3 text-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-light"></i></button>
+              Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-3 text-theme-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-theme-light"></i></button>
             </label>
           </div>
           <div class="form-check text-left">
@@ -90,14 +90,14 @@
         <div class="cube1"></div>
         <div class="cube2"></div>
       </div>
-      <pre v-show="success" id="callResults" class="p-2 text-dark bg-white text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px;min-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
+      <pre v-show="success" id="callResults" class="p-2 text-theme-dark bg-white text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px;min-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
 
       </pre>
     </div>
 
   </div>
   <div v-else>
-    <div class="bg-dark jumbotron text-light text-center mt-5">
+    <div class="bg-dark jumbotron text-theme-light text-center mt-5">
       <h1>Nothing to see here...</h1>
       <h5><span v-text='api'></span> is not a pending API</h5>
     </div>

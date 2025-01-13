@@ -67,7 +67,7 @@
 						We are continuing expanding the list of KP APIs here as new knowledge sources are identified. You are always welcome to <a href="https://github.com/NCATS-Tangerine/translator-api-registry/issues/new?assignees=cmungall%2C+tomconlin%2C+newgene%2C+kevinxin90&labels=data+wanted&template=a_data_source_wanted.md" target="_blank" rel="noreferrer">suggest a great resource</a> to us as well.
 					</p>
           <div class="text-center p-5 mt-5">
-            <a href="#pending" class="text-dark">
+            <a href="#pending" class="text-theme-dark">
               <h3>Try Them</h3>
               <h2><i class="fas fa-chevron-down"></i></h2>
             </a>
@@ -94,7 +94,7 @@
 					</table>
 				</div>
 				<div class="mb-5 w-100 p-3 bg-secondary" v-if="shown < list.length">
-					<button class="btn btn-outline-dark text-light" @click="shown = shown+10">Load More</button>
+					<button class="btn btn-outline-dark text-theme-light" @click="shown = shown+10">Load More</button>
 				</div>
 
         <div class="text-center mt-5">
@@ -228,10 +228,10 @@
 									</td>
 									<td class=" d-none d-md-table-cell">
 										<template v-if="metadata">
-											<div v-if="metadata.biothing_type" class="badge bg-light text-dark d-block p-1">
+											<div v-if="metadata.biothing_type" class="badge bg-light text-theme-dark d-block p-1">
 												<span v-text="metadata.biothing_type"></span>
 											</div>
-											<div v-if="metadata.doc_type" class="badge bg-light text-dark d-block p-1">
+											<div v-if="metadata.doc_type" class="badge bg-light text-theme-dark d-block p-1">
 												<span v-text="metadata.doc_type"></span>
 											</div>
 										</template>

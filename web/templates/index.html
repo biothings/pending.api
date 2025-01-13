@@ -5,7 +5,7 @@
 		<div class="container">
 			{% if site == "pending" %}
 			<div id="home" class="jumbotron bg-none text-left mb-0">
-				<h1 id="logo" class="text-light lighter textShadow">
+				<h1 id="logo" class="text-theme-light lighter textShadow">
 					<span class="bold main-font">Pending</span> <br class="d-block d-md-none" />BioThings APIs
 				</h1>
 				<div>
@@ -16,7 +16,7 @@
 			</div>
 		{% else %}
 			<section class="jumbotron bg-dark-trans mb-0 text-left">
-				<h2 class="mt-5 mb-0 text-light">
+				<h2 class="mt-5 mb-0 text-theme-light">
 					Knowledge Provider (KP) APIs made for <a class="link" href="https://ncats.nih.gov/translator" target="_blank" rel="noreferrer">NCATS Biomedical Data Translator</a> Program
 				</h2>
 				<p class="text-white">
@@ -33,7 +33,7 @@
 		</div>
 	</div>
 
-	<div id="pending" class="text-light text-center bg-light">
+	<div id="pending" class="text-theme-light text-center bg-theme-light">
 		<div class="d-flex justify-content-center align-items-center flex-wrap container pt-4">
 			<featured-type biotype="association"></featured-type>
 			<featured-type biotype="variant"></featured-type>
@@ -48,7 +48,7 @@
 				</div>
 				<div class="d-flex justify-content-center align-items-center p-3">
 					<div>
-						<small class="d-block text-light">Filter by Entity Type</small>
+						<small class="d-block text-theme-light">Filter by Entity Type</small>
 						<template v-for="type in biothing_types">
 							<a href="#" class="entity-badge badge border border-light m-1" :class="[type.active? 'badge-warning bg-accent':'badge-dark']" @click.prevent="toggleType(type.name)">
 							<i class="fas fa-circle" :style="{color:type.color}"></i> <span v-text="type.name" :key="type.name"></span>
@@ -57,7 +57,7 @@
 					</div>
 				</div>
 				<div class="api-main-container">
-					<table class="table table-striped w-100 text-left table-light table-sm table-hover text-dark mb-5" id="pending-api-table">
+					<table class="table table-striped w-100 text-left table-light table-sm table-hover text-theme-dark mb-5" id="pending-api-table">
 						<colgroup>
 							<col span="1">
 							<col span="1">
@@ -82,10 +82,10 @@
 	</div>
 	
 	{% if site == "pending" %}
-    <div id="contribute" class="text-light text-center mt-5">
+    <div id="contribute" class="text-theme-light text-center mt-5">
 		<div class="container d-flex justify-content-center align-items-start">
 			<div class="mx-4">
-				<h2 class="text-light main-font">
+				<h2 class="text-theme-light main-font">
 					Build Your Own API
 				</h2>
 				<div class="text-center">
@@ -117,7 +117,7 @@
 				<div class="col-sm-12 col-md-6 p-4">
 				<a rel="noopener"  class="link" target="_blank" href="https://mygene.info/" title="MyGene.info">
 					<img alt="myGene" style="border:0px;" width="128" src="https://biothings.io/static/img/mygene-logo-128.png" alt="Logo 128"/>
-									<small class="d-block text-light">
+									<small class="d-block text-theme-light">
 					Gene annotation <br />as a service
 					</small>
 					<small class="d-block mt-2">
@@ -128,7 +128,7 @@
 				<div class="col-sm-12 col-md-6 p-4">
 				<a rel="noopener"  class="link" target="_blank" href="https://myvariant.info/" title="MyVariant.info">
 					<img alt="myVariant" style="border:0px;" width="128" src="https://biothings.io/static/img/myvariant-logo-128.png" alt="Logo 128"/>
-									<small class="d-block text-light">
+									<small class="d-block text-theme-light">
 					Variant annotation <br />as a service
 					</small>
 					<small class="d-block mt-2">
@@ -139,7 +139,7 @@
 				<div class="col-sm-12 col-md-6 p-4">
 				<a rel="noopener"  class="link" target="_blank" href="https://mychem.info/" title="MyChem.info">
 					<img alt="myChem" style="border:0px;" width="128" src="https://biothings.io/static/img/mychem-logo-128.png" alt="Logo 128"/>
-									<small class="d-block text-light">
+									<small class="d-block text-theme-light">
 					Chemical/Drug annotation <br />as a service
 					</small>
 					<small class="d-block mt-2">
@@ -150,7 +150,7 @@
 				<div class="col-sm-12 col-md-6 p-4">
 				<a rel="noopener"  class="link" target="_blank" href="https://mydisease.info/" title="MyDisease.info">
 					<img alt="myDisease" style="border:0px;" width="128" src="https://biothings.io/static/img/mydisease-text-3.svg" alt="Logo 128"/>
-									<small class="d-block text-light">
+									<small class="d-block text-theme-light">
 					Disease annotation <br />as a service
 					</small>
 					<small class="d-block mt-2">
@@ -165,7 +165,7 @@
 		</div>
     </div>
 
-    <div id="help" class="text-light text-center py-4 bg-med">
+    <div id="help" class="text-theme-light text-center py-4 bg-med">
 		<h2 class="mb-5 main-font">
             Need Help?
         </h2>
