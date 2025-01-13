@@ -1,19 +1,58 @@
-<!-- Header -->
-<header id="header" class="alt">
-  <nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-dark fullWidth sticky-top" >
-    <a class="navbar-brand bold" href="/">
-      Pending
-    </a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <div class="navbar-nav">
-      <a class="nav-item nav-link" href="/#home">Home</a>
-      <a class="nav-item nav-link" href="/#pending">APIs</a>
-      <a class="nav-item nav-link" href="/#contribute">Contribute</a>
-      <a class="nav-item nav-link" href="/#help">Help</a>
-    </div>
-  </div>
-</nav>
+{% block content %}
+<header id="header">
+  <nav id="nav" class="navbar bg-med navbar-expand-lg w-100 py-2">
+      {% if site == "pending" %}
+      <a class="navbar-brand bold main-font text-light" href="/">
+        <img src="/static/img/infinity.svg" alt="Pending" width="50px"> Pending
+      </a>
+      {% else %}
+      <a class="navbar-brand" href="/"><img height="50px" alt='Translator' src="static/img/tr.jpg"/></a>
+      {% endif %}
+      <div class="ml-auto">
+        <form class="form-inline d-flex mr-4">
+          <!-- <input class="form-control mr-2" type="search" v-model="q" placeholder="Search" aria-label="Search">
+          <button class="btn bg-med" type="submit">Search</button> -->
+          <label for="api_select" class="text-light mr-2">Search</label>
+          <input list="apis" id="api_select" name="api_select" class="bg-accent border-0 text-dark" v-model="q"/>
+          <datalist id="apis">
+            <option v-for="api in api_list" :key="api?._id" :value="api?._id"></option>
+          </datalist>
+        </form>
+      </div>
+  </nav>
 </header>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+<script>
+	var app = new Vue({
+	el: '#header',
+	data: function(){
+		return {
+			q:'',
+      context: null,
+      api_list: []
+		}
+	},
+	watch:{
+		q: function(v){
+			if (this.api_list.find(api => api._id == v)) {
+        this.navigateToApi("/" + v);
+      }
+		}
+	},
+  methods:{
+    navigateToApi(url) {
+      window.open(url, '_self');
+    },
+  },
+	mounted: function(){
+      // Ensure that Context is replaced correctly during rendering
+      if (typeof {{Context}} !== 'undefined' && {{Context}}) {
+        this.context = {{Context}};
+        this.api_list = this.context.List || []; // Ensure List is assigned as an array
+      }
+		}
+	});
+</script>
+{% endblock %}

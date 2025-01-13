@@ -1,110 +1,99 @@
 {% extends "main.html" %}
 {% block content %}
-<section id="try-app">
-  <div v-if="validAPI" class="container mt-5">
-    <div class="bg-dark">
-      <div class="bg-dark jumbotron text-light text-center">
-        <div v-if="metadata && metadata.src" class="bg-dark p-5">
-          <div style="position:relative;" class="p-5 mb-3">
-            <h1 class="font-weight-bold reflection" :data-text='api' v-text='api'></h1>
-          </div>
-          <div class="d-flex justify-content-center align-items-start mt-4">
-            <div v-for="(info, name) in metadata.src" :key="name">
-              <source-info :info="info" :name="name"></source-info>
-            </div>
-          </div>
-          <template v-if='description && !multiSource'>
-            <small class="d-block mt-2" v-html="description"></small>
+<section id="try-app" class="bg-dark text-light min-height-100">
+  <div v-if="validAPI" class="m-0 min-height-100 d-flex justify-content-start align-items-stretch">
+    <div v-if="metadata && metadata.src" class="bg-dark bg-hex p-5 col-sm-12 col-md-4">
+      <div class="text-left">
+        <h1 class="text-light main-font" :data-text='api' v-text='api'></h1>
+        <p v-if="!existingEntity">
+          <small>Entity Type: </small>
+          <template v-if="metadata.biothing_type">
+            <span class="text-white" v-text="metadata.biothing_type"></span>
           </template>
-          <template v-if='author_url'>
-            <small class="d-block mt-2">
-              Developed by
-              <a rel="noopener" :href='author_url' target="_blank" class="link">
-                <i class="fab fa-github"></i> <span v-text='metadata.src[getKeyName(metadata.src)]["author"]["name"]'></span>
-              </a>
-            </small>
+          <template v-if="metadata.doc_type">
+            <span class="text-white" v-text="metadata.doc_type"></span>
           </template>
-          <h3 class="m-3" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></h3>
-          <div class="m-5 p-1" style="position: relative">
-            <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
-          </div>
-          <div v-if="existingEntity" >
-            <small>Pending for integration with:</small>
-            <div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1 m-2">
-              <a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-            </div>
-            <div v-if="metadata.doc_type" class="badge bg-dark d-block p-1 m-2">
-              <a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
-              <a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/">MyDisease.info</a>
-            </div>
-          </div>
-          <div v-if="!existingEntity">
-            <small>Entity Type:</small>
-            <div v-if="metadata.biothing_type" class="badge bg-dark d-block p-1 m-2">
-              <span v-text="metadata.biothing_type"></span>
-            </div>
-            <div v-if="metadata.doc_type" class="badge bg-dark d-block p-1 m-2">
-              <span v-text="metadata.doc_type"></span>
-            </div>
-          </div>
+        </p>
+        <p class="mt-1" class="text-white" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></p>
+      </div>
+      <div class="d-flex justify-content-center align-items-start mt-4 flex-wrap">
+        <source-info v-for="(info, name) in metadata.src" :key="name" class="mx-2" :info="info" :name="name"></source-info>
+      </div>
+      <template v-if='description && !multiSource'>
+        <small class="d-block mt-2" v-html="description"></small>
+      </template>
+      <template v-if='author_url'>
+        <small class="d-block mt-2">
+          Developed by
+          <a rel="noopener" :href='author_url' target="_blank" class="link">
+            <i class="fab fa-github"></i> <span v-text='metadata.src[getKeyName(metadata.src)]["author"]["name"]'></span> <i class="fas fa-external-link-square-alt"></i>
+          </a>
+        </small>
+      </template>
+      <div class="m-5 p-1" style="position: relative">
+        <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
+      </div>
+      <div v-if="existingEntity" >
+        <small>Pending for integration with:</small>
+        <div v-if="metadata.biothing_type" class="badge bg-dark-trans d-block p-1 m-2">
+          <a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.biothing_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.biothing_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.biothing_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/"><img alt="myDisease" src="/static/img/mydisease-text.png" height="20px"/></a>
+        </div>
+        <div v-if="metadata.doc_type" class="badge bg-dark-trans d-block p-1 m-2">
+          <a rel="noopener"  v-if="metadata.doc_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.doc_type === 'variant'" target="_blank" href="https://myvariant.info"><img alt="myVariant"  src="/static/img/myvariant-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.doc_type === 'chemical'" target="_blank" href="https://mychem.info"><img alt="myChem" src="/static/img/mychem-text.svg" height="20px"/></a>
+          <a rel="noopener"  v-if="metadata.doc_type === 'disease'" class="link" target="_blank" href="http://mydisease.info/"><img alt="myDisease" src="/static/img/mydisease-text.png" height="20px"/></a>
         </div>
       </div>
     </div>
 
-      <div class="gradientBox">
-        <div class="bg-dark jumbotron text-light text-center">
-          <h1 class="mb-5">
-            Try It
-          </h1>
-          <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
-            <div class="form-group p-1">
-              <h4 class="text-md-right"><span v-text="window.location.origin"></span>/<span class="text-light bold" v-text="api"></span></h4>
-            </div>
-            <div class="form-group p-1">
-              <template v-if="querySelectionType==='example'">
-                <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
-                  <template v-for="item in exampleQueries">
-                    <option :value="item" v-text="item.length > 100 ? item.slice(0,100)+'...' : item"></option>
-                  </template>
-                </select>
-              </template>
-              <template v-if="querySelectionType==='own'">
-                <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
-              </template>
-              <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-dark text-danger mt-2 mr-2" type="button">Clear</button>
-              <button v-if="querySelected" class="btn btn-outline-dark text-light mt-2" type="submit">Submit</button>
-              <label class="text-muted" v-if="!querySelected" for="api">Select a query</label>
-              <div class="form-check text-left mt-3">
-                <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
-                <label class="form-check-label" for="exampleRadios1">
-                  Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-3 text-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-warning"></i></button>
-                </label>
-              </div>
-              <div class="form-check text-left">
-                <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
-                <label class="form-check-label" for="exampleRadios2">
-                  Write My Own Query
-                </label>
-              </div>
-            </div>
-          </form>
-          <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
-            <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="window.location.host + finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
-          </p>
-          <div v-show='loading' class="spinner">
-            <div class="cube1"></div>
-            <div class="cube2"></div>
-          </div>
-          <pre v-show="success" id="callResults" class="p-2 text-dark bg-light text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px;min-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
-
-          </pre>
+    <div class="bg-light col-sm-12 col-md-8 py-5 px-2">
+      <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
+        <div class="p-1 d-inline ml-4">
+          <h5 class="text-md-right" v-text="window.location.origin + '/' + api"></h5>
         </div>
+        <div class="d-inline p-1">
+          <template v-if="querySelectionType==='example'">
+            <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
+              <template v-for="item in exampleQueries">
+                <option :value="item" v-text="item.length > 100 ? item.slice(0,100)+'...' : item"></option>
+              </template>
+            </select>
+          </template>
+          <template v-if="querySelectionType==='own'">
+            <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
+          </template>
+          <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-danger text-light mt-2 mr-2" type="button">Clear</button>
+          <button v-if="querySelected" class="btn btn-outline-info text-light mt-2" type="submit">Submit</button>
+          <label class="text-light" v-if="!querySelected" for="api">Select a query</label>
+          <div class="form-check text-left mt-3">
+            <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
+            <label class="form-check-label" for="exampleRadios1">
+              Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-3 text-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-light"></i></button>
+            </label>
+          </div>
+          <div class="form-check text-left">
+            <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
+            <label class="form-check-label" for="exampleRadios2">
+              Write My Own Query
+            </label>
+          </div>
+        </div>
+      </form>
+      <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
+        <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="window.location.host + finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
+      </p>
+      <div v-show='loading' class="spinner">
+        <div class="cube1"></div>
+        <div class="cube2"></div>
       </div>
+      <pre v-show="success" id="callResults" class="p-2 text-dark bg-white text-left mt-4 mb-4" style="font-size:1em !important;max-height: 800px;min-height: 800px; overflow: scroll; border-style: inset; border: 2px #5d5d5d solid;border-radius: 5px;">
+
+      </pre>
+    </div>
 
   </div>
   <div v-else>
@@ -176,28 +165,28 @@
         },
     },
     template: `
-    <div>
-      <h6 v-text="formatString(name)" :title="info?.description"></h6>
+    <div class="source-box p-1">
+      <h6 class="text-white" v-text="formatString(name)" :title="info?.description"></h6>
       <small v-if="version" :title="version" class="d-block" v-text="'Version ' + trimString(version)"></small>
       <ul class="link-list">
         <li class="d-inline" v-if='source_url'>
           <small>
             <a rel="noopener" :href='source_url' target="_blank" class="link">
-              Source
+              Source <i class="fas fa-external-link-square-alt"></i>
             </a>
           </small>
         </li>
         <li class="d-inline" v-if='source_code'>
           <small>
             <a rel="noopener" :href='source_code' target="_blank" class="link">
-              Code
+              Code <i class="fas fa-external-link-square-alt"></i>
             </a>
           </small>
         </li>
         <li class="d-inline" v-if='license_url'>
           <small>
             <a rel="noopener" :href='license_url' target="_blank" class="link">
-              License
+              License <i class="fas fa-external-link-square-alt"></i>
             </a>
           </small>
         </li>
@@ -568,28 +557,11 @@
             throw err;
           })
 
-        },
-        registerServiceWorker(){
-          // Check that service workers are registered
-          if ('serviceWorker' in navigator) {
-            // Use the window load event to keep the page load performant
-            window.addEventListener('load', () => {
-              try{
-                navigator.serviceWorker.register('/static/worker.js').then(function(ServiceWorkerRegistration) {
-                  console.log('Service Worker registered');
-                }).catch(err=>{
-                  console.log('Service Worker registration failed');
-                });
-              }catch(err){
-              }
-            });
-          }
         }
       },
         mounted: function(){
           this.api  = window.location.pathname.replace('/','').toLowerCase();
           this.getMetadata();
-          // this.registerServiceWorker();
         }
     });
   </script>
