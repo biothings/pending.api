@@ -322,12 +322,12 @@ div.content a:hover{
     flex-wrap:wrap;
 }
 
-.table td,.table th{
-    vertical-align:middle;
-}
-
 .tablePill{
     padding:2px;
+}
+
+.table td,.table th{
+    vertical-align:middle;
 }
 
 .tablePill td:first-child{
@@ -375,11 +375,11 @@ div.content a:hover{
     padding:0;
 }
 
-.link-list li:::after{
+.link-list li::after{
     content:' | ';
 }
 
-.link-list li:last-child:::after{
+.link-list li:last-child::after{
     content:'';
 }
 
