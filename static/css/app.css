@@ -190,14 +190,6 @@ div.content a:hover{
     background-color:#e6e6e6;
 }
 
-.codeBack{
-    background:#fff;
-    background:-moz-linear-gradient(top,rgba(255,255,255,1) 0,rgba(229,229,229,1) 100%);
-    background:-webkit-linear-gradient(top,rgba(255,255,255,1) 0,rgba(229,229,229,1) 100%);
-    background:linear-gradient(to bottom,rgba(255,255,255,1) 0,rgba(229,229,229,1) 100%);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff',endColorstr='#e5e5e5',GradientType=0);
-}
-
 .list-group-item,.table td,.table th,.table thead th,.table tr{
     border:none;
 }
@@ -264,7 +256,7 @@ div.content a:hover{
     outline:0;
 }
 
-.btn-main:before{
+.btn-main::before{
     content:'';
     display:block;
     position:absolute;
@@ -280,7 +272,7 @@ div.content a:hover{
     transform:translateX(-100px) skewX(-15deg);
 }
 
-.btn-main:after{
+.btn-main::after{
     content:'';
     display:block;
     position:absolute;
@@ -304,14 +296,14 @@ div.content a:hover{
     box-shadow:0 0 20px white;
 }
 
-.btn-main:hover:before{
+.btn-main:hover::before{
     -webkit-transform:translateX(300px) skewX(-15deg);
     transform:translateX(300px) skewX(-15deg);
     opacity:.6;
     transition:.7s;
 }
 
-.btn-main:hover:after{
+.btn-main:hover::after{
     -webkit-transform:translateX(300px) skewX(-15deg);
     transform:translateX(300px) skewX(-15deg);
     opacity:1;
@@ -328,6 +320,10 @@ div.content a:hover{
 
 .d-flex{
     flex-wrap:wrap;
+}
+
+.table td,.table th{
+    vertical-align:middle;
 }
 
 .tablePill{
@@ -360,7 +356,7 @@ div.content a:hover{
     font-size:3.5em;
 }
 
-.reflection:before{
+.reflection::before{
     content:attr(data-text);
     position:absolute;
     top:0;
@@ -379,11 +375,11 @@ div.content a:hover{
     padding:0;
 }
 
-.link-list li::after{
+.link-list li:::after{
     content:' | ';
 }
 
-.link-list li:last-child::after{
+.link-list li:last-child:::after{
     content:'';
 }
 
@@ -458,10 +454,19 @@ div.content a:hover{
     color:var(--green-light);
 }
 
+#header>nav{
+    position:fixed;
+    left:0;
+    top:0;
+}
+
 #header.alt{
     background-color:#323232;
 }
 
+.navPanelToggle{
+    border-bottom:none;
+}
 
 #header.alt>.navPanelToggle{
     color:white;
@@ -486,24 +491,10 @@ div.content a:hover{
     padding:0;
 }
 
-#header>nav{
-    position:fixed;
-    left:0;
-    top:0;
-}
-
-.navPanelToggle{
-    border-bottom:none;
-}
-
 .navbar-dark .navbar-nav .nav-link{
     border:none;
 }
 
 .navbar-dark .navbar-brand{
     border:none;
-}
-
-.table td,.table th{
-    vertical-align:middle;
 }
