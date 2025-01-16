@@ -49,6 +49,7 @@ from . import hpo
 from . import idisk
 from . import innatedb
 from . import kaviar
+from . import mabsdata
 from . import mgigene2phenotype  # use plugin "mgi_gene2phenotype"
 from . import mondo
 from . import mrcoc  # use plugin "bte_filter"
