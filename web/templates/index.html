@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 <section id="index-app">
-	<div class="hero bg-dark">
+	<div class="hero bg-theme-dark">
 		<div class="container">
 			{% if site == "pending" %}
 			<div id="home" class="jumbotron bg-none text-left mb-0">
@@ -16,9 +16,10 @@
 			</div>
 		{% else %}
 			<section class="jumbotron bg-dark-trans mb-0 text-left">
-				<h2 class="mt-5 mb-0 text-theme-light">
-					Knowledge Provider (KP) APIs made for <a class="link" href="https://ncats.nih.gov/translator" target="_blank" rel="noreferrer">NCATS Biomedical Data Translator</a> Program
-				</h2>
+				<h1 class="mt-5 mb-0 text-theme-light text-center">
+					Knowledge Provider (KP) APIs
+				</h1>
+				<h3 class="text-center text-theme-light">Made for <a class="text-theme-light text-underline" href="https://ncats.nih.gov/translator" target="_blank" rel="noreferrer">NCATS Biomedical Data Translator</a> Program</h3>
 				<p class="text-white">
 					The list of APIs here provide programatic access to the underlying knowledge sources they cover. They were built using
 					<a rel="noopener"  class="link" href="https://biothingsapi.readthedocs.io/en/latest/" target="_blank">BioThings SDK</a> and follow the same design pattern of our official BioThings APIs (<a rel="noopener"  class="link" href="https://mygene.info" target="_blank">MyGene.info</a>,
@@ -34,10 +35,15 @@
 	</div>
 
 	<div id="pending" class="text-theme-light text-center bg-theme-light">
-		<div class="d-flex justify-content-center align-items-center flex-wrap container pt-4">
-			<featured-type biotype="association"></featured-type>
-			<featured-type biotype="variant"></featured-type>
-			<featured-type biotype="gene"></featured-type>
+		<div class="bg-dark-trans py-3">
+			<div class="py-1">
+				<img width="140" src="/static/img/featured.png" alt="Featured APIs"/>
+			</div>
+			<div class="d-flex justify-content-center align-items-center flex-wrap container pt-4">
+				<featured-type biotype="association"></featured-type>
+				<featured-type biotype="variant"></featured-type>
+				<featured-type biotype="gene"></featured-type>
+			</div>
 		</div>
 		<div class="container py-3">
 			<div>
@@ -83,26 +89,26 @@
 	
 	{% if site == "pending" %}
     <div id="contribute" class="text-theme-light text-center mt-5">
-		<div class="container d-flex justify-content-center align-items-start">
-			<div class="mx-4">
-				<h2 class="text-theme-light main-font">
-					Build Your Own API
-				</h2>
-				<div class="text-center">
-					<img style="border:0px;" width="100" src="/static/img/infinity.svg" alt="Logo"/>
-					<a rel="noopener"  class="link d-block" target="_blank" href="https://biothingsapi.readthedocs.io/en/latest/doc/studio.html">
-						Follow this guide <i class="fas fa-external-link-square-alt"></i>
+		<div class="container d-flex justify-content-center align-items-start mb-4">
+			<div class="mx-4 card bg-dark-trans">
+				<div class="card-body">
+					<img class="card-image-top m-auto" width="128" src="/static/img/biothings-studio-text-2.svg" alt="BT Studio"/>
+					<h2 class="mb-3 card-title">Built with BioThings Studio</h2>
+					<a rel="noopener" class="btn btn-outline-light" target="_blank" href="http://docs.biothings.io/en/latest/doc/studio.html" title="BioThings Studio">
+						Learn More About BioThings Studio <i class="fas fa-external-link-square-alt"></i>
 					</a>
 				</div>
 			</div>
-			<div class="mx-4">
-				<h2 class="mb-3">Pending APIs were built with</h2>
-				<a rel="noopener"  class="link" target="_blank" href="http://docs.biothings.io/en/latest/doc/studio.html" title="BioThings Studio">
-					<img style="border:0px;" width="128" src="https://biothings.io/static/img/biothings-studio-128.png" alt="Logo 128"/>
-					<span class="d-block">
-					Learn More About BioThings Studio <i class="fas fa-external-link-square-alt"></i>
-					</span>
-				</a>
+			<div class="mx-4 card bg-dark-trans">
+				<img class="card-image-top m-auto" width="100" src="/static/img/infinity.svg" alt="Logo"/>
+				<div class="card-body">
+					<h2 class="text-theme-light main-font card-title">
+						Build Your Own API
+					</h2>
+					<a rel="noopener" class="btn btn-outline-light" target="_blank" href="https://biothingsapi.readthedocs.io/en/latest/doc/studio.html">
+						Follow this guide <i class="fas fa-external-link-square-alt"></i>
+					</a>
+				</div>
 			</div>
 		</div>
 		
@@ -275,7 +281,7 @@
 						return "#e91e62"
 						break;
 					default:
-						return '#501cbe'
+						return '#7209b7'
 						break;
 				}
 			}
@@ -454,7 +460,7 @@
 			}
 		}
 	},
-	template: `<div class="card mx-2 bg-dark bg-hex">
+	template: `<div class="card mx-2 bg-theme-dark bg-hex">
 				<div class="card-body">
 					<h5 class="card-title pointer" @click.prevent="toggleType(biotype)">
 						<i class="fas fa-circle mr-1" :style="{'color':color}"></i>
@@ -499,7 +505,7 @@
 						return "#e91e62"
 						break;
 					default:
-						return '#1b263b'
+						return '#7209b7'
 						break;
 				}
 			}

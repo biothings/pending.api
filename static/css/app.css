@@ -18,6 +18,10 @@ top: auto; /* Resets any top offset */
     cursor: pointer;
 }
 
+.text-underline{
+    text-decoration: underline;
+}
+
 #api_select{
     border-radius: 10px;
 }
@@ -40,6 +44,13 @@ top: auto; /* Resets any top offset */
     background-repeat: no-repeat;
 }
 
+.bg-lines{
+    background-image: url("/static/img/lines.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .main-font, h1, h2, h3, h4, h5{
     font-family: "Baumans", sans-serif;
     font-weight: 400;
@@ -49,13 +60,14 @@ top: auto; /* Resets any top offset */
 .source-box{
     border: var(--main-accent) 1px solid;
     border-radius: 10px;
+    background-color: rgba(27, 38, 59, .4);
 }
 
 .bg-none{
     background-color: transparent;
 }
 
-.bg-dark{
+.bg-theme-dark{
     background-color: var(--main-dark);
 }
 

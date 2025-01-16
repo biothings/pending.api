@@ -1,10 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
-<section id="try-app" class="bg-dark text-theme-light min-height-100">
+<section id="try-app" class="bg-theme-dark text-theme-light min-height-100">
   <div v-if="validAPI" class="m-0 min-height-100 d-flex justify-content-start align-items-stretch">
-    <div v-if="metadata && metadata.src" class="bg-dark bg-hex p-5 col-sm-12 col-md-4">
+    <div v-if="metadata && metadata.src" class="bg-theme-dark bg-hex p-5 col-sm-12 col-md-4">
       <div class="text-left">
-        <h1 class="text-theme-light main-font" :data-text='api' v-text='api'></h1>
+        <h1 class="text-light main-font" style="text-transform: uppercase; overflow-wrap: break-word;" :data-text='api' v-text='api.split("_").join(" ")'></h1>
         <p v-if="!existingEntity">
           <small>Entity Type: </small>
           <template v-if="metadata.biothing_type">
@@ -17,7 +17,7 @@
         <p class="mt-1" class="text-white" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></p>
       </div>
       <div class="d-flex justify-content-center align-items-start mt-4 flex-wrap">
-        <source-info v-for="(info, name) in metadata.src" :key="name" class="mx-2" :info="info" :name="name"></source-info>
+        <source-info v-for="(info, name) in metadata.src" :key="name" class="m-2" :info="info" :name="name"></source-info>
       </div>
       <template v-if='description && !multiSource'>
         <small class="d-block mt-2" v-html="description"></small>
@@ -50,7 +50,7 @@
       </div>
     </div>
 
-    <div class="bg-theme-light col-sm-12 col-md-8 py-5 px-2">
+    <div class="bg-theme-light col-sm-12 col-md-8 p-2 pt-4">
       <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
         <div class="p-1 d-inline ml-4">
           <h5 class="text-md-right" v-text="window.location.origin + '/' + api"></h5>
@@ -97,7 +97,7 @@
 
   </div>
   <div v-else>
-    <div class="bg-dark jumbotron text-theme-light text-center mt-5">
+    <div class="bg-theme-dark jumbotron text-theme-light text-center mt-5">
       <h1>Nothing to see here...</h1>
       <h5><span v-text='api'></span> is not a pending API</h5>
     </div>
