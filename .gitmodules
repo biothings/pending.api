@@ -165,3 +165,6 @@
 [submodule "plugins/HMDB_data"]
 	path = plugins/HMDB_data
 	url = https://github.com/lucyzhang95/HMDB_data
+[submodule "plugins/mAbsData"]
+	path = plugins/mAbsData
+	url = https://github.com/smazroueeods/mAbsData.git
