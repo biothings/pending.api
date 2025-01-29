@@ -35,6 +35,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
     SCHEDULE = "30 0 * * 0"
     UNCOMPRESS = True
     SRC_URLS = []
+    RESOLVE_FILENAME = False
 
     def __init__(self):
         self.SRC_URLS = FDA_DrugDumper.extract_fda_drug_data()
