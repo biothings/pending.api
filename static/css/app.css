@@ -9,9 +9,20 @@
     min-height: 80vh;;
 }
 
+.theme-gradient{
+    background: -webkit-linear-gradient(to right, #1c263d 0%, #7209b6 100%); /* For Safari 5.1 to 6.0 */
+    background: -moz-linear-gradient(to right, #1c263d 0%, #7209b6 100%);    /* For Firefox 3.6 to 15 */
+    background: -o-linear-gradient(to right, #1c263d 0%, #7209b6 100%);      /* For Opera 11.1 to 12 */
+    background: linear-gradient(to right, #1c263d 0%, #7209b6 100%);        /* Standard syntax */
+}
+
 #nav {
 position: static !important; /* Ensures the nav stays in the flow of the page */
 top: auto; /* Resets any top offset */
+}
+
+.capitalize{
+    text-transform: capitalize;
 }
 
 .pointer{
@@ -57,8 +68,14 @@ top: auto; /* Resets any top offset */
     font-style: normal;
 }
 
+.example-input{
+    flex-basis: 400px;
+    min-width: 400px;
+    max-width: 400px;
+}
+
 .source-box{
-    border: var(--main-accent) 1px solid;
+    border: var(--main-medium) 1px solid;
     border-radius: 10px;
     background-color: rgba(27, 38, 59, .4);
 }
@@ -96,6 +113,10 @@ top: auto; /* Resets any top offset */
 }
 
 .text-theme-light{
+    color: var(--main-accent);
+}
+
+.text-theme-accent{
     color: var(--main-accent);
 }
 

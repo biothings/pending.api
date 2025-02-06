@@ -1,27 +1,23 @@
 {% extends "main.html" %}
 {% block content %}
 <section id="try-app" class="bg-theme-dark text-theme-light min-height-100">
+  <div v-if="validAPI" class="p-1 pl-3 text-left bg-theme-dark">
+    <h2 class="text-light main-font" style="overflow-wrap: break-word;" :data-text='api' v-text='api.split("_").join(" ")'></h2>
+  </div>
   <div v-if="validAPI" class="m-0 min-height-100 d-flex justify-content-start align-items-stretch">
-    <div v-if="metadata && metadata.src" class="bg-theme-dark bg-hex p-5 col-sm-12 col-md-4">
+    <div v-if="metadata && metadata.src" class="bg-theme-dark bg-hex p-4 col-sm-12 col-md-3 col-lg-2">
       <div class="text-left">
-        <h1 class="text-light main-font" style="text-transform: uppercase; overflow-wrap: break-word;" :data-text='api' v-text='api.split("_").join(" ")'></h1>
-        <p v-if="!existingEntity">
+        <p v-if="!existingEntity" class="m-0">
           <small>Entity Type: </small>
           <template v-if="metadata.biothing_type">
-            <span class="text-white" v-text="metadata.biothing_type"></span>
+            <span class="badge badge-light" v-text="metadata.biothing_type"></span>
           </template>
           <template v-if="metadata.doc_type">
-            <span class="text-white" v-text="metadata.doc_type"></span>
+            <span class="badge badge-light" v-text="metadata.doc_type"></span>
           </template>
         </p>
-        <p class="mt-1" class="text-white" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></p>
+        <small class="mt-1" class="text-white" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></small>
       </div>
-      <div class="d-flex justify-content-center align-items-start mt-4 flex-wrap">
-        <source-info v-for="(info, name) in metadata.src" :key="name" class="m-2" :info="info" :name="name"></source-info>
-      </div>
-      <template v-if='description && !multiSource'>
-        <small class="d-block mt-2" v-html="description"></small>
-      </template>
       <template v-if='author_url'>
         <small class="d-block mt-2">
           Developed by
@@ -30,10 +26,16 @@
           </a>
         </small>
       </template>
-      <div class="m-5 p-1" style="position: relative">
-        <a rel="noopener" target="_blank" class="btn-main" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
+      <small class="m-0 mt-3 text-light" v-if="multiSource">Data Sources:</small>
+      <div class="d-flex justify-content-center align-items-start flex-wrap">
+        <source-info v-for="(info, name) in metadata.src" :key="name"
+          :class="[multiSource? 'source-box p-1' : 'p-0']"
+         class="my-1 col-sm-12" :info="info" :name="name" :multiSource="multiSource"></source-info>
       </div>
-      <div v-if="existingEntity" >
+      <template v-if='description && !multiSource'>
+        <small class="d-block mt-2" v-html="description"></small>
+      </template>
+      <div v-if="existingEntity" class="text-left">
         <small>Pending for integration with:</small>
         <div v-if="metadata.biothing_type" class="badge bg-dark-trans d-block p-1 m-2">
           <a rel="noopener"  v-if="metadata.biothing_type === 'gene'" target="_blank" href="https://mygene.info/"><img alt="myGene"  src="/static/img/mygene-text.svg" height="20px"/></a>
@@ -50,39 +52,38 @@
       </div>
     </div>
 
-    <div class="bg-theme-light col-sm-12 col-md-8 p-2 pt-4">
-      <form class="d-flex justify-content-start flex-wrap" @submit.prevent="testQuery()">
-        <div class="p-1 d-inline ml-4">
-          <h5 class="text-md-right" v-text="window.location.origin + '/' + api"></h5>
-        </div>
-        <div class="d-inline p-1">
+    <div class="bg-theme-light col-sm-12 col-md-9 col-lg-10 p-2 pt-4">
+      <form class="d-flex justify-content-start flex-wrap align-items-center col-sm-12" @submit.prevent="testQuery()">
+        <h5 class="mr-1" v-text="window.location.origin + '/' + api"></h5>
+        <div class="d-flex justify-content-start flex-wrap align-items-center">
           <template v-if="querySelectionType==='example'">
-            <select v-model="querySelected" class="form-control scale-in-center" id="exampleFormControlSelect1">
+            <select v-model="querySelected" class="form-control example-input" id="exampleFormControlSelect1">
+              <option value="" disabled>Select an example query...</option>
               <template v-for="item in exampleQueries">
                 <option :value="item" v-text="item.length > 100 ? item.slice(0,100)+'...' : item"></option>
               </template>
             </select>
           </template>
           <template v-if="querySelectionType==='own'">
-            <input v-model="querySelected" type="text" class="form-control scale-in-center" id="exampleFormControlInput1" placeholder="enter query here">
+            <input v-model="querySelected" type="text" class="form-control example-input" id="exampleFormControlInput1" placeholder="Enter query here">
           </template>
-          <button @click="querySelected=''" v-if="querySelected" class="btn btn-outline-danger text-theme-light mt-2 mr-2" type="button">Clear</button>
-          <button v-if="querySelected" class="btn btn-outline-info text-theme-light mt-2" type="submit">Submit</button>
-          <label class="text-theme-light" v-if="!querySelected" for="api">Select a query</label>
-          <div class="form-check text-left mt-3">
-            <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
-            <label class="form-check-label" for="exampleRadios1">
-              Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-3 text-theme-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-theme-light"></i></button>
-            </label>
-          </div>
-          <div class="form-check text-left">
-            <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
-            <label class="form-check-label" for="exampleRadios2">
-              Write My Own Query
-            </label>
-          </div>
         </div>
+        <button class="btn btn-outline-success text-theme-light m-2" :disabled="!querySelected" type="submit">Submit</button>
       </form>
+      <div class="d-flex justify-content-start align-items-center">
+        <div class="form-check text-left m-1">
+          <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="example" checked>
+          <label class="form-check-label" for="exampleRadios1" :class="[querySelectionType == 'example' ? 'text-light' : 'text-muted']">
+            Example Queries <button @click='refreshExmaples()' class="btn btn-sm btn-dark ml-1 text-theme-light" type="button" style="zoom:.8">Generate New <i v-if="loadingExamplesQueries" class="fas fa-spinner fa-pulse text-theme-light"></i></button>
+          </label>
+        </div>
+        <div class="form-check text-left m-1 ml-5">
+          <input v-model="querySelectionType" class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="own">
+          <label class="form-check-label" for="exampleRadios2" :class="[querySelectionType == 'own' ? 'text-light' : 'text-muted']">
+            Write My Own Query
+          </label>
+        </div>
+      </div>
       <p class="bold text-left" v-if="success && queryString" style="word-break: break-all;">
         <i  class="fas" :class="[success? 'fa-check' : 'fa-circle']"></i> <a rel="noopener" target="_blank" :href="finalURL" v-text="window.location.host + finalURL" type="text" :style="{'color' : success && !errorEncountered ? 'limegreen' : 'coral'}"></a>
       </p>
@@ -102,6 +103,9 @@
       <h5><span v-text='api'></span> is not a pending API</h5>
     </div>
   </div>
+  <div v-if="validAPI" class="p-3 text-left bg-theme-dark">
+    <a rel="noopener" target="_blank" class="btn btm-sm btn-dark" :href="'https://github.com/biothings/pending.api/labels/'+api"><i class="fab fa-github"></i> Give Feedback</a>
+  </div>
 </section>
 
 {% endblock %}
@@ -113,7 +117,7 @@
   <script>
 
   Vue.component('source-info', {
-    props: ['info', 'name'],
+    props: ['info', 'name', 'multiSource'],
     methods:{
       formatString(input) {
         return input
@@ -165,10 +169,10 @@
         },
     },
     template: `
-    <div class="source-box p-1">
-      <h6 class="text-white" v-text="formatString(name)" :title="info?.description"></h6>
+    <div>
+      <h6 v-if="multiSource" class="text-white" v-text="formatString(name)" :title="info?.description"></h6>
       <small v-if="version" :title="version" class="d-block" v-text="'Version ' + trimString(version)"></small>
-      <ul class="link-list">
+      <ul class="link-list m-0">
         <li class="d-inline" v-if='source_url'>
           <small>
             <a rel="noopener" :href='source_url' target="_blank" class="link">

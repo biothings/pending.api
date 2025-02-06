@@ -37,9 +37,9 @@
 	<div id="pending" class="text-theme-light text-center bg-theme-light">
 		<div class="bg-dark-trans py-3">
 			<div class="py-1">
-				<img width="140" src="/static/img/featured.png" alt="Featured APIs"/>
+				<h2><img width="40" src="/static/img/featured.png" alt="Featured APIs" class="d-inline"/> Featured APIs</h2>
 			</div>
-			<div class="d-flex justify-content-center align-items-center flex-wrap container pt-4">
+			<div class="d-flex justify-content-center align-items-center flex-wrap container pt-4"> 
 				<featured-type biotype="association"></featured-type>
 				<featured-type biotype="variant"></featured-type>
 				<featured-type biotype="gene"></featured-type>
@@ -47,11 +47,11 @@
 		</div>
 		<div class="container py-3">
 			<div>
-				<div class="p-2">
+				<form class="p-2">
 					<label class="mr-4" for="search">(<span class="text-white" style="font-family: sans-serif;" v-text="apis.length"></span>) APIs</label>
-					<input v-model="query" type="text" name="search" class="search_input w-50" placeholder="Search">
+					<input v-model="query" type="text" name="search" class="search_input w-50" placeholder="Search" ref="searchInput" autofocus>
 					<datalist id="api_list"></datalist>
-				</div>
+				</form>
 				<div class="d-flex justify-content-center align-items-center p-3">
 					<div>
 						<small class="d-block text-theme-light">Filter by Entity Type</small>
@@ -248,6 +248,13 @@
 		toggleType(state, payload){
 			let name = payload['name'];
 			state.loading = true;
+			if (payload['featured']) {
+				state.biothing_types.forEach(type=>{
+					if (type.name != name) {
+						type.active = false
+					}
+				});
+			}
 			for (let i = 0; i < state.biothing_types.length; i++) {
 				if (state.biothing_types[i].name == name) {
 					state.biothing_types[i].active = !state.biothing_types[i].active
@@ -321,6 +328,9 @@
 		},
 		getBiothingTypes:state=>{
 		return state.biothing_types
+		},
+		activeBiothingTypes:state=>{
+			return state.biothing_types.filter(type=>type.active)
 		}
 	},
 	actions:{
@@ -411,7 +421,7 @@
 			}
 		},
 		toggleType(name){
-			store.commit('toggleType', {'name': name})
+			store.commit('toggleType', {'name': name, 'featured': true})
 			store.dispatch('filterAPIs', {'query': self.query})
 		},
 	},
@@ -458,13 +468,16 @@
 					return '#501cbe'
 					break;
 			}
+		},
+		isActive(){
+			return store.getters.activeBiothingTypes.some(type => type.name === this.biotype)
 		}
 	},
 	template: `<div class="card mx-2 bg-theme-dark bg-hex">
 				<div class="card-body">
-					<h5 class="card-title pointer" @click.prevent="toggleType(biotype)">
+					<h5 class="card-title pointer" @click.prevent="toggleType(biotype)" :class="[isActive ? 'text-theme-accent' : 'text-primary']">
 						<i class="fas fa-circle mr-1" :style="{'color':color}"></i>
-						<span v-text="list?.length && list?.length"></span> <span v-text="biotype"></span> APIs
+						<span v-text="list?.length && list?.length"></span> <span class="capitalize" v-text="biotype"></span> APIs
 					</h5>
 					<p class="card-text text-white"><span v-text="numberWithCommas(docs)"></span> documents</p>
 				</div>
@@ -640,6 +653,9 @@
 			// console.log('API List', this.api_list)
 			this.getAPIDetails(this.api_list);
 		}
+		this.$nextTick(() => {
+			this.$refs.searchInput.focus();
+		});
 		}
 	});
 	// Smooth Scrolling to Anchors
