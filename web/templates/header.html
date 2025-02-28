@@ -12,8 +12,9 @@
         <form class="form-inline d-flex mr-4">
           <!-- <input class="form-control mr-2" type="search" v-model="q" placeholder="Search" aria-label="Search">
           <button class="btn bg-med" type="submit">Search</button> -->
-          <label for="api_select" class="text-theme-light mr-2">Search</label>
-          <input list="apis" id="api_select" name="api_select" class="bg-accent border-0 text-theme-dark" v-model="q"/>
+          <label for="api_select" class="text-theme-light mr-2">Switch to</label>
+          <input list="apis" id="api_select" placeholder="Enter API Name"
+          name="api_select" class="bg-accent border-0 text-theme-dark pl-2" v-model="q"/>
           <datalist id="apis">
             <option v-for="api in api_list" :key="api?._id" :value="api?._id"></option>
           </datalist>
