@@ -290,56 +290,52 @@
           self.loadingExamplesQueries = true;
           // testing only: numberOfDocs will be null so set to 100
           let docNumberLimit = self.numberOfDocs ? self.numberOfDocs : 100;
-          if (docNumberLimit < 250000000) {
-            let limit = Math.floor(Math.random() * 10000);
-            let size = 100;
-            self.loadingExamples = true
-            if (limit) {
-              if (limit > docNumberLimit) {
-                limit = docNumberLimit-100;
+          let limit = Math.floor(Math.random() * 10000);
+          let size = 100;
+          self.loadingExamples = true
+          if (limit) {
+            if (limit > docNumberLimit) {
+              limit = docNumberLimit-100;
+            }
+            if (docNumberLimit < 100) {
+              limit = 0
+            }
+            axios.get("/" + self.api.toLowerCase() + '/query?q=__all__&from=' + limit + '&size=' + size)
+              .then(result=>{
+              let res = result.data.hits
+              let i = 0;
+              let picks = []
+              //make query string query
+              self.generateQuery(res[self.randomNumber(size)]);
+              while ( i < self.numberOfExamples) {
+                let doc = res[self.randomNumber(size)]
+                picks.push(doc)
+                i++;
               }
-              if (docNumberLimit < 100) {
-                limit = 0
-              }
-              axios.get("/" + self.api.toLowerCase() + '/query?q=__all__&from=' + limit + '&size=' + size)
-                .then(result=>{
-                let res = result.data.hits
-                let i = 0;
-                let picks = []
-                //make query string query
-                self.generateQuery(res[self.randomNumber(size)]);
-                while ( i < self.numberOfExamples) {
-                  let doc = res[self.randomNumber(size)]
-                  picks.push(doc)
-                  i++;
-                }
-                let problematic = []
-                for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
-                  let value = self.getQueryString(picks[picksIndex])
-                  if (value) {
-                    let query = '/query?q=' + value;
-                    //excludes duplicates and results with undefined terms
-                    if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
-                      self.exampleQueries.push(query)
-                    }else{
-                      problematic.push(query)
-                    }
+              let problematic = []
+              for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
+                let value = self.getQueryString(picks[picksIndex])
+                if (value) {
+                  let query = '/query?q=' + value;
+                  //excludes duplicates and results with undefined terms
+                  if (!self.exampleQueries.includes(query) && !query.includes('undefined')) {
+                    self.exampleQueries.push(query)
+                  }else{
+                    problematic.push(query)
                   }
                 }
-                if (problematic.length) {
-                  console.warn('Skipped duplicate or undefined queries: ')
-                  console.warn("%c "+JSON.stringify(problematic, null, 2), 'color:hotpink')
-                }
-                
-                self.loadingExamples = false
-              }).catch(err=>{
-                throw err;
-                self.generateTestQueriesStart()
-                self.loadingExamples = false
-              })
-            }
-          }else{
-            self.loadExamplesFromMetadata();
+              }
+              if (problematic.length) {
+                console.warn('Skipped duplicate or undefined queries: ')
+                console.warn("%c "+JSON.stringify(problematic, null, 2), 'color:hotpink')
+              }
+              
+              self.loadingExamples = false
+            }).catch(err=>{
+              throw err;
+              self.generateTestQueriesStart()
+              self.loadingExamples = false
+            })
           }
 
           setTimeout(function(){
@@ -476,12 +472,6 @@
         randomNumber(max) {
           let number = Math.floor(Math.random() * max) + 1
           return number
-        },
-        loadExamplesFromMetadata(){
-          let self = this;
-          if (self.metadata.example_queries) {
-            self.exampleQueries = self.metadata.example_queries;
-          }
         },
         numberWithCommas(x) {
           if (x) {
