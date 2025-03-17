@@ -35,19 +35,19 @@ NODENORM_FILE_COLLECTION = [
     "Polypeptide.txt",
     "umls.txt",
 ]
-NODENORM_BIG_FILE_COLLECTION = [
-    "Gene.txt",
-    "MolecularMixture.txt",
-    "Protein.txt",
-    "Publication.txt",
-    "SmallMolecule.txt",
-]
+NODENORM_BIG_FILE_COLLECTION = {
+    "MolecularMixture.txt": 50,
+    "Gene.txt": 50,
+    "Publication.txt": 100,
+    "SmallMolecule.txt": 150,
+    "Protein.txt": 150,
+}
 
 
 class NodeNormDumper(LastModifiedHTTPDumper):
     SRC_NAME = "nodenorm"
     SRC_ROOT_FOLDER = Path(config.DATA_ARCHIVE_ROOT) / SRC_NAME
-    AUTO_UPLOAD = True
+    AUTO_UPLOAD = False
     SUFFIX_ATTR = "release"
 
     ARCHIVE = False
@@ -66,14 +66,24 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 {"remote": f"{BASE_URL}{nodenorm_file}", "local": str(local_datafolder.joinpath(nodenorm_file))}
             )
 
-        for nodenorm_file in NODENORM_BIG_FILE_COLLECTION:
+        for nodenorm_file, file_partitions in NODENORM_BIG_FILE_COLLECTION.items():
             self.to_dump_large.append(
-                {"remote": f"{BASE_URL}{nodenorm_file}", "local": str(local_datafolder.joinpath(nodenorm_file))}
+                {
+                    "remoteurl": f"{BASE_URL}{nodenorm_file}",
+                    "localfile": str(local_datafolder.joinpath(nodenorm_file)),
+                    "headers": {},
+                    "num_partitions": file_partitions,
+                }
             )
 
     @override
     async def do_dump(self, job_manager: JobManager = None):
-        self.logger.info("%d file(s) to download", len(self.to_dump))
+        # await self._handle_normal_size_files(job_manager)
+        self._handle_large_size_files()
+        self.logger.info("%s successfully downloaded", self.SRC_NAME)
+
+    async def _handle_normal_size_files(self, job_manager: JobManager):
+        self.logger.info("%d file(s) to download (normal size)", len(self.to_dump))
         jobs = []
         self.unprepare()
         for file_mapping in self.to_dump:
@@ -88,23 +98,46 @@ class NodeNormDumper(LastModifiedHTTPDumper):
             jobs.append(job)
 
         await asyncio.gather(*jobs)
-
-        self.logger.info("%d file(s) to download", len(self.to_dump_large))
-        for file_mapping in self.to_dump_large:
-            remote = file_mapping["remote"]
-            local = file_mapping["local"]
-
-            pinfo = self.get_pinfo()
-            pinfo["step"] = "dump"
-            pinfo["description"] = remote
-
-            job = await job_manager.defer_to_process(pinfo, partial(self.download, remote, local))
-            jobs.append(job)
-
-        await asyncio.gather(*jobs)
-
-        self.logger.info("%s successfully downloaded", self.SRC_NAME)
         self.to_dump = []
+
+    def _handle_large_size_files(self):
+        self.logger.info("%d file(s) to download (large size)", len(self.to_dump_large))
+        for file_mapping in self.to_dump_large:
+            self.large_download(**file_mapping)
+        self.to_dump_large = []
+
+    def large_download(
+        self, remoteurl: str, localfile: [str, Path], headers: dict = {}, num_partitions: int = 100
+    ) -> None:
+        """
+        Handles downloading of particularly large files. It breaks it into further smaller
+        chunks
+        """
+        self.prepare_local_folders(localfile)
+
+        thread_futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+            chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
+
+            for index, chunk_start in enumerate(chunks):
+                chunk_end = chunk_start + (chunk_size - 1)
+                output_chunk = f"{localfile}.part{index}"
+
+                arguments = {"url": remoteurl, "start": chunk_start, "end": chunk_end, "output": output_chunk}
+                future = executor.submit(self.download_range, **arguments)
+                thread_futures.append(future)
+
+            results = concurrent.futures.wait(
+                thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED
+            )
+            with open(localfile, "wb") as combined_output:
+                for index in range(len(chunks)):
+                    chunk_path = f"{localfile}.part{index}"
+
+                    with open(chunk_path, "rb") as partial_input:
+                        combined_output.write(partial_input.read())
+                    os.remove(chunk_path)
+                logger.info(f"Combined all chunks -> {combined_output}")
 
     def download(self, remoteurl: str, localfile: Union[str, Path], headers: dict = {}) -> None:
         """
@@ -127,9 +160,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 future = executor.submit(self.download_range, **arguments)
                 thread_futures.append(future)
 
-            results = concurrent.futures.wait(
-                thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED
-            )
+            concurrent.futures.wait(thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
             with open(localfile, "wb") as combined_output:
                 for index in range(len(chunks)):
                     chunk_path = f"{localfile}.part{index}"
