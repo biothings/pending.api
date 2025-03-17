@@ -37,10 +37,10 @@ NODENORM_FILE_COLLECTION = [
 ]
 NODENORM_BIG_FILE_COLLECTION = {
     "MolecularMixture.txt": 50,
-    "Gene.txt": 50,
+    "Gene.txt": 75,
     "Publication.txt": 100,
     "SmallMolecule.txt": 150,
-    "Protein.txt": 150,
+    "Protein.txt": 200,
 }
 
 
@@ -71,7 +71,6 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 {
                     "remoteurl": f"{BASE_URL}{nodenorm_file}",
                     "localfile": str(local_datafolder.joinpath(nodenorm_file)),
-                    "headers": {},
                     "num_partitions": file_partitions,
                 }
             )
@@ -79,7 +78,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
     @override
     async def do_dump(self, job_manager: JobManager = None):
         # await self._handle_normal_size_files(job_manager)
-        self._handle_large_size_files()
+        await self._handle_large_size_files(job_manager)
         self.logger.info("%s successfully downloaded", self.SRC_NAME)
 
     async def _handle_normal_size_files(self, job_manager: JobManager):
@@ -100,23 +99,30 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         await asyncio.gather(*jobs)
         self.to_dump = []
 
-    def _handle_large_size_files(self):
+    async def _handle_large_size_files(self, job_manager: JobManager):
         self.logger.info("%d file(s) to download (large size)", len(self.to_dump_large))
+        jobs = []
+        self.unprepare()
         for file_mapping in self.to_dump_large:
-            self.large_download(**file_mapping)
+            pinfo = self.get_pinfo()
+            pinfo["step"] = "dump"
+            pinfo["description"] = file_mapping["remoteurl"]
+
+            job = await job_manager.defer_to_process(pinfo, partial(self.large_download, **file_mapping))
+            jobs.append(job)
+        await asyncio.gather(*jobs)
         self.to_dump_large = []
 
-    def large_download(
-        self, remoteurl: str, localfile: [str, Path], headers: dict = {}, num_partitions: int = 100
-    ) -> None:
+    def large_download(self, remoteurl: str, localfile: [str, Path], num_partitions: int = 100) -> None:
         """
         Handles downloading of particularly large files. It breaks it into further smaller
         chunks
         """
+        logger.info(f"Downloading (large) file %s -> %s | Partitions %s", remoteurl, localfile, num_partitions)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
@@ -127,9 +133,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 future = executor.submit(self.download_range, **arguments)
                 thread_futures.append(future)
 
-            results = concurrent.futures.wait(
-                thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED
-            )
+            concurrent.futures.wait(thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
             with open(localfile, "wb") as combined_output:
                 for index in range(len(chunks)):
                     chunk_path = f"{localfile}.part{index}"
@@ -137,7 +141,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                     with open(chunk_path, "rb") as partial_input:
                         combined_output.write(partial_input.read())
                     os.remove(chunk_path)
-                logger.info(f"Combined all chunks -> {combined_output}")
+                logger.info(f"Combined all chunks -> {localfile}")
 
     def download(self, remoteurl: str, localfile: Union[str, Path], headers: dict = {}) -> None:
         """
@@ -146,6 +150,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Leverages multiple threads to download the remote file in multiple chunks
         concurrently and then combines them at the end
         """
+        logger.info(f"Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
@@ -168,7 +173,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                     with open(chunk_path, "rb") as partial_input:
                         combined_output.write(partial_input.read())
                     os.remove(chunk_path)
-                logger.info(f"Combined all chunks -> {combined_output}")
+                logger.info(f"Combined all chunks -> {localfile}")
 
     def get_file_size(self, url: str) -> int:
         """
