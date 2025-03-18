@@ -2,6 +2,7 @@ import pathlib
 
 import biothings, config
 from biothings.hub.dataload.uploader import ParallelizedSourceUploader
+from biothings.utils.storage import MergerStorage
 
 from .parse import load_data_file
 
@@ -11,6 +12,7 @@ biothings.config_for_app(config)
 
 class NodeNormUploader(ParallelizedSourceUploader):
     name = "nodenorm"
+    storage_class = MergerStorage
     __metadata__ = {
         "src_meta": {
             "url": "https://stars.renci.org/var/babel_outputs/2025jan23/compendia",
