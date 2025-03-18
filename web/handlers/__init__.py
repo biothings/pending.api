@@ -63,10 +63,6 @@ log = logging.getLogger("pending")
 templateLoader = FileSystemLoader(searchpath="web/templates/")
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
-OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
-if OPENTELEMETRY_ENABLED == "true":
-    Observability()
-
 
 def hostname_to_site(hostname: str) -> str:
     """
