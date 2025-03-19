@@ -6,7 +6,7 @@ ES_DOC_TYPE = "phenotype"
 
 API_PREFIX = "hpo"
 API_VERSION = ""
-
+SMARTAPI_ID = "a5b0ec6bfde5008984d4b6cde402d61f"
 
 # CURIE ID support based on BioLink Model
 BIOLINK_MODEL_PREFIX_BIOTHINGS_GENE_MAPPING = {
