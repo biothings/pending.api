@@ -7,34 +7,25 @@
 		<meta name="HandheldFriendly" content="True" />
 		<meta property="og:locale" content="en_US" />
 		<!-- Unique for each site -->
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="shortcut icon" href="https://ncats.nih.gov/sites/all/themes/ncats-2014/favicon.ico" type="image/vnd.microsoft.icon" />
-    <meta name="generator" content="Drupal 7 (http://drupal.org)" />
-    <link rel="canonical" href="https://ncats.nih.gov/" />
-    <link rel="shortlink" href="https://ncats.nih.gov/" />
-    <meta property="og:site_name" content="National Center for Advancing Translational Sciences" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ncats.nih.gov/" />
-    <meta property="og:title" content="National Center for Advancing Translational Sciences" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:url" content="https://ncats.nih.gov/" />
-    <meta name="twitter:title" content="National Center for Advancing Translational Sciences" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="Drupal 7 (http://drupal.org)" />
+		<link rel="canonical" href="https://ncats.nih.gov/" />
+		<link rel="shortlink" href="https://ncats.nih.gov/" />
+		<meta property="og:site_name" content="National Center for Advancing Translational Sciences" />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://ncats.nih.gov/" />
+		<meta property="og:title" content="National Center for Advancing Translational Sciences" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:url" content="https://ncats.nih.gov/" />
+		<meta name="twitter:title" content="National Center for Advancing Translational Sciences" />
 		<!-- Styles -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 		<script async defer src="https://buttons.github.io/buttons.js"></script>
-    <style>
-      h1,h2,h3,h4,h5,h6{
-        font-weight: lighter;
-      }
-      .fullscreen{
-        min-height: 100vh;
-      }
-    </style>
 	</head>
   <nav class="navbar navbar-expand-lg navbar-dark" style="background:black;">
     <a class="navbar-brand" href="#"><img height="50px" alt='Translator' src="static/img/tr.jpg"/></a>
@@ -76,7 +67,7 @@
 						We are continuing expanding the list of KP APIs here as new knowledge sources are identified. You are always welcome to <a href="https://github.com/NCATS-Tangerine/translator-api-registry/issues/new?assignees=cmungall%2C+tomconlin%2C+newgene%2C+kevinxin90&labels=data+wanted&template=a_data_source_wanted.md" target="_blank" rel="noreferrer">suggest a great resource</a> to us as well.
 					</p>
           <div class="text-center p-5 mt-5">
-            <a href="#pending" class="text-dark">
+            <a href="#pending" class="text-theme-dark">
               <h3>Try Them</h3>
               <h2><i class="fas fa-chevron-down"></i></h2>
             </a>
@@ -103,7 +94,7 @@
 					</table>
 				</div>
 				<div class="mb-5 w-100 p-3 bg-secondary" v-if="shown < list.length">
-					<button class="btn btn-outline-dark text-light" @click="shown = shown+10">Load More</button>
+					<button class="btn btn-outline-dark text-theme-light" @click="shown = shown+10">Load More</button>
 				</div>
 
         <div class="text-center mt-5">
@@ -237,10 +228,10 @@
 									</td>
 									<td class=" d-none d-md-table-cell">
 										<template v-if="metadata">
-											<div v-if="metadata.biothing_type" class="badge bg-light text-dark d-block p-1">
+											<div v-if="metadata.biothing_type" class="badge bg-light text-theme-dark d-block p-1">
 												<span v-text="metadata.biothing_type"></span>
 											</div>
-											<div v-if="metadata.doc_type" class="badge bg-light text-dark d-block p-1">
+											<div v-if="metadata.doc_type" class="badge bg-light text-theme-dark d-block p-1">
 												<span v-text="metadata.doc_type"></span>
 											</div>
 										</template>
