@@ -74,7 +74,7 @@ def hostname_to_site(hostname: str) -> str:
     Hostname "biothings.ncats.io" and "biothings[|.ci|.test].transltr.io" use "ncats" rendering, while "pending.biothings.io"
     uses "pending".
     """
-    if hostname == "biothings.ncats.io" or hostname.endswith("transltr.io"):
+    if any(domain in hostname for domain in ("biothings.ncats.io", "transltr.io")):
         return "ncats"
 
     return "pending"
