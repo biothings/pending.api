@@ -28,21 +28,21 @@ class NodeNormUploader(ParallelizedSourceUploader):
         self.logger.info("Processing data from %s", data_path)
         return load_data_file(data_path)
 
-    @classmethod
-    def get_mapping(cls) -> dict:
-        mapping = {
-            "type": {"type": "keyword"},
-            "ic": {"type": "keyword"},
-            "identifiers": {
-                "type": "nested",
-                "properties": {
-                    "i": {"type": "keyword"},
-                    "l": {"type": "keyword"},
-                    "d": {"type": "string"},
-                    "t": {"type": "string"},
-                },
-            },
-            "preferred_name": {"type": "string"},
-            "taxa": {"type": "string"},
-        }
-        return mapping
+    # @classmethod
+    # def get_mapping(cls) -> dict:
+    #     mapping = {
+    #         "type": {"type": "keyword"},
+    #         "ic": {"type": "keyword"},
+    #         "identifiers": {
+    #             "type": "nested",
+    #             "properties": {
+    #                 "i": {"type": "keyword"},
+    #                 "l": {"type": "keyword"},
+    #                 "d": {"type": "string"},
+    #                 "t": {"type": "string"},
+    #             },
+    #         },
+    #         "preferred_name": {"type": "string"},
+    #         "taxa": {"type": "string"},
+    #     }
+    #     return mapping
