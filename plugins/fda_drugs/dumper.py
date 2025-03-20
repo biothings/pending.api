@@ -9,6 +9,7 @@ import urllib.request
 import zipfile
 
 import bs4
+import requests
 
 import biothings.hub
 from biothings import config
@@ -32,7 +33,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
     FDA_URL = "https://www.fda.gov"
     SRC_NAME = "fda_drugs"
     SRC_ROOT_FOLDER = Path(config.DATA_ARCHIVE_ROOT) / SRC_NAME
-    SCHEDULE = "30 0 * * 0"
+    SCHEDULE = "0 2 * * 3"  # Weekly updates on Tuesday
     UNCOMPRESS = True
     SRC_URLS = []
     RESOLVE_FILENAME = False
@@ -66,7 +67,6 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         )
 
         """
-
         # Force creation of the to_dump collection
         self.create_todump_list(force=True)
         local_zip_file = self.to_dump[0]["local"]
@@ -382,8 +382,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
             raise RuntimeError(f"Unable to parse the expected data tag from {fda_drug_data_page}")
         return [data_url]
 
-    @classmethod
-    def extract_fda_drug_version(cls) -> str:
+    def set_release(self) -> None:
         """
         Parses the FDA Drugs data page provided by the following link:
         https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files
@@ -410,7 +409,7 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
         }
         """
         fda_drug_data_path = "/drugs/drug-approvals-and-databases/drugsfda-data-files"
-        fda_drug_data_page = f"{cls.FDA_URL}{fda_drug_data_path}"
+        fda_drug_data_page = f"{self.FDA_URL}{fda_drug_data_path}"
         request_timeout_sec = 15
 
         # [Bandit security warning note]
@@ -430,5 +429,24 @@ class FDA_DrugDumper(biothings.hub.dataload.dumper.LastModifiedHTTPDumper):
 
         data_entity_attributes = {"data-entity-substitution": True, "data-entity-type": True, "data-entity-uuid": True}
         data_tag = html_parser.find("a", attrs=data_entity_attributes)
-        version_tag = data_tag.next_sibling
-        return version_tag.text.strip()
+        for sibling in data_tag.next_siblings:
+            if isinstance(sibling, bs4.element.NavigableString) and sibling.startswith("Data Last Updated"):
+                version_tag = sibling.split(":")[-1]
+                self.release = version_tag.strip()
+
+    def download(
+        self, remoteurl: str, localfile: Union[str, Path], headers: dict = None
+    ) -> requests.models.Response:  # noqa: B006
+        """
+        Handles downloading of remote files over HTTP to the local file system
+
+        Override of the original download to include some specific headers
+        """
+        user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
+        headers = {
+            "User-Agent": user_agent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate",
+        }
+        super().download(remoteurl, localfile, headers)

@@ -74,13 +74,23 @@ def hostname_to_site(hostname: str) -> str:
     Hostname "biothings.ncats.io" and "biothings[|.ci|.test].transltr.io" use "ncats" rendering, while "pending.biothings.io"
     uses "pending".
     """
-    if hostname == "biothings.ncats.io" or hostname.endswith("transltr.io"):
+    if any(domain in hostname for domain in ("biothings.ncats.io", "transltr.io")):
         return "ncats"
 
     return "pending"
 
+class WebBaseHandler(BaseHandler):
+    def get_api_list(self):
+        """
+        Generate the API list from the biothings configuration.
+        """
+        root = self.biothings.config._primary
+        attrs = [getattr(root, attr) for attr in dir(root)]
+        confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
+        return [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
 
-class FrontPageHandler(BaseHandler):
+
+class FrontPageHandler(WebBaseHandler):
 
     # Cache the template output
     cached_template_output = {}
@@ -101,10 +111,7 @@ class FrontPageHandler(BaseHandler):
         if FrontPageHandler.cached_template_output.get(site, False):
             return FrontPageHandler.cached_template_output[site]
 
-        root = self.biothings.config._primary
-        attrs = [getattr(root, attr) for attr in dir(root)]
-        confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
-        apilist = [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
+        apilist = self.get_api_list()  # Get the API list
 
         templateEnv.globals["site"] = site
         template = templateEnv.get_template("index.html")
@@ -128,15 +135,16 @@ class FrontPageHandler(BaseHandler):
         self.finish()
 
 
-class ApiViewHandler(tornado.web.RequestHandler):
+class ApiViewHandler(WebBaseHandler):
     def get(self):
         # templateEnv.globals['site'] = "pending"
         # if self.request.host == "biothings.ncats.io":
         #     templateEnv.globals['site'] = "ncats"
+        apilist = self.get_api_list()  # Get the API list
 
         templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("try.html")
-        output = template.render()
+        output = template.render(Context=json.dumps({"List": apilist}))
         self.finish(output)
 
 
