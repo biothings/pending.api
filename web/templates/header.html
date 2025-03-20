@@ -1,17 +1,16 @@
 {% block content %}
 <header id="header">
   <nav id="nav" class="navbar theme-gradient navbar-expand-lg w-100">
-      {% if site == "pending" %}
+    <template v-if="site =='pending'">
       <a class="navbar-brand bold main-font text-theme-light" href="/">
         <img src="/static/img/infinity.svg" alt="Pending" width="50px"> Pending
       </a>
-      {% else %}
+    </template>
+    <template v-else>
       <a class="navbar-brand" href="/"><img height="50px" alt='Translator' src="static/img/tr.jpg"/></a>
-      {% endif %}
+    </template>
       <div class="ml-auto">
         <form class="form-inline d-flex mr-4">
-          <!-- <input class="form-control mr-2" type="search" v-model="q" placeholder="Search" aria-label="Search">
-          <button class="btn bg-med" type="submit">Search</button> -->
           <label for="api_select" class="text-theme-light mr-2">Switch to</label>
           <input list="apis" id="api_select" placeholder="Enter API Name"
           name="api_select" class="bg-accent border-0 text-theme-dark pl-2" v-model="q"/>
@@ -42,12 +41,28 @@
       }
 		}
 	},
+  computed: {
+    site: function(){
+      return location.hostname.includes("pending") ? "pending" : "translator";
+    }
+  },
   methods:{
     navigateToApi(url) {
       window.open(url, '_self');
     },
   },
 	mounted: function(){
+      console.log(this.site);
+      document.title = this.site === 'pending' ? "Pending BioThings APIs" : "Translator KP APIs";
+      
+      // Update meta tags
+      let metaDescription = document.querySelector("meta[name='description']");
+      if (metaDescription) {
+          metaDescription.setAttribute("content", this.site === 'pending' ? 
+              "APIs pending for integration with core BioThings API" :
+              "Knowledge Provider (KP) APIs made for National Center for Advancing Translational Sciences (NCATS) Biomedical Data Translator Program"
+          );
+      }
       // Ensure that Context is replaced correctly during rendering
       if (typeof {{Context}} !== 'undefined' && {{Context}}) {
         this.context = {{Context}};
