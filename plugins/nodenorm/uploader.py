@@ -28,21 +28,29 @@ class NodeNormUploader(ParallelizedSourceUploader):
         self.logger.info("Processing data from %s", data_path)
         return load_data_file(data_path)
 
-    # @classmethod
-    # def get_mapping(cls) -> dict:
-    #     mapping = {
-    #         "type": {"type": "keyword"},
-    #         "ic": {"type": "keyword"},
-    #         "identifiers": {
-    #             "type": "nested",
-    #             "properties": {
-    #                 "i": {"type": "keyword"},
-    #                 "l": {"type": "keyword"},
-    #                 "d": {"type": "string"},
-    #                 "t": {"type": "string"},
-    #             },
-    #         },
-    #         "preferred_name": {"type": "string"},
-    #         "taxa": {"type": "string"},
-    #     }
-    #     return mapping
+    @classmethod
+    def get_mapping(cls) -> dict:
+        mapping = {
+            "type": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+            "ic": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+            "identifiers": {
+                "properties": {
+                    "i": {
+                        "type": "keyword",
+                        "normalizer": "keyword_lowercase_normalizer",
+                        "copy_to": "all",  # default field
+                    },
+                    "l": {
+                        "type": "text",
+                        "fields": {"raw": {"type": "keyword", "ignore_above": 512}},
+                        "copy_to": "all",  # default field
+                    },
+                    "d": {"type": "text"},
+                    "t": {"type": "text"},
+                }
+            },
+            "preferred_name": {"type": "text"},
+            "taxa": {"type": "text"},
+            "all": {"type": "text"},
+        }
+        return mapping

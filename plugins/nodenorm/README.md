@@ -30,3 +30,57 @@ SmallMolecule.txt                                  24-Jan-2025 07:11         430
 umls.txt                                           24-Jan-2025 07:11           218530248
 ```
 
+
+### Mapping
+
+```JSON
+{
+    "type": {
+        'normalizer': 'keyword_lowercase_normalizer',
+        "type": "keyword"
+    },
+    "ic": {
+        'normalizer': 'keyword_lowercase_normalizer',
+        "type": "keyword"
+    },
+    "identifiers": {
+        "properties": {
+            "i": {
+                'normalizer': 'keyword_lowercase_normalizer',
+                "type": "keyword",
+                "copy_to": "all", # default field
+            },
+            "l": {
+                "type": "text"
+                "fields": {"raw": {"type": "keyword", "ignore_above": 512}},
+                "copy_to": "all",
+            },
+            "d": {
+                "type": "text"
+            },
+            "t": {
+                "type": "text"
+            }
+        }
+    },
+    "preferred_name": {
+        "type": "text"
+    },
+    "taxa": {
+        "type": "text"
+    },
+    "all": {"type": "text"},
+}
+```
+
+### Elasticsearch Build Settings
+
+```
+{
+    "num_replicas": 2,
+    "num_shards": 10,
+    "extra_index_settings": {
+        "auto_expand_replicas": "0-all"
+    }
+}
+```
