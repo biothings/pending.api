@@ -18,5 +18,5 @@ class ApiListHandler(BaseAPIHandler):
         api_endpoints = set()
         for endpoint, handler_object in application_handlers.items():
             if isinstance(handler_object, PendingAPI):
-                api_endpoints.add(endpoint)
+                api_endpoints.add(endpoint.strip(".*/"))
         self.write(sorted(api_endpoints))
