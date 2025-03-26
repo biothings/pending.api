@@ -64,21 +64,6 @@ templateLoader = FileSystemLoader(searchpath="web/templates/")
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
-def hostname_to_site(hostname: str) -> str:
-    """
-    Determine which site to render given the hostname.
-
-    Currently we have 2 renderings of sites, "pending" and "ncats". They differs in aesthetics, yet sharing the
-    same backend.
-
-    Hostname "biothings.ncats.io" and "biothings[|.ci|.test].transltr.io" use "ncats" rendering, while "pending.biothings.io"
-    uses "pending".
-    """
-    if hostname == "biothings.ncats.io" or hostname.endswith("transltr.io"):
-        return "ncats"
-
-    return "pending"
-
 class WebBaseHandler(BaseHandler):
     def get_api_list(self):
         """
@@ -95,7 +80,7 @@ class FrontPageHandler(WebBaseHandler):
     # Cache the template output
     cached_template_output = {}
 
-    async def _load_template(self) -> str:
+    def get(self):
         """
         Loads the front page template
 
@@ -105,44 +90,18 @@ class FrontPageHandler(WebBaseHandler):
         Then loads the template and renders it with the populated
         API list
         """
-        site = hostname_to_site(self.request.host)
-
-        # Check if the template output is already cached
-        if FrontPageHandler.cached_template_output.get(site, False):
-            return FrontPageHandler.cached_template_output[site]
 
         apilist = self.get_api_list()  # Get the API list
 
-        templateEnv.globals["site"] = site
         template = templateEnv.get_template("index.html")
         output = template.render(Context=json.dumps({"List": apilist}))
-
-        FrontPageHandler.cached_template_output[site] = output
-        return output
-
-    async def get(self):
-        """
-        GET method for rendering the frontpage template
-        """
-        rendered_template = await self._load_template()
-        self.finish(rendered_template)
-
-    async def head(self):
-        """
-        HEAD method for rendering the frontpage template
-        """
-        await self._load_template()
-        self.finish()
+        self.finish(output)
 
 
 class ApiViewHandler(WebBaseHandler):
     def get(self):
-        # templateEnv.globals['site'] = "pending"
-        # if self.request.host == "biothings.ncats.io":
-        #     templateEnv.globals['site'] = "ncats"
         apilist = self.get_api_list()  # Get the API list
 
-        templateEnv.globals["site"] = hostname_to_site(self.request.host)
         template = templateEnv.get_template("try.html")
         output = template.render(Context=json.dumps({"List": apilist}))
         self.finish(output)
