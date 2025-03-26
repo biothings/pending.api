@@ -14,7 +14,9 @@ export const useLayoutStore = defineStore('layout', () => {
 
   const loading = ref(false);
   function setLoading(value) {
-    loading.value = value;
+    setTimeout(() => {
+      loading.value = value;
+    }, 1000);
   }
 
   return { darkMode, toggleDarkMode, app_version, setAppVersion, loading, setLoading }

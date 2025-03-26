@@ -3,14 +3,12 @@ import { RouterView } from 'vue-router'
 import { useLayoutStore } from './stores/layout'
 import { useAPIStore } from './stores/apis'
 import { onMounted, getCurrentInstance } from 'vue';
-import axios from 'axios';
 
 import Nav from './components/Nav.vue';
 import Footer from './components/Footer.vue';
 
 const store = useLayoutStore();
 const apiStore = useAPIStore();
-const instance = getCurrentInstance();
 
 onMounted(() => {
   if(location.host.includes("pending")){
@@ -19,17 +17,7 @@ onMounted(() => {
   else{
     store.setAppVersion("translator");
   }
-  store.setLoading(true);
-  axios.get(instance.appContext.config.globalProperties.$apiUrl + '/api/list').then(res => {
-    // apiStore.setAPIs(res.data);
-    apiStore.setList(['agr', 'hpo', 'semmeddb']);
-    apiStore.getAPIsFullInfo();
-    apiStore.getBioTypes();
-    store.setLoading(false);
-  }).catch(err => {
-    store.setLoading(false);
-    console.error(err);
-  });
+  apiStore.fetchAPIs();
 });
 </script>
 

@@ -20,7 +20,7 @@
             </li>
             </ul>
             <hr />
-            <small class="text-theme-light">
+            <small class="text-white">
             All content copyright <a href="http://biothings.io" class="link">BioThings.io</a> © {{ year }} <br /> All rights reserved.
             <a rel="noopener"  target="_blank" href="http://biothings.io/terms" class="link">Terms of use.</a>
             <a rel="noopener"  target="_blank" href="http://biothings.io/citation/" class="link">How To Cite</a>

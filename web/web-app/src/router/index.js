@@ -5,7 +5,7 @@ import { useAPIStore } from '../stores/apis'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  linkActiveClass: "route-active",
+  // linkActiveClass: "route-active",
   scrollBehavior(to) {
     if (to.hash) {
         return { el: to.hash }
@@ -24,15 +24,21 @@ const router = createRouter({
       name: 'try',
       props: true,
       component: () => import('../views/Try.vue'),
-      beforeEnter: (to, from, next) => {
+      beforeEnter: async (to, from, next) => {
         const store = useAPIStore();
-        if (store.apis.includes(to.params.api)) {
-          store.query = ""
-          next()
-        }else{
-          next({name: '404'})
+        
+        // Ensure store is populated if necessary
+        if (!store.list.length) {
+          await store.fetchAPIs();
         }
-      }
+
+        if (store.list.includes(to.params.api)) {
+          store.query = "";
+          next();
+        } else {
+          next({ name: '404' });
+        }
+      },
     },
     {
       path: '/about',
@@ -43,7 +49,7 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
     {
-      path: "/:catchAll(.*)",
+      path: "/:pathMatch(.*)*",
       name: '404',
       component: () => import('../views/404.vue'),
       meta: { sitemap: { ignoreRoute: true } }

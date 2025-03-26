@@ -7,20 +7,20 @@ const layout = useLayoutStore();
 const store = useAPIStore();
 
 watch(() => store.query, (query) => {
-    if(query && store.apis.includes(query)){
-        router.push({name: 'try', params: {api: query}});
+    if(query && store.list.includes(query)){
+        router.push('/try/' + query);
     }
 });
 
 function handleSubmit(){
     if(store.query){
-        router.push({name: 'try', params: {api: store.query}});
+        router.push('/try/' + query);
     }
 }
 </script>
 
 <template>
- <nav id="nav" class="navbar theme-gradient navbar-expand-lg w-100 p-2 px-4">
+ <nav id="nav" class="navbar bg-linear-to-r from-main-medium to-main-dark dark:from-main-dark dark:to-main-medium navbar-expand-lg w-100 p-2 px-4">
     <template v-if="layout.app_version =='pending'">
       <RouterLink class="navbar-brand bold main-font text-theme-light" to="/">
         <img src="@/assets/img/infinity.svg" alt="Pending" width="50px"> Pending

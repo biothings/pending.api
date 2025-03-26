@@ -1,23 +1,13 @@
 <script setup>
 import { computed } from 'vue';
+import { useAPIStore } from '@/stores/apis';
 
-defineProps(['biotype']);
+const apiStore = useAPIStore();
+
+let props = defineProps(['biotype']);
 
 let color = computed(() => {
-    switch (this.biotype) {
-        case 'gene':
-            return "#669BE8"
-        case 'variant':
-            return "#84D958"
-        case 'chemical':
-            return "#FF8F39"
-        case 'disease':
-            return "#9356bf"
-        case 'association':
-            return "#e91e62"
-        default:
-            return '#501cbe'
-    }
+    return apiStore.getColor(props.biotype);
 });
 
 function numberWithCommas(total) {
@@ -28,18 +18,53 @@ function numberWithCommas(total) {
     }
 }
 
+let list = computed(() => {
+    if (apiStore.apis_backup?.length) {
+    return apiStore.apis_backup.filter(v => v['biothing_type'] === props.biotype);
+    } else {
+    return [];
+    }
+});
+
+let docs = computed(() => {
+    if (list.value.length) {
+        return list.value.reduce((totalSum, item) => {
+            // Ensure item.stats and item.stats.total exist
+            const total = item?.stats?.total || 0;
+            return totalSum + total;
+        }, 0);
+    } else {
+        return 0;
+    }
+});
+
+let isActive = computed(() => {
+    if(apiStore.biothing_types?.length){
+        let bt = apiStore.biothing_types.find(type => type.name === props.biotype);
+        if (bt && bt.active) {
+            return true;
+        } else {
+            return false;
+        }
+    }else{
+        return false;
+    }
+});
+
 function toggleType(name){
-    store.commit('toggleType', {'name': name, 'featured': true})
-    store.dispatch('filterAPIs', {'query': self.query})
+    apiStore.toggleType({'name': name, 'featured': true})
+    apiStore.filterAPIs();
 }
 </script>
 
 <template>
-    <div class="card mx-2 bg-theme-dark bg-hex">
+    <div class="card mx-2 bg-hex shadow">
         <div class="card-body">
-            <h5 class="card-title pointer" @click.prevent="toggleType(biotype)" :class="[isActive ? 'text-main-accent' : 'text-primary']">
+            <h5 class="card-title pointer" 
+            @click.prevent="toggleType(biotype)" 
+            :style="{'color': isActive ? '#fbff12' : 'white'}">
                 <i class="fas fa-circle mr-1" :style="{'color':color}"></i>
-                <span v-text="list?.length && list?.length"></span> <span class="capitalize" v-text="biotype"></span> APIs
+                {{ list?.length && list?.length }} <span class="capitalize">{{ biotype }}</span> APIs
             </h5>
             <p class="card-text text-white">{{ numberWithCommas(docs) }} documents</p>
         </div>
