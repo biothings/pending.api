@@ -3,11 +3,7 @@ import pandas as pd
 
 
 def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern: str) -> pd.DataFrame:
-    """
-    folder_path: pathlib Path to folder containing csv files
-    data_file_pattern: str pattern for csv file pathnames (syntax: pathlib's pattern language)
-
-    output: pandas dataframe containing data from multiple csv files
+    """Load EBI gene2pheno data files into 1 pandas DataFrame.
 
     Assumptions:
     * All data files are csv (can be compressed) AND have the same header so they can be concatenated easily.
@@ -15,6 +11,13 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
       (see pandas.read_csv for details)
     * It's fine to set all column types to str (one exception: ingesting "date of last review"
       as datetime to save memory)
+
+    Args:
+      folder_path: pathlib Path to folder containing csv files
+      data_file_pattern: str pattern for csv file pathnames (syntax: pathlib's pattern language)
+
+    Returns:
+      pandas dataframe containing data from multiple csv files
     """
     ## using pathlib's Path.glob method, which produces a generator
     ## then turning the generator into a list, so can check if it's empty
@@ -39,23 +42,24 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
 
 
 def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
-    """
-    dataframe: pandas dataframe
-    column_subset: array of column names in dataframe that should uniquely define one record/row
-    
-    Returns nothing.
+    """This function checks whether drop_duplicates using all columns will actually remove all duplicates.
 
-    This function checks whether drop_duplicates using all columns will actually remove all duplicates.
     Many column values are delimited strings, and my concern is that these could differ only in list order
     for the same records in different files/panels.
 
-    If the deplicated data with this column subset == duplicated data using all columns:
-      Then this column subset does uniquely define records / rows.
-      And drop_duplicates using all columns should work as expected.
-    Else: raise AssertionError
-      The other columns of the data need more investigation (something else is contributing to the
-      uniqueness of each row, and it could be delimited-string list order).
-      And the parser probably needs adjustment.
+    If the duplicated data with this column subset == duplicated data using all columns: then this column 
+    subset does uniquely define records / rows. And drop_duplicates using all columns should work as expected.
+
+    Else: raise AssertionError. The other columns of the data need more investigation (something else is 
+    contributing to the uniqueness of each row, and it could be delimited-string list order). And the parser 
+    probably needs adjustment.
+
+    Args:
+      dataframe: pandas dataframe
+      column_subset: array of column names in dataframe that should uniquely define one record/row
+    
+    Returns:
+      None
     """
 
     n_duplicates_subset = dataframe[dataframe.duplicated(subset=column_subset, keep=False)].shape
@@ -74,10 +78,10 @@ def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
 
 
 def upload_documents(data_folder: str):
-    """
-    data_folder: Biothings will provide the data_folder (path) when running this function
+    """main execution: yield documents from 1 row of data at a time
 
-    output: yields document from 1 row at a time
+    Args:
+      data_folder: Biothings will provide the data_folder (path) when running this function
     """
 
     ## LOAD DATA
