@@ -32,7 +32,7 @@ class NodeNormUploader(ParallelizedSourceUploader):
     def get_mapping(cls) -> dict:
         mapping = {
             "type": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
-            "ic": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+            "ic": {"type": "float"},
             "identifiers": {
                 "properties": {
                     "i": {
@@ -46,11 +46,11 @@ class NodeNormUploader(ParallelizedSourceUploader):
                         "copy_to": "all",  # default field
                     },
                     "d": {"type": "text"},
-                    "t": {"type": "text"},
+                    "t": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
                 }
             },
             "preferred_name": {"type": "text"},
-            "taxa": {"type": "text"},
+            "taxa": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
             "all": {"type": "text"},
         }
         return mapping
