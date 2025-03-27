@@ -34,40 +34,47 @@ umls.txt                                           24-Jan-2025 07:11           2
 ### Mapping
 
 ```JSON
+
 {
     "type": {
-        'normalizer': 'keyword_lowercase_normalizer',
+        "normalizer": "keyword_lowercase_normalizer", 
         "type": "keyword"
     },
     "ic": {
-        'normalizer': 'keyword_lowercase_normalizer',
-        "type": "keyword"
+        "type": "float"
     },
     "identifiers": {
         "properties": {
             "i": {
-                'normalizer': 'keyword_lowercase_normalizer',
                 "type": "keyword",
-                "copy_to": "all", # default field
+                "normalizer": "keyword_lowercase_normalizer",
+                "copy_to": "all",  # default field
             },
             "l": {
-                "type": "text"
-                "fields": {"raw": {"type": "keyword", "ignore_above": 512}},
-                "copy_to": "all",
+                "type": "text",
+                "fields": {
+                    "raw": {
+                        "type": "keyword", 
+                        "ignore_above": 512
+                    }
+                },
+                "copy_to": "all",  # default field
             },
             "d": {
                 "type": "text"
             },
             "t": {
-                "type": "text"
-            }
+                "normalizer": "keyword_lowercase_normalizer",
+                "type": "keyword"
+            },
         }
     },
     "preferred_name": {
         "type": "text"
     },
     "taxa": {
-        "type": "text"
+        "normalizer": "keyword_lowercase_normalizer", 
+        "type": "keyword"
     },
     "all": {"type": "text"},
 }
