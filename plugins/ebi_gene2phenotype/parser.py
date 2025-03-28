@@ -1,5 +1,7 @@
 import pathlib
 import pandas as pd
+import requests
+import itertools  ## Python 3.12 has the batched method used below
 
 
 def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern: str) -> pd.DataFrame:
@@ -68,6 +70,50 @@ def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
         )
 
 
+def nodenorm_genes(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str):
+    """Use Translator NodeNorm to add primary/canonical IDs and names for genes to dataframe
+
+    Assumes dataframe's column_name contains 1 gene CURIE (Translator-formatted ID) per row,
+    with no NA values.
+
+    Will run NodeNorm on the column_name's gene CURIEs, create mapping dict of those CURIEs to
+    NodeNorm's primary IDs and names. Then will add columns gene_nodenorm_id and
+    gene_node_norm_name to dataframe, using column_name and the mapping dict. This function will
+    change dataframe in its place, so it doesn't need to return anything.
+
+    Args:
+      dataframe: pandas dataframe
+      column_name: name of column containing gene CURIEs (Translator-formatted IDs)
+      nodenorm_url: NodeNorm API endpoint to send requests to
+
+    Returns:
+      None
+    """
+    ## called below dataframe=df, column_name="hgnc_id", nodenorm_url="https://nodenorm.ci.transltr.io/get_normalized_nodes"
+    unique_curies = dataframe[column_name].dropna().unique()
+
+    nodenorm_mapping = {}
+    ## larger batches are quicker
+    for batch in itertools.batched(unique_curies, 1000):
+        req_body = {
+            "curies": list(batch),  ## batch is a tuple, cast into list
+            "conflate": True,       ## do gene-protein conflation
+        }
+        r = requests.post(nodenorm_url, json=req_body)
+        response = r.json()
+        ## dictionary expression
+        ## response's keys are input IDs, values are dictionary that includes primary/canonical info
+        temp = {
+            k: {"primary_id": v["id"]["identifier"],
+                "primary_label": v["id"]["label"]} 
+            for k,v in response.items()
+        }
+        nodenorm_mapping.update(temp)
+
+    dataframe["gene_nodenorm_id"] = [nodenorm_mapping[i]["primary_id"] for i in dataframe[column_name]]
+    dataframe["gene_nodenorm_label"] = [nodenorm_mapping[i]["primary_label"] for i in dataframe[column_name]]
+
+
 ## main function can have any name.
 ## Put into manifest's uploader.parser field: "parser:{funct name}"
 ## DON'T NEED A MAIN EXECUTION BLOCK `if __name__ == "__main__"`
@@ -122,6 +168,8 @@ def upload_documents(data_folder: str):
     df["panel"] = df["panel"].str.replace("Eye", "Eye disorders")
     df["panel"] = df["panel"].str.replace("Skeletal", "Skeletal disorders")
     df["panel"] = df["panel"].str.replace("Skin", "Skin disorders")
+    ## 5. add columns for NodeNorm primary/canonical IDs and names
+    nodenorm_genes(df, "hgnc_id", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
 
     ## GENERATING DOCS
     ## using itertuples because it's faster, preserves column datatypes
@@ -131,7 +179,9 @@ def upload_documents(data_folder: str):
             "_id": row.g2p_id,
             "subject": {
                 "hgnc_symbol": row.gene_symbol, 
-                "hgnc": row.hgnc_id, 
+                "hgnc": row.hgnc_id,
+                "nodenorm_id": row.gene_nodenorm_id,
+                "nodenorm_label": row.gene_nodenorm_label,
                 "type": "Gene"
             },
             "association": {
