@@ -9,8 +9,7 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
     * All data files are csv (can be compressed) AND have the same header so they can be concatenated easily.
       pandas can infer and automatically do on-the-fly decompression for some file extensions
       (see pandas.read_csv for details)
-    * It's fine to set all column types to str (one exception: ingesting "date of last review"
-      as datetime to save memory)
+    * It's fine to set all column types to str
 
     Args:
       folder_path: pathlib Path to folder containing csv files
@@ -28,15 +27,12 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
     ## - Want to read "gene mim" and "disease mim" columns as str. Otherwise, default reading will be float
     ##   for some files (extra steps to handle)
     ## - All IDs in final API docs should be strings (ex: "publications")
-    ## - saves memory to read "date of last review" as datetime
     ## - didn't save memory to read some columns as "category"
 
     ## using generator expression (think list/dict comprehension) within pd.concat to load files 1 at a time
+    ## ingesting all columns as str for now
     if all_file_paths:
-        return pd.concat(
-            (pd.read_csv(f, dtype=str, parse_dates=["date of last review"]) for f in all_file_paths),
-            ignore_index=True,
-        )
+        return pd.concat((pd.read_csv(f, dtype=str) for f in all_file_paths), ignore_index=True)
     else:
         raise FileNotFoundError(f"Can't find files in `{folder_path}` matching `{data_file_pattern}`")
 
@@ -91,6 +87,8 @@ def upload_documents(data_folder: str):
     df = _load_multiple_csv_into_one_df(folder_path=base_file_path, data_file_pattern="*.csv.gz")
     ## make column names snake-case to make them usable with itertuples later
     df.columns = df.columns.str.replace(" ", "_")
+    ## change "date_of_last_review" dtype to datetime, which should save a little memory
+    df["date_of_last_review"] = pd.to_datetime(df["date_of_last_review"])
 
     ## DROP DUPLICATES
     ## First check that drop_duplicates using all columns will work as-intended, raise error if concern
