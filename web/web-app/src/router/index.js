@@ -2,15 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useAPIStore } from '../stores/apis'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   // linkActiveClass: "route-active",
   scrollBehavior(to) {
     if (to.hash) {
-        return { el: to.hash }
-    }else{
-      window.scrollTo(0, 0);
+      return { el: to.hash }
+    } else {
+      window.scrollTo(0, 0)
     }
   },
   routes: [
@@ -25,18 +24,18 @@ const router = createRouter({
       props: true,
       component: () => import('../views/Try.vue'),
       beforeEnter: async (to, from, next) => {
-        const store = useAPIStore();
-        
+        const store = useAPIStore()
+
         // Ensure store is populated if necessary
         if (!store.list.length) {
-          await store.fetchAPIs();
+          await store.fetchAPIs()
         }
 
         if (store.list.includes(to.params.api)) {
-          store.query = "";
-          next();
+          store.query = ''
+          next()
         } else {
-          next({ name: '404' });
+          next({ name: '404' })
         }
       },
     },
@@ -49,12 +48,12 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
     {
-      path: "/:pathMatch(.*)*",
+      path: '/:pathMatch(.*)*',
       name: '404',
       component: () => import('../views/404.vue'),
-      meta: { sitemap: { ignoreRoute: true } }
-  }
+      meta: { sitemap: { ignoreRoute: true } },
+    },
   ],
-});
+})
 
 export default router

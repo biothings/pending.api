@@ -12,12 +12,12 @@ const app = createApp(App)
 
 // dev base api url
 app.config.globalProperties.$apiUrl =
-    process.env.NODE_ENV == 'development' ? 'https://pending.biothings.io' : '';
+  process.env.NODE_ENV == 'development' ? 'https://pending.biothings.io' : ''
 
 app.use(createPinia())
 app.use(router)
 
-const apiStore = useAPIStore();
-apiStore.setApiUrl(app.config.globalProperties.$apiUrl);
+const apiStore = useAPIStore()
+apiStore.setApiUrl(app.config.globalProperties.$apiUrl)
 
 app.mount('#app')
