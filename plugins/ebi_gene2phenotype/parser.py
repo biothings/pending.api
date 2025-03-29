@@ -192,8 +192,11 @@ def upload_documents(data_folder: str):
             "subject": {
                 "hgnc_symbol": row.gene_symbol, 
                 "hgnc": row.hgnc_id,
-                "nodenorm_id": row.gene_nodenorm_id,
-                "nodenorm_label": row.gene_nodenorm_label,
+                "nodenorm":
+                {
+                    "primary_id": row.gene_nodenorm_id,
+                    "primary_label": row.gene_nodenorm_label
+                },
                 "type": "Gene"
             },
             "association": {
