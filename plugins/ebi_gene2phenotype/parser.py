@@ -1,7 +1,19 @@
 import pathlib
 import pandas as pd
 import requests
-import itertools  ## Python 3.12 has the batched method used below
+## from BioThings annotator code: for interoperability between diff Python versions
+try:
+    from itertools import batched  # new in Python 3.12
+except ImportError:
+    from itertools import islice
+
+    def batched(iterable, n):
+        # batched('ABCDEFG', 3) → ABC DEF G
+        if n < 1:
+            raise ValueError("n must be at least one")
+        iterator = iter(iterable)
+        while batch := tuple(islice(iterator, n)):
+            yield batch
 
 
 def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern: str) -> pd.DataFrame:
@@ -94,7 +106,7 @@ def nodenorm_genes(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str)
 
     nodenorm_mapping = {}
     ## larger batches are quicker
-    for batch in itertools.batched(unique_curies, 1000):
+    for batch in batched(unique_curies, 1000):
         req_body = {
             "curies": list(batch),  ## batch is a tuple, cast into list
             "conflate": True,       ## do gene-protein conflation
