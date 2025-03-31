@@ -126,6 +126,74 @@ def nodenorm_genes(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str)
     dataframe["gene_nodenorm_label"] = [nodenorm_mapping[i]["primary_label"] for i in dataframe[column_name]]
 
 
+def nodenorm_diseases(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str):
+    """Use Translator NodeNorm to add primary/canonical IDs and names for diseases to dataframe
+
+    Assumes dataframe's column_name contains 1 disease CURIE (Translator-formatted ID) or NA per row.
+
+    Will run NodeNorm on the column_name's disease CURIEs, create mapping dict of those CURIEs to
+    NodeNorm's primary IDs and names. Then will add columns disease_nodenorm_id, disease_nodenorm_name, 
+    disease_nodenorm_input to dataframe, using column_name and the mapping dict. This function will
+    change dataframe in its place, so it doesn't need to return anything.
+
+    Args:
+      dataframe: pandas dataframe
+      column_name: name of column containing disease CURIEs (Translator-formatted IDs)
+      nodenorm_url: NodeNorm API endpoint to send requests to
+
+    Returns:
+      None
+    """
+    ## called below dataframe=df, column_name="disease_mim", nodenorm_url="https://nodenorm.ci.transltr.io/get_normalized_nodes"
+    unique_curies = dataframe[column_name].dropna().unique()
+
+    nodenorm_mapping = {}
+    ## larger batches are quicker
+    for batch in batched(unique_curies, 1000):
+        req_body = {
+            "curies": list(batch),  ## batch is a tuple, cast into list
+            "conflate": True,       ## do gene-protein conflation
+        }
+        r = requests.post(nodenorm_url, json=req_body)
+        response = r.json()
+
+        ## response's keys are input IDs, values are dictionary that includes primary/canonical info
+        ## not doing dict comprehension. allows for easier review, writing logic
+        ## prints the input IDs that weren't mapped
+        for k, v in response.items():
+            try:
+                ## if NodeNorm did not recognize ID, v will be None
+                if v is not None:
+                    ## some IDs aren't Diseases, throw those mappings out
+                    if v["type"][0] == "biolink:Disease":
+                        ## also throw out mapping if no primary label found
+                        if v["id"].get("label"):
+                            temp = {
+                                k: {"primary_id": v["id"]["identifier"],
+                                    "primary_label": v["id"]["label"]}
+                            }
+                            nodenorm_mapping.update(temp)
+                        else:
+                            print(f"{k}: NodeNorm didn't find primary label. Not keeping this mapping.")
+                    else:
+                        print(f'{k}: NodeNorm found different category {v["type"][0]}. Not keeping this mapping.')
+                else:
+                    print(f"{k}: NodeNorm didn't recognize this ID")
+            except:
+                print(f"Encountered an error processing the NodeNorm response.")
+                print(f"NodeNorm response key: {k}")
+                print(f"NodeNorm response value: {v}")
+
+    ## save what ID from original data was used for NodeNorming
+    dataframe["disease_nodenorm_input"] = [i if nodenorm_mapping.get(i) else pd.NA for i in dataframe[column_name]]
+    dataframe["disease_nodenorm_id"] = [nodenorm_mapping[i]["primary_id"] if nodenorm_mapping.get(i) 
+                                        else pd.NA 
+                                        for i in dataframe[column_name]]
+    dataframe["disease_nodenorm_label"] = [nodenorm_mapping[i]["primary_label"] if nodenorm_mapping.get(i) 
+                                        else pd.NA 
+                                        for i in dataframe[column_name]]
+
+
 ## main function can have any name.
 ## Put into manifest's uploader.parser field: "parser:{funct name}"
 ## DON'T NEED A MAIN EXECUTION BLOCK `if __name__ == "__main__"`
@@ -182,6 +250,7 @@ def upload_documents(data_folder: str):
     df["panel"] = df["panel"].str.replace("Skin", "Skin disorders")
     ## 5. add columns for NodeNorm primary/canonical IDs and names
     nodenorm_genes(df, "hgnc_id", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
+    nodenorm_diseases(df, "disease_mim", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
 
     ## GENERATING DOCS
     ## using itertuples because it's faster, preserves column datatypes
@@ -253,5 +322,10 @@ def upload_documents(data_folder: str):
                 document["object"]["omim"] = row.disease_mim
         if pd.notna(row.disease_MONDO):
             document["object"]["mondo"] = row.disease_MONDO
+        ## only add nodenorm columns if nodenorm mapping was successful
+        if pd.notna(row.disease_nodenorm_input):
+            document["object"].update(
+                {"nodenorm": {"primary_id": row.disease_nodenorm_id, "primary_label": row.disease_nodenorm_label}}
+            )
 
         yield document
