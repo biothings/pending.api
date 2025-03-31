@@ -90,7 +90,7 @@ def nodenorm_genes(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str)
 
     Will run NodeNorm on the column_name's gene CURIEs, create mapping dict of those CURIEs to
     NodeNorm's primary IDs and names. Then will add columns gene_nodenorm_id and
-    gene_node_norm_name to dataframe, using column_name and the mapping dict. This function will
+    gene_nodenorm_label to dataframe, using column_name and the mapping dict. This function will
     change dataframe in its place, so it doesn't need to return anything.
 
     Args:
