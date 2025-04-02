@@ -36,9 +36,12 @@ function toggleType(type) {
 <template>
   <section>
     <div>
-      <div class="container">
+      <div class="container row m-auto">
+        <div class="col-sm-3 d-flex justify-center align-items-center">
+          <img class="hero-image" src="@/assets/img/infinity.svg" alt="BioThings Studio" />
+        </div>
         <template v-if="store.app_version == 'pending'">
-          <div id="home" class="jumbotron bg-none text-center mb-0 py-5">
+          <div id="home" class="jumbotron bg-none text-center mb-0 py-5 col-sm-9">
             <h1>
               <span class="main-font">Pending</span> <br class="d-block d-md-none" />BioThings APIs
             </h1>
@@ -50,7 +53,7 @@ function toggleType(type) {
           </div>
         </template>
         <template v-else>
-          <section class="jumbotron bg-none mb-0 text-left">
+          <div class="jumbotron bg-none mb-0 text-left col-sm-9">
             <h1 class="mt-5 mb-0">Knowledge Provider (KP) APIs</h1>
             <h3 class="mb-4">
               Made for
@@ -97,7 +100,7 @@ function toggleType(type) {
               >
               to us as well.
             </p>
-          </section>
+          </div>
         </template>
       </div>
     </div>

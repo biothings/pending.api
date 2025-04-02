@@ -32,7 +32,7 @@ const router = createRouter({
         }
 
         if (store.list.includes(to.params.api)) {
-          store.query = ''
+          store.setQuery('')
           next()
         } else {
           next({ name: '404' })

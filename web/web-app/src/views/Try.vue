@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useAPIStore } from '@/stores/apis'
 import { useLayoutStore } from '@/stores/layout'
 import axios from 'axios'
 import { isPlainObject, isArray, isBoolean, isNumber, isString } from 'lodash'
+import { useRoute } from 'vue-router'
 
 import SourceInfo from '@/components/SourceInfo.vue'
 import mygene from '@/assets/img/mygene-text.svg'
@@ -322,6 +323,18 @@ function callApi(q) {
 onMounted(() => {
   getMetadata()
 })
+
+const route = useRoute()
+
+watch(
+  () => route.params.api,
+  () => {
+    console.log('API changed')
+    apiStore.setQuery('')
+    refreshExamples()
+    getMetadata()
+  },
+)
 </script>
 
 <template>
@@ -343,7 +356,7 @@ onMounted(() => {
     >
       <div
         v-if="metadata && metadata.src"
-        class="shadow bg-gray-200 dark:bg-main-medium bg-hex p-4 col-sm-12 col-md-3 col-lg-2"
+        class="shadow bg-gray-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
       >
         <div class="text-left">
           <p v-if="!existingEntity" class="m-0">
@@ -473,7 +486,7 @@ onMounted(() => {
             <label
               class="form-check-label"
               for="exampleRadios1"
-              :class="[querySelectionType == 'example' ? '' : 'text-muted']"
+              :class="[querySelectionType == 'example' ? '' : 'text-mute']"
             >
               Example Queries
               <button
@@ -498,7 +511,7 @@ onMounted(() => {
             <label
               class="form-check-label"
               for="exampleRadios2"
-              :class="[querySelectionType == 'own' ? '' : 'text-muted']"
+              :class="[querySelectionType == 'own' ? '' : 'text-mute']"
             >
               Write My Own Query
             </label>

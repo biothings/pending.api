@@ -41,7 +41,6 @@ export const useAPIStore = defineStore('apis', () => {
         types.add(api.biothing_type)
       }
     })
-
     ;[...types].forEach((type) => {
       final.push({
         name: type,
