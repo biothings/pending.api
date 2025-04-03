@@ -356,7 +356,7 @@ watch(
     >
       <div
         v-if="metadata && metadata.src"
-        class="shadow bg-gray-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
+        class="shadow bg-slate-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
       >
         <div class="text-left">
           <p v-if="!existingEntity" class="m-0">
@@ -517,8 +517,8 @@ watch(
             </label>
           </div>
         </div>
-        <p class="bold text-left" v-if="success && queryString" style="word-break: break-all">
-          <i class="fas" :class="[success ? 'fa-check' : 'fa-circle']"></i>
+        <p class="text-left" v-if="success && queryString" style="word-break: break-all">
+          <i class="fas mr-1 text-lime-400" :class="[success ? 'fa-check' : 'fa-circle']"></i>
           <a
             rel="noopener"
             target="_blank"
@@ -531,7 +531,7 @@ watch(
         <pre
           v-show="success"
           ref="callResults"
-          class="p-2 text-left mt-4 mb-4 dark:bg-black"
+          class="p-2 text-left mt-4 mb-4 dark:bg-slate-900"
           style="
             font-size: 1em !important;
             max-height: 800px;

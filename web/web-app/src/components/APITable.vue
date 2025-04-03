@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch, ref } from 'vue'
+import { onMounted, watch, ref, onBeforeUnmount } from 'vue'
 import { TabulatorFull as Tabulator } from 'tabulator-tables'
 import { useAPIStore } from '@/stores/apis'
 import { useRouter } from 'vue-router'
@@ -19,6 +19,10 @@ function numberWithCommas(total) {
 
 onMounted(() => {
   //initialize table
+  if (table) {
+    table.destroy() // Destroy any existing instance
+  }
+
   table = new Tabulator('#example-table', {
     data: [], //assign data to table
     layout: 'fitColumns', //fit columns to width of table
@@ -55,7 +59,7 @@ onMounted(() => {
         field: 'documents',
         sorter: 'number',
         formatter: function (cell) {
-          return `${cell.getValue()}`
+          return `${numberWithCommas(cell.getValue())}`
         },
       },
       {
@@ -73,6 +77,14 @@ onMounted(() => {
     table.clearData()
     table.setData(makeTableRows(apiStore.apis))
   }, 1000)
+})
+
+// Cleanup when component unmounts
+onBeforeUnmount(() => {
+  if (table) {
+    table.destroy()
+    table = null
+  }
 })
 
 let rows = ref([])

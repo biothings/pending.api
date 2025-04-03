@@ -38,10 +38,15 @@ function toggleType(type) {
     <div>
       <div class="container row m-auto">
         <div class="col-sm-3 d-flex justify-center align-items-center">
-          <img class="hero-image" src="@/assets/img/infinity.svg" alt="BioThings Studio" />
+          <img
+            class="hero-image"
+            width="150px"
+            src="@/assets/img/infinity.svg"
+            alt="BioThings Studio"
+          />
         </div>
         <template v-if="store.app_version == 'pending'">
-          <div id="home" class="jumbotron bg-none text-center mb-0 py-5 col-sm-9">
+          <div id="home" class="jumbotron bg-none mb-0 py-5 col-sm-9 text-left">
             <h1>
               <span class="main-font">Pending</span> <br class="d-block d-md-none" />BioThings APIs
             </h1>

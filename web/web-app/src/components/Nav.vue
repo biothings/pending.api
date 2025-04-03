@@ -28,7 +28,10 @@ function handleSubmit() {
     class="navbar bg-linear-to-r from-main-medium to-main-dark dark:from-main-dark dark:to-main-medium navbar-expand-lg w-100 p-2 px-4"
   >
     <template v-if="layout.app_version == 'pending'">
-      <RouterLink class="navbar-brand bold main-font text-theme-light" to="/">
+      <RouterLink
+        class="navbar-brand bold main-font text-theme-light d-flex align-items-center justify-center text-white"
+        to="/"
+      >
         <img src="@/assets/img/infinity.svg" alt="Pending" width="50px" /> Pending
       </RouterLink>
     </template>
