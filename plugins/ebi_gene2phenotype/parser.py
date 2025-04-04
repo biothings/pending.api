@@ -218,9 +218,8 @@ def upload_documents(data_folder: str):
 
     ## DROP DUPLICATES
     ## First check that drop_duplicates using all columns will work as-intended, raise error if concern
-    ## Based on exploring the data, this column subset should uniquely define one record/row
-    ##   (none have delimited strings).
-    duplicates_check(df, ["g2p_id", "gene_symbol", "disease_name", "allelic_requirement", "molecular_mechanism"])
+    ## Based on exploring the data, this column should uniquely define one record/row
+    duplicates_check(df, ["g2p_id"])
     ## drop duplicates if no error was raised
     df.drop_duplicates(inplace=True, ignore_index=True)
 
