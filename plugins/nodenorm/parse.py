@@ -9,7 +9,10 @@ def load_data_file(input_file: str):
         while line:
             doc = json.loads(line)
             doc["_id"] = doc["identifiers"][0]["i"]
-            doc["ic"] = float(doc["ic"])
+            try:
+                doc["ic"] = float(doc["ic"])
+            except (TypeError, ValueError):
+                doc["ic"] = 0.0
             buffer.append(doc)
 
             if len(buffer) >= 1024:
