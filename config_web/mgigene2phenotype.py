@@ -4,3 +4,4 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "mgigene2phenotype"
 API_VERSION = ""
+SMARTAPI_ID = "77ed27f111262d0289ed4f4071faa619"

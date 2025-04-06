@@ -11,6 +11,7 @@ ES_DOC_TYPE = "geneset"
 
 API_PREFIX = "pfocr"
 API_VERSION = ""
+SMARTAPI_ID = "edeb26858bd27d0322af93e7a9e08761"
 
 PFOCR_FLAVOR_INDICES = {
     "strict": PFOCR_FLAVOR_STRICT,
