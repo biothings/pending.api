@@ -23,7 +23,7 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
     * All data files are csv (can be compressed) AND have the same header so they can be concatenated easily.
       pandas can infer and automatically do on-the-fly decompression for some file extensions
       (see pandas.read_csv for details)
-    * It's fine to set all column types to str
+    * It's fine to load all columns as str type
 
     Args:
       folder_path: pathlib Path to folder containing csv files
@@ -37,14 +37,13 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
 
     all_file_paths = list(folder_path.glob(data_file_pattern))
 
-    ## read_csv dtype notes:
+    ## read_csv dtype notes: ingesting all columns as str for now
     ## - Want to read "gene mim" and "disease mim" columns as str. Otherwise, default reading will be float
     ##   for some files (extra steps to handle)
     ## - All IDs in final API docs should be strings (ex: "publications")
     ## - didn't save memory to read some columns as "category"
 
     ## using generator expression (think list/dict comprehension) within pd.concat to load files 1 at a time
-    ## ingesting all columns as str for now
     if all_file_paths:
         return pd.concat((pd.read_csv(f, dtype=str) for f in all_file_paths), ignore_index=True)
     else:
@@ -52,21 +51,24 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
 
 
 def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
-    """This function checks whether drop_duplicates using all columns will actually remove all duplicates.
+    """Check if assumptions are correct: (1) duplicate records have completely identical rows; (2) column_subset are key column(s) for unique records/rows
 
-    Many column values are delimited strings, and my concern is that these could differ only in list order
-    for the same records in different files/panels.
+    There are duplicates in the dataframe because the same record can show up in multiple panel files 
+    (disease falls into multiple categories). We want to drop those duplicates. 
 
-    If the duplicated data with this column subset == duplicated data using all columns: then this column 
-    subset does uniquely define records / rows. And drop_duplicates using all columns should work as expected.
+    However, what if these "duplicates" aren't completely identical rows? Many columns have 
+    delimited-string values, and my concern is that these could differ in list order between "duplicates".
 
-    Else: raise AssertionError. The other columns of the data need more investigation (something else is 
-    contributing to the uniqueness of each row, and it could be delimited-string list order). And the parser 
-    probably needs adjustment.
+    To check this scenario, this function compares the n_duplicates found using the key column(s) VS
+    using all columns. If the counts are equal, then "duplicates" are completely identical. AND using the 
+    key column(s) for _id later is fine. 
+
+    If not, then there's a problem with at least 1 assumption, and the data needs to be re-explored.
+    The parser also likely needs adjustments. So this function raises an AssertionError. 
 
     Args:
       dataframe: pandas dataframe
-      column_subset: array of column names in dataframe that should uniquely define one record/row
+      column_subset: array, names of `dataframe`'s key column(s) for unique records/rows 
     
     Returns:
       None
@@ -77,8 +79,8 @@ def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
 
     if n_duplicates_subset != n_duplicates_all:
         raise AssertionError(
-            "The data format has changed, and record de-duplication may not work as-expected. "
-            "Double-check the data and what columns uniquely define one record"
+            "The data format has changed, and the assumptions about duplicates/key columns may "
+            "no longer hold. Re-explore the data and adjust the parser.\n"
         )
 
 
@@ -217,13 +219,12 @@ def upload_documents(data_folder: str):
     df["date_of_last_review"] = pd.to_datetime(df["date_of_last_review"])
 
     ## DROP DUPLICATES
-    ## First check that drop_duplicates using all columns will work as-intended, raise error if concern
-    ## Based on exploring the data, this column should uniquely define one record/row
+    ## Will raise error if data format has changed and assumptions are now incorrect
     duplicates_check(df, ["g2p_id"])
     ## drop duplicates if no error was raised
     df.drop_duplicates(inplace=True, ignore_index=True)
 
-    ## COLUMN-LEVEL TRANSFORMS
+    ## COLUMN-LEVEL TRANSFORMS PART 1
     ## 1. adding Translator/biolink prefixes to IDs
     df["gene_mim"] = "OMIM:" + df["gene_mim"]
     df["hgnc_id"] = "HGNC:" + df["hgnc_id"]
@@ -233,6 +234,13 @@ def upload_documents(data_folder: str):
                          else "OMIM:" + i if i.isnumeric()
                          else i 
                          for i in df["disease_mim"]]
+    
+    ## NODENORM, drop records/rows that aren't completely normalized 
+    nodenorm_genes(df, "hgnc_id", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
+    nodenorm_diseases(df, "disease_mim", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
+    ## lines to drop record/rows here
+
+    ## COLUMN-LEVEL TRANSFORMS PART 2
     ## 2. strip whitespace
     df["disease_name"] = df["disease_name"].str.strip()
     df["comments"] = df["comments"].str.strip()
@@ -247,9 +255,6 @@ def upload_documents(data_folder: str):
     df["panel"] = df["panel"].str.replace("Eye", "Eye disorders")
     df["panel"] = df["panel"].str.replace("Skeletal", "Skeletal disorders")
     df["panel"] = df["panel"].str.replace("Skin", "Skin disorders")
-    ## 5. add columns for NodeNorm primary/canonical IDs and names
-    nodenorm_genes(df, "hgnc_id", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
-    nodenorm_diseases(df, "disease_mim", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
 
     ## GENERATING DOCS
     ## using itertuples because it's faster, preserves column datatypes
