@@ -17,7 +17,7 @@ def main():
             if not doc["DISEASES"]["associatedWith"]:
                 continue
 
-            if i == 1000:
+            if i == 100:
                 break
 
             json.dump(doc, f)
