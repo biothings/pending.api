@@ -8,7 +8,7 @@ Use the biothings-cli dumper to download files locally.  Files are specified in 
 biothings-cli dataplugin dump
 ```
 
-Run the export script. Currently this outputs in JSON lines to `example_output.json`
+Run the `kgx_export.py` script, which calls `parser.py` and then exports a small number of records. Currently this outputs in JSON lines to `example_output.json`
 ```
 python3 kgx_export.py
 ```
