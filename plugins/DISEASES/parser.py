@@ -6,106 +6,106 @@ from operator import itemgetter
 from biothings_client import get_client
 
 
-def batch_query_mondo_from_doid(doid_list):
-    """ convert a list of doids to a list of mondo ids
+# def batch_query_mondo_from_doid(doid_list):
+#     """ convert a list of doids to a list of mondo ids
 
-    Keyword arguments:
-    doid_list: a list of doids
-    """
-    mapping_dict = {}
-    print('total doids: {}'.format(len(doid_list)))
-    id_list = list(set(doid_list))
-    print('unique doids: {}'.format(len(id_list)))
-    # initiate the mydisease.info python client
-    client = get_client('disease')
-    # the batch query can only handle 1000 ids at most a time
-    for i in range(0, len(id_list), 1000):
-        if i + 1000 <= len(id_list):
-            batch = id_list[i: i+1000]
-        else:
-            batch = id_list[i:]
-        params = ','.join(batch)
-        res = client.querymany(params, scopes="mondo.xrefs.doid", fields="_id")
-        for _doc in res:
-            if '_id' not in _doc:
-                print('can not convert', _doc)
-            mapping_dict[_doc['query']
-                         ] = _doc['_id'] if '_id' in _doc else _doc["query"]
-    return mapping_dict
-
-
-SYMBOL_RESOLVE_RESULT = {}
+#     Keyword arguments:
+#     doid_list: a list of doids
+#     """
+#     mapping_dict = {}
+#     print('total doids: {}'.format(len(doid_list)))
+#     id_list = list(set(doid_list))
+#     print('unique doids: {}'.format(len(id_list)))
+#     # initiate the mydisease.info python client
+#     client = get_client('disease')
+#     # the batch query can only handle 1000 ids at most a time
+#     for i in range(0, len(id_list), 1000):
+#         if i + 1000 <= len(id_list):
+#             batch = id_list[i: i+1000]
+#         else:
+#             batch = id_list[i:]
+#         params = ','.join(batch)
+#         res = client.querymany(params, scopes="mondo.xrefs.doid", fields="_id")
+#         for _doc in res:
+#             if '_id' not in _doc:
+#                 print('can not convert', _doc)
+#             mapping_dict[_doc['query']
+#                          ] = _doc['_id'] if '_id' in _doc else _doc["query"]
+#     return mapping_dict
 
 
-def fetch_symbol(original_input):
-    if original_input in SYMBOL_RESOLVE_RESULT:
-        return SYMBOL_RESOLVE_RESULT[original_input]
-    if original_input.startswith("hsa-"):
-        print("original_input", original_input)
-        if original_input.endswith("p"):
-            mygene_input = original_input.rsplit("-", 1)[0]
-        else:
-            mygene_input = original_input
-        try:
-            res = requests.get(
-                "http://mygene.info/v3/query?q=alias:{alias}&fields=symbol".replace("{alias}", mygene_input)).json()
-        except Exception as _:
-            return None
-        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
-            print("output", res["hits"][0]['symbol'])
-            SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
-            return res['hits'][0]['symbol']
-        else:
-            SYMBOL_RESOLVE_RESULT[original_input] = None
-            return None
-    elif original_input.startswith("ENSP"):
-        res = requests.get(
-            "http://mygene.info/v3/query?q=ensembl.protein:{alias}&fields=symbol".replace("{alias}", original_input)).json()
-        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
-            print("output", res["hits"][0]['symbol'])
-            SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
-            return res['hits'][0]['symbol']
-        else:
-            SYMBOL_RESOLVE_RESULT[original_input] = None
-            return None
-    elif original_input.startswith("ENSG"):
-        res = requests.get(
-            "http://mygene.info/v3/query?q=ensembl.gene:{alias}&fields=symbol".replace("{alias}", original_input)).json()
-        if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
-            print("output", res["hits"][0]['symbol'])
-            SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
-            return res['hits'][0]['symbol']
-        else:
-            SYMBOL_RESOLVE_RESULT[original_input] = None
-            return None
-    elif "." in original_input:
-        return None
-    else:
-        return original_input
+# SYMBOL_RESOLVE_RESULT = {}
 
 
-def load_tm_data(file_path):
-    """ load data from text mining file
+# def fetch_symbol(original_input):
+#     if original_input in SYMBOL_RESOLVE_RESULT:
+#         return SYMBOL_RESOLVE_RESULT[original_input]
+#     if original_input.startswith("hsa-"):
+#         print("original_input", original_input)
+#         if original_input.endswith("p"):
+#             mygene_input = original_input.rsplit("-", 1)[0]
+#         else:
+#             mygene_input = original_input
+#         try:
+#             res = requests.get(
+#                 "http://mygene.info/v3/query?q=alias:{alias}&fields=symbol".replace("{alias}", mygene_input)).json()
+#         except Exception as _:
+#             return None
+#         if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
+#             print("output", res["hits"][0]['symbol'])
+#             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
+#             return res['hits'][0]['symbol']
+#         else:
+#             SYMBOL_RESOLVE_RESULT[original_input] = None
+#             return None
+#     elif original_input.startswith("ENSP"):
+#         res = requests.get(
+#             "http://mygene.info/v3/query?q=ensembl.protein:{alias}&fields=symbol".replace("{alias}", original_input)).json()
+#         if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
+#             print("output", res["hits"][0]['symbol'])
+#             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
+#             return res['hits'][0]['symbol']
+#         else:
+#             SYMBOL_RESOLVE_RESULT[original_input] = None
+#             return None
+#     elif original_input.startswith("ENSG"):
+#         res = requests.get(
+#             "http://mygene.info/v3/query?q=ensembl.gene:{alias}&fields=symbol".replace("{alias}", original_input)).json()
+#         if "hits" in res and len(res["hits"]) > 0 and "symbol" in res['hits'][0]:
+#             print("output", res["hits"][0]['symbol'])
+#             SYMBOL_RESOLVE_RESULT[original_input] = res['hits'][0]['symbol']
+#             return res['hits'][0]['symbol']
+#         else:
+#             SYMBOL_RESOLVE_RESULT[original_input] = None
+#             return None
+#     elif "." in original_input:
+#         return None
+#     else:
+#         return original_input
 
-    Keyword arguments:
-    file_path -- the file path of the text mining file
-    """
-    json_docs = []
-    with open(file_path) as csvfile:
-        fieldnames = ['ensembl', 'symbol', 'doid',
-                      'name', 'zscore', 'confidence', 'url']
-        reader = csv.DictReader(csvfile, fieldnames, delimiter='\t')
-        for row in reader:
-            row.pop('url')
-            row['symbol'] = fetch_symbol(row['symbol'])
-            if row['symbol'] == None:
-                continue
-            # convert string to float
-            row['zscore'] = float(row['zscore'])
-            row['confidence'] = float(row['confidence'])
-            row['category'] = 'textmining'
-            json_docs.append(dict(row))
-    return json_docs
+
+# def load_tm_data(file_path):
+#     """ load data from text mining file
+
+#     Keyword arguments:
+#     file_path -- the file path of the text mining file
+#     """
+#     json_docs = []
+#     with open(file_path) as csvfile:
+#         fieldnames = ['ensembl', 'symbol', 'doid',
+#                       'name', 'zscore', 'confidence', 'url']
+#         reader = csv.DictReader(csvfile, fieldnames, delimiter='\t')
+#         for row in reader:
+#             row.pop('url')
+#             row['symbol'] = fetch_symbol(row['symbol'])
+#             if row['symbol'] == None:
+#                 continue
+#             # convert string to float
+#             row['zscore'] = float(row['zscore'])
+#             row['confidence'] = float(row['confidence'])
+#             row['category'] = 'textmining'
+#             json_docs.append(dict(row))
+#     return json_docs
 
 
 def load_ep_kn_data(file_path, category):
