@@ -137,15 +137,14 @@ def load_data(data_folder):
     data_folder -- folder storing downloaded files
     """
     # path for the text mining file
-    tm_path = os.path.join(
-        data_folder, "human_disease_textmining_filtered.tsv")
+    #tm_path = os.path.join(
+    #    data_folder, "human_disease_textmining_filtered.tsv")
     # path for the knowledge file
     kn_path = os.path.join(data_folder, "human_disease_knowledge_full.tsv")
     # path for the experiments file
     ep_path = os.path.join(
         data_folder, "human_disease_experiments_full.tsv")
-    json_docs = load_tm_data(tm_path) + load_ep_kn_data(kn_path,
-                                                        'knowledge') + load_ep_kn_data(ep_path, 'experiments')
+    json_docs = load_ep_kn_data(kn_path, 'knowledge') + load_ep_kn_data(ep_path, 'experiments')
     json_docs = sorted(json_docs, key=itemgetter('doid'))
 
     ## doids is currently unused
