@@ -7,7 +7,6 @@
     },
     "dumper": {
         "data_url": [
-            "http://download.jensenlab.org/human_disease_textmining_full.tsv",
             "http://download.jensenlab.org/human_disease_knowledge_full.tsv",
             "http://download.jensenlab.org/human_disease_experiments_full.tsv"
         ],
