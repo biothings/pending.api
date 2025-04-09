@@ -208,14 +208,23 @@ def upload_documents(data_folder: str):
                          else "OMIM:" + i if i.isnumeric()
                          else i 
                          for i in df["disease_mim"]]
-    
-    ## NODENORM, DROP RECORDS/ROWS that aren't completely normalized 
+
+    ## NODENORM, DROP RECORDS/ROWS that aren't completely normalized
     nodenorm(df, "hgnc_id", "biolink:Gene", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
              ["gene_nodenorm_id", "gene_nodenorm_label"])
     nodenorm(df, "disease_mim", "biolink:Disease", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
              ["disease_nodenorm_id", "disease_nodenorm_label"])
-    ## to-do: lines to drop record/rows here
-    ## to-do: print basic stats: rows dropped before/after. If they want more stats, go to parser-writing notebook
+    ## print number of rows before dropping
+    n_rows_original = df.shape[0]
+    print(f"{n_rows_original} rows/records before NodeNorming")
+    ## DROP rows that have empty values in nodenorm columns
+    df.dropna(subset=["gene_nodenorm_id", "gene_nodenorm_label", "disease_nodenorm_id", "disease_nodenorm_label"],
+              inplace=True)
+    ## print number of rows dropped and left
+    n_rows_after_nodenorm = df.shape[0]
+    print(f"{n_rows_original - n_rows_after_nodenorm} rows removed during NodeNorming process. Reasons: "
+          "NA values in hgnc_id or disease_mim columns, NodeNorm mapping failures")
+    print(f"{n_rows_after_nodenorm} rows after NodeNorming ({n_rows_after_nodenorm/n_rows_original:.1%})\n")
 
     ## COLUMN-LEVEL TRANSFORMS PART 2
     ## 2. strip whitespace
