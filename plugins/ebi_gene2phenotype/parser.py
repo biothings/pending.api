@@ -53,23 +53,23 @@ def _load_multiple_csv_into_one_df(folder_path: pathlib.Path, data_file_pattern:
 def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
     """Check if assumptions are correct: (1) duplicate records have completely identical rows; (2) column_subset are key column(s) for unique records/rows
 
-    There are duplicates in the dataframe because the same record can show up in multiple panel files 
-    (disease falls into multiple categories). We want to drop those duplicates. 
+    There are duplicates in the dataframe because the same record can show up in multiple panel files
+    (disease falls into multiple categories). We want to drop those duplicates.
 
-    However, what if these "duplicates" aren't completely identical rows? Many columns have 
+    However, what if these "duplicates" aren't completely identical rows? Many columns have
     delimited-string values, and my concern is that these could differ in list order between "duplicates".
 
     To check this scenario, this function compares the n_duplicates found using the key column(s) VS
-    using all columns. If the counts are equal, then "duplicates" are completely identical. AND using the 
-    key column(s) for _id later is fine. 
+    using all columns. If the counts are equal, then "duplicates" are completely identical. AND using the
+    key column(s) for _id later is fine.
 
     If not, then there's a problem with at least 1 assumption, and the data needs to be re-explored.
-    The parser also likely needs adjustments. So this function raises an AssertionError. 
+    The parser also likely needs adjustments. So this function raises an AssertionError.
 
     Args:
       dataframe: pandas dataframe
-      column_subset: array, names of `dataframe`'s key column(s) for unique records/rows 
-    
+      column_subset: array, names of `dataframe`'s key column(s) for unique records/rows
+
     Returns:
       None
     """
