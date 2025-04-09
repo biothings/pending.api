@@ -84,72 +84,36 @@ def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
         )
 
 
-def nodenorm_genes(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str):
-    """Use Translator NodeNorm to add primary/canonical IDs and names for genes to dataframe
+def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: str, nodenorm_url: str,
+             output_col_names: list[str]):
+    """Run Translator NodeNorm on IDs for 1 bioentity category, then add the NodeNorm primary IDs and names to `dataframe`
 
-    Assumes dataframe's column_name contains 1 gene CURIE (Translator-formatted ID) per row,
-    with no NA values.
+    This function will create a dict mapping the CURIEs from `input_col_name` to NodeNorm's primary
+    IDs and names. The function will then create columns in `dataframe` containing the mapping information;
+    because the function makes these changes in-place, it returns None.
 
-    Will run NodeNorm on the column_name's gene CURIEs, create mapping dict of those CURIEs to
-    NodeNorm's primary IDs and names. Then will add columns gene_nodenorm_id and
-    gene_nodenorm_label to dataframe, using column_name and the mapping dict. This function will
-    change dataframe in its place, so it doesn't need to return anything.
+    It prints basic stats of NodeNorm mapping failures.
 
     Args:
       dataframe: pandas dataframe
-      column_name: name of column containing gene CURIEs (Translator-formatted IDs)
+      input_col_name: name of column in `dataframe`. Should contain single CURIEs (Translator-formatted ID) or NA for each row
+      expected_category: the expected biolink-model category for all input IDs (should be Translator format with prefix). Will be compared to the main category in NodeNorm for the entity. If there's a mismatch, the mapping will be treated as failed.
       nodenorm_url: NodeNorm API endpoint to send requests to
+      output_col_names: names of output columns with NodeNorm mapping info - first element should be primary ID, second should be primary name.
 
     Returns:
       None
     """
-    ## called below dataframe=df, column_name="hgnc_id", nodenorm_url="https://nodenorm.ci.transltr.io/get_normalized_nodes"
-    unique_curies = dataframe[column_name].dropna().unique()
 
+    ## get unique ID set from dataframe's input_col_name
+    unique_curies = dataframe[input_col_name].dropna().unique()
+
+    ## set up mapping dict
     nodenorm_mapping = {}
-    ## larger batches are quicker
-    for batch in batched(unique_curies, 1000):
-        req_body = {
-            "curies": list(batch),  ## batch is a tuple, cast into list
-            "conflate": True,       ## do gene-protein conflation
-        }
-        r = requests.post(nodenorm_url, json=req_body)
-        response = r.json()
-        ## dictionary expression
-        ## response's keys are input IDs, values are dictionary that includes primary/canonical info
-        temp = {
-            k: {"primary_id": v["id"]["identifier"],
-                "primary_label": v["id"]["label"]} 
-            for k,v in response.items()
-        }
-        nodenorm_mapping.update(temp)
 
-    dataframe["gene_nodenorm_id"] = [nodenorm_mapping[i]["primary_id"] for i in dataframe[column_name]]
-    dataframe["gene_nodenorm_label"] = [nodenorm_mapping[i]["primary_label"] for i in dataframe[column_name]]
+    ## set up variables to catch mapping failures
+    mapping_failures = {"unexpected_error": {}, "nodenorm_returned_none": [], "wrong_category": {}, "no_label": []}
 
-
-def nodenorm_diseases(dataframe: pd.DataFrame, column_name: str, nodenorm_url: str):
-    """Use Translator NodeNorm to add primary/canonical IDs and names for diseases to dataframe
-
-    Assumes dataframe's column_name contains 1 disease CURIE (Translator-formatted ID) or NA per row.
-
-    Will run NodeNorm on the column_name's disease CURIEs, create mapping dict of those CURIEs to
-    NodeNorm's primary IDs and names. Then will add columns disease_nodenorm_id, disease_nodenorm_name, 
-    disease_nodenorm_input to dataframe, using column_name and the mapping dict. This function will
-    change dataframe in its place, so it doesn't need to return anything.
-
-    Args:
-      dataframe: pandas dataframe
-      column_name: name of column containing disease CURIEs (Translator-formatted IDs)
-      nodenorm_url: NodeNorm API endpoint to send requests to
-
-    Returns:
-      None
-    """
-    ## called below dataframe=df, column_name="disease_mim", nodenorm_url="https://nodenorm.ci.transltr.io/get_normalized_nodes"
-    unique_curies = dataframe[column_name].dropna().unique()
-
-    nodenorm_mapping = {}
     ## larger batches are quicker
     for batch in batched(unique_curies, 1000):
         req_body = {
@@ -160,14 +124,14 @@ def nodenorm_diseases(dataframe: pd.DataFrame, column_name: str, nodenorm_url: s
         response = r.json()
 
         ## response's keys are input IDs, values are dictionary that includes primary/canonical info
-        ## not doing dict comprehension. allows for easier review, writing logic
-        ## prints the input IDs that weren't mapped
+        ## not doing dict comprehension. allows for easier review, logic writing
         for k, v in response.items():
+            ## catch unexpected errors
             try:
-                ## if NodeNorm did not recognize ID, v will be None
+                ## if NodeNorm didn't have info on this ID, v will be None
                 if v is not None:
-                    ## some IDs aren't Diseases, throw those mappings out
-                    if v["type"][0] == "biolink:Disease":
+                    ## don't keep mapping if category is not the expected one
+                    if v["type"][0] == expected_category:
                         ## also throw out mapping if no primary label found
                         if v["id"].get("label"):
                             temp = {
@@ -176,31 +140,41 @@ def nodenorm_diseases(dataframe: pd.DataFrame, column_name: str, nodenorm_url: s
                             }
                             nodenorm_mapping.update(temp)
                         else:
-                            print(f"{k}: NodeNorm didn't find primary label. Not keeping this mapping.")
+                            mapping_failures["no_label"].append(k)
                     else:
-                        print(f'{k}: NodeNorm found different category {v["type"][0]}. Not keeping this mapping.')
+                        mapping_failures["wrong_category"].update({k: v["type"][0]})
                 else:
-                    print(f"{k}: NodeNorm didn't recognize this ID")
+                    mapping_failures["nodenorm_returned_none"].append(k)
             except:
-                print(f"Encountered an error processing the NodeNorm response.")
-                print(f"NodeNorm response key: {k}")
-                print(f"NodeNorm response value: {v}")
+                mapping_failures["unexpected_error"].update({k: v})
 
-    ## save what ID from original data was used for NodeNorming
-    dataframe["disease_nodenorm_input"] = [i if nodenorm_mapping.get(i) else pd.NA for i in dataframe[column_name]]
-    dataframe["disease_nodenorm_id"] = [nodenorm_mapping[i]["primary_id"] if nodenorm_mapping.get(i) 
+    ## create output columns for NodeNorm data
+    dataframe[output_col_names[0]] = [nodenorm_mapping[i]["primary_id"] if nodenorm_mapping.get(i) 
                                         else pd.NA 
-                                        for i in dataframe[column_name]]
-    dataframe["disease_nodenorm_label"] = [nodenorm_mapping[i]["primary_label"] if nodenorm_mapping.get(i) 
+                                        for i in dataframe[input_col_name]]
+    dataframe[output_col_names[1]] = [nodenorm_mapping[i]["primary_label"] if nodenorm_mapping.get(i) 
                                         else pd.NA 
-                                        for i in dataframe[column_name]]
+                                        for i in dataframe[input_col_name]]
+
+    ## calculate stats: number of rows affected by each type of mapping failure
+    n_rows_no_data = dataframe[dataframe[input_col_name].isin(mapping_failures["nodenorm_returned_none"])].shape[0]
+    n_rows_wrong_category = dataframe[
+                                dataframe[input_col_name].isin(mapping_failures["wrong_category"].keys())
+                            ].shape[0]
+    n_rows_no_label = dataframe[dataframe[input_col_name].isin(mapping_failures["no_label"])].shape[0]
+
+    ## print stats on mapping failures
+    print(f"{input_col_name} NodeNorm mapping failures:")
+    print(f'{n_rows_no_data} row(s) for {len(mapping_failures["nodenorm_returned_none"])} IDs with no data in NodeNorm')
+    print(f'{n_rows_wrong_category} row(s) for {len(mapping_failures["wrong_category"])} IDs '
+          f'with the wrong NodeNormed category (not {expected_category})')
+    print(f'{n_rows_no_label} row(s) for {len(mapping_failures["no_label"])} IDs with no label in NodeNorm')
+    print("\n")
 
 
 ## main function can have any name.
 ## Put into manifest's uploader.parser field: "parser:{funct name}"
 ## DON'T NEED A MAIN EXECUTION BLOCK `if __name__ == "__main__"`
-
-
 def upload_documents(data_folder: str):
     """main execution: yield documents from 1 row of data at a time
 
@@ -235,10 +209,13 @@ def upload_documents(data_folder: str):
                          else i 
                          for i in df["disease_mim"]]
     
-    ## NODENORM, drop records/rows that aren't completely normalized 
-    nodenorm_genes(df, "hgnc_id", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
-    nodenorm_diseases(df, "disease_mim", "https://nodenorm.ci.transltr.io/get_normalized_nodes")
-    ## lines to drop record/rows here
+    ## NODENORM, DROP RECORDS/ROWS that aren't completely normalized 
+    nodenorm(df, "hgnc_id", "biolink:Gene", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
+             ["gene_nodenorm_id", "gene_nodenorm_label"])
+    nodenorm(df, "disease_mim", "biolink:Disease", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
+             ["disease_nodenorm_id", "disease_nodenorm_label"])
+    ## to-do: lines to drop record/rows here
+    ## to-do: print basic stats: rows dropped before/after. If they want more stats, go to parser-writing notebook
 
     ## COLUMN-LEVEL TRANSFORMS PART 2
     ## 2. strip whitespace
@@ -327,7 +304,7 @@ def upload_documents(data_folder: str):
         if pd.notna(row.disease_MONDO):
             document["object"]["mondo"] = row.disease_MONDO
         ## only add nodenorm columns if nodenorm mapping was successful
-        if pd.notna(row.disease_nodenorm_input):
+        if pd.notna(row.disease_nodenorm_id):
             document["object"].update(
                 {"nodenorm": {"primary_id": row.disease_nodenorm_id, "primary_label": row.disease_nodenorm_label}}
             )
