@@ -249,12 +249,12 @@ def upload_documents(data_folder: str):
         document = {
             "_id": row.g2p_id,
             "subject": {
-                "hgnc_symbol": row.gene_symbol, 
-                "hgnc": row.hgnc_id,
-                "nodenorm":
-                {
-                    "primary_id": row.gene_nodenorm_id,
-                    "primary_label": row.gene_nodenorm_label
+                "id": row.gene_nodenorm_id,
+                "label": row.gene_nodenorm_label,
+                "original_subject": row.hgnc_id,
+                "original_data": {
+                    "hgnc_symbol": row.gene_symbol,
+                    "hgnc": row.hgnc_id,
                 },
                 "type": "Gene"
             },
@@ -270,7 +270,14 @@ def upload_documents(data_folder: str):
                 "date_of_last_review": str(row.date_of_last_review),
             },
             "object": {
-                "name": row.disease_name, 
+                "id": row.disease_nodenorm_id,
+                "label": row.disease_nodenorm_label,
+                ## currently, after NodeNorming, no NAs in OMIM/orphanet column
+                "original_object": row.disease_mim,
+                "original_data": {
+                    ## not putting disease_mim here: parsing into separate OMIM and orphanet fields
+                    "name": row.disease_name,
+                },
                 "type": "Disease"
             },
         }
@@ -278,9 +285,11 @@ def upload_documents(data_folder: str):
         ## 2. only create field if value is not NA. list comprehension with split won't work if value is NA
         ## 2A. Gene
         if pd.notna(row.gene_mim):
-            document["subject"]["omim"] = row.gene_mim
+            document["subject"]["original_data"]["omim"] = row.gene_mim
         if pd.notna(row.previous_gene_symbols):
-            document["subject"]["previous_gene_symbols"] = [i.strip() for i in row.previous_gene_symbols.split(";")]
+            document["subject"]["original_data"]["previous_gene_symbols"] = [
+                i.strip() for i in row.previous_gene_symbols.split(";")
+            ]
 
         ## 2B. Association
         if pd.notna(row.cross_cutting_modifier):
@@ -307,15 +316,10 @@ def upload_documents(data_folder: str):
         ## disease_mim: create field depending on whether OMIM or orphanet
         if pd.notna(row.disease_mim):
             if row.disease_mim.startswith("orphanet"):
-                document["object"]["orphanet"] = row.disease_mim
+                document["object"]["original_data"]["orphanet"] = row.disease_mim
             elif row.disease_mim.startswith("OMIM"):
-                document["object"]["omim"] = row.disease_mim
+                document["object"]["original_data"]["omim"] = row.disease_mim
         if pd.notna(row.disease_MONDO):
-            document["object"]["mondo"] = row.disease_MONDO
-        ## only add nodenorm columns if nodenorm mapping was successful
-        if pd.notna(row.disease_nodenorm_id):
-            document["object"].update(
-                {"nodenorm": {"primary_id": row.disease_nodenorm_id, "primary_label": row.disease_nodenorm_label}}
-            )
+            document["object"]["original_data"]["mondo"] = row.disease_MONDO
 
         yield document
