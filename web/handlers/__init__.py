@@ -9,8 +9,6 @@ import types
 
 import tornado.httpclient
 import tornado.web
-from biothings.web.handlers import BaseHandler
-from jinja2 import Environment, FileSystemLoader
 
 # from config_web import opentelemetry
 from .annotator import AnnotatorHandler
@@ -60,59 +58,11 @@ if OPENTELEMETRY_ENABLED == "true":
 
 log = logging.getLogger("pending")
 
-templateLoader = FileSystemLoader(searchpath="web/templates/")
-templateEnv = Environment(loader=templateLoader, cache_size=0)
-
-
-class WebBaseHandler(BaseHandler):
-    def get_api_list(self):
-        """
-        Generate the API list from the biothings configuration.
-        """
-        root = self.biothings.config._primary
-        attrs = [getattr(root, attr) for attr in dir(root)]
-        confs = [attr for attr in attrs if isinstance(attr, types.ModuleType)]
-        return [{"_id": conf.API_PREFIX, "status": "running"} for conf in confs]
-
-
-class FrontPageHandler(WebBaseHandler):
-
-    # Cache the template output
-    cached_template_output = {}
-
-    def get(self):
-        """
-        Loads the front page template
-
-        Extracts the API list contents from the biothings
-        configuration
-
-        Then loads the template and renders it with the populated
-        API list
-        """
-
-        apilist = self.get_api_list()  # Get the API list
-
-        template = templateEnv.get_template("index.html")
-        output = template.render(Context=json.dumps({"List": apilist}))
-        self.finish(output)
-
-
-class ApiViewHandler(WebBaseHandler):
-    def get(self):
-        apilist = self.get_api_list()  # Get the API list
-
-        template = templateEnv.get_template("try.html")
-        output = template.render(Context=json.dumps({"List": apilist}))
-        self.finish(output)
-
 
 EXTRA_HANDLERS = [
-    (r"/", FrontPageHandler),
     (r"/status", StatusDefaultHandler),
     (r"/version", VersionHandler),
     (r"/api/list", ApiListHandler),
-    (r"/[^/]+", ApiViewHandler),
     (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
     (r"/DISEASES(?:/.*)?", DiseasesHandler),
 ]
