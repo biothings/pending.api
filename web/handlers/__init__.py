@@ -1,5 +1,5 @@
 """
-    Dynamic Web Pages
+Dynamic Web Pages
 """
 
 import json
@@ -7,19 +7,9 @@ import logging
 import os
 import types
 
-import tornado.httpclient
-import tornado.web
 from biothings.web.handlers import BaseHandler
 from jinja2 import Environment, FileSystemLoader
 
-# from config_web import opentelemetry
-from .annotator import AnnotatorHandler
-from .api import ApiListHandler
-from .diseases import DiseasesHandler
-from .graph import GraphQueryHandler
-from .ngd import SemmedNGDHandler
-from .status import StatusDefaultHandler
-from .version import VersionHandler
 
 from config_web import (
     OPENTELEMETRY_ENABLED,
@@ -27,6 +17,13 @@ from config_web import (
     OPENTELEMETRY_JAEGER_PORT,
     OPENTELEMETRY_SERVICE_NAME,
 )
+
+from .annotator import AnnotatorHandler
+from .api import ApiListHandler
+from .diseases import DiseasesHandler
+from .status import StatusDefaultHandler
+from .version import VersionHandler
+
 
 OPENTELEMETRY_ENABLED = os.getenv("OPENTELEMETRY_ENABLED", OPENTELEMETRY_ENABLED).lower()
 
