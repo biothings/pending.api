@@ -79,7 +79,6 @@ def load_configuration(config_module: str = None) -> Union[ConfigPackage, Pendin
     if config_module is None:
         config_module = "config"
     config_module = load_module(config_module)
-    breakpoint()
 
     validators = (PendingWebApiValidator(),)
 

@@ -5,7 +5,7 @@ in the biothings SDK for custom pending.api behavior
 MetadataSourceHandler -> PendingMetadataSourceHandler
 """
 
-from biothings.web.handlers.quer import MetadataSourceHandler
+from biothings.web.handlers.query import MetadataSourceHandler
 
 
 class PendingMetadataSourceHandler(MetadataSourceHandler):
@@ -25,4 +25,9 @@ class PendingMetadataSourceHandler(MetadataSourceHandler):
             >>> inject the SMARTAPI identifier
         """
         config = self.biothings.config
-        breakpoint()
+
+        smartapi_mapping = {
+            "id": config.SMARTAPI_ID
+        }
+        _meta["smartapi"] = smartapi_mapping
+        return _meta

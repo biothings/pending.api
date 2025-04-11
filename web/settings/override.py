@@ -18,6 +18,6 @@ def pending_application_list():
     for removal_term in removal_terms:
         APP_LIST.remove(removal_term)
 
-    override_terms = [(r"/{pre}/metadata/?", "web.handlers.PendingMetadataSourceHandler")]
+    override_terms = [(r"/{pre}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")]
     APP_LIST.extend(override_terms)
     return APP_LIST
