@@ -16,7 +16,7 @@
             <span class="badge badge-light" v-text="metadata.doc_type"></span>
           </template>
         </p>
-        <small class="mt-1" class="text-white" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></small>
+        <small class="mt-1 text-light" v-if="numberOfDocs" v-text="numberWithCommas(numberOfDocs)+' documents'"></small>
       </div>
       <template v-if='author_url'>
         <small class="d-block mt-2">
@@ -32,9 +32,9 @@
           :class="[multiSource? 'source-box p-1' : 'p-0']"
          class="my-1 col-sm-12" :info="info" :name="name" :multiSource="multiSource"></source-info>
       </div>
-      <template v-if='description && !multiSource'>
-        <small class="d-block mt-2" v-html="description"></small>
-      </template>
+      <div class="p-1" v-if='description && !multiSource'>
+        <small class="d-block mt-2 text-light" v-html="description"></small>
+      </div>
       <div v-if="existingEntity" class="text-left">
         <small>Pending for integration with:</small>
         <div v-if="metadata.biothing_type" class="badge bg-dark-trans d-block p-1 m-2">
