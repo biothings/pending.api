@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class PendingAPIConfigModule(ConfigModule):
+    override_mapping = None
+
+
     def __init__(self, config=None, parent=None, validators: tuple = (), **kwargs):
         override_terms = self._build_override_lookup()
         super().__init__(config=config, parent=parent, validators=validators, **override_terms)
@@ -29,7 +32,8 @@ class PendingAPIConfigModule(ConfigModule):
             self._valid_webapi = valid_webapi_module_status
         return self._valid_webapi
 
-    def _build_override_lookup(self) -> dict:
+    @classmethod
+    def _build_override_lookup(cls) -> dict:
         """
         With the configuration module (ConfigModule), the __getattr__ method
         has been explicitly defined to lookup attributes in the following order:
@@ -52,9 +56,17 @@ class PendingAPIConfigModule(ConfigModule):
         to the constructor when building the ConfigModule to populate the override lookup
         and ensure that the pending.api specific APP_LIST is found before the default one
         stored in the biothings hub
+
+        We make this a class method at the moment because if we have singular PendingAPIConfigModule
+        then this will only have to be performed once when we transform the APP_LIST. However, in
+        the case of multiple PendingAPIConfigModule in the case we we're running the full hub with
+        the config_web package, we don't want to keep transforming the APP_LIST. So we store
+        `override_mapping` at the class level rather than the instance level and only call
+        `pending_application_list` once per package
         """
-        override_mapping = {"APP_LIST": pending_application_list()}
-        return override_mapping
+        if cls.override_mapping is None:
+            cls.override_mapping = {"APP_LIST": pending_application_list()}
+        return cls.override_mapping
 
 
 def load_configuration(config_module: str = None) -> Union[ConfigPackage, PendingAPIConfigModule]:
