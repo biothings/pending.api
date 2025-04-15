@@ -27,7 +27,7 @@ class PendingMetadataSourceHandler(MetadataSourceHandler):
         config = self.biothings.config
 
         smartapi_mapping = {
-            "id": config.SMARTAPI_ID
+            "id": getattr(config, "SMARTAPI_ID", "")
         }
         _meta["smartapi"] = smartapi_mapping
         return _meta
