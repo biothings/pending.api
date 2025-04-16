@@ -21,7 +21,7 @@ class EBI2PhenotypeUploader(biothings.hub.dataload.uploader.IgnoreDuplicatedSour
     src_meta = {
         "url": "https://ftp.ebi.ac.uk/pub/databases/gene2phenotype/",
         "license_url": "https://www.ebi.ac.uk/about/terms-of-use/#general",
-        "description": "Search entities & relations in 35+ million biomedical publications.",
+        "description": "EBI Gene2Phenotype includes detailed gene-disease associations with information on allelic requirement, observed variant classes and disease mechanism. See https://www.ebi.ac.uk/gene2phenotype/ for details.",
     }
 
     def load_data(self, data_path: Union[str, Path]):
