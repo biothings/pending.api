@@ -1,5 +1,6 @@
 def ebi_gene2pheno_mapping(cls):
-    """Provide ElasticSearch mapping for documents
+    """
+    Provide ElasticSearch mapping for documents
 
     No normalizer when probably should only allow exact matches
 

@@ -20,7 +20,10 @@ class EBIGene2PhenotypeDumper(FTPDumper):
     FTP_HOST = "ftp.ebi.ac.uk"
     CWD_DIR = "/pub/databases/gene2phenotype/G2P_data_downloads/"
     ARCHIVE = False
-    SCHEDULE = "30 1 * * 0"
+
+    # Release schedule on the ftp site appears to be on the 28th of each month. So we
+    # give a brief buffer and pull on the first day of each month for scheduled update
+    SCHEDULE = "0 2 1 * *"
     FTP_TIMEOUT = 5 * 60.0
     FTP_USER = ""
     FTP_PASSWD = ""
@@ -102,6 +105,6 @@ class EBIGene2PhenotypeDumper(FTPDumper):
         local_data_path = pathlib.Path(self.current_data_folder).resolve().absolute()
 
         for remote_file in remote_ebi_files:
-            dump_entry = {"remote": remote_file, "local": str(local_data_path.joinpath(remote_file))}
+            dump_entry = {"remote": remote_file, "local": str(local_data_path.joinpath(remote_file.split("/")[-1]))}
             logger.debug("dump entry: %s", dump_entry)
             self.to_dump.append(dump_entry)

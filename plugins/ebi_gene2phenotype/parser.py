@@ -1,6 +1,7 @@
 import pathlib
 import pandas as pd
 import requests
+
 ## from BioThings annotator code: for interoperability between diff Python versions
 try:
     from itertools import batched  # new in Python 3.12
@@ -84,8 +85,9 @@ def duplicates_check(dataframe: pd.DataFrame, column_subset: list[str]):
         )
 
 
-def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: str, nodenorm_url: str,
-             output_col_names: list[str]):
+def nodenorm(
+    dataframe: pd.DataFrame, input_col_name: str, expected_category: str, nodenorm_url: str, output_col_names: list[str]
+):
     """Run Translator NodeNorm on IDs for 1 bioentity category, then add the NodeNorm primary IDs and names to `dataframe`
 
     This function will create a dict mapping the CURIEs from `input_col_name` to NodeNorm's primary
@@ -118,7 +120,7 @@ def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: st
     for batch in batched(unique_curies, 1000):
         req_body = {
             "curies": list(batch),  ## batch is a tuple, cast into list
-            "conflate": True,       ## do gene-protein conflation
+            "conflate": True,  ## do gene-protein conflation
         }
         r = requests.post(nodenorm_url, json=req_body)
         response = r.json()
@@ -134,10 +136,7 @@ def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: st
                     if v["type"][0] == expected_category:
                         ## also throw out mapping if no primary label found
                         if v["id"].get("label"):
-                            temp = {
-                                k: {"primary_id": v["id"]["identifier"],
-                                    "primary_label": v["id"]["label"]}
-                            }
+                            temp = {k: {"primary_id": v["id"]["identifier"], "primary_label": v["id"]["label"]}}
                             nodenorm_mapping.update(temp)
                         else:
                             mapping_failures["no_label"].append(k)
@@ -149,25 +148,27 @@ def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: st
                 mapping_failures["unexpected_error"].update({k: v})
 
     ## create output columns for NodeNorm data
-    dataframe[output_col_names[0]] = [nodenorm_mapping[i]["primary_id"] if nodenorm_mapping.get(i) 
-                                        else pd.NA 
-                                        for i in dataframe[input_col_name]]
-    dataframe[output_col_names[1]] = [nodenorm_mapping[i]["primary_label"] if nodenorm_mapping.get(i) 
-                                        else pd.NA 
-                                        for i in dataframe[input_col_name]]
+    dataframe[output_col_names[0]] = [
+        nodenorm_mapping[i]["primary_id"] if nodenorm_mapping.get(i) else pd.NA for i in dataframe[input_col_name]
+    ]
+    dataframe[output_col_names[1]] = [
+        nodenorm_mapping[i]["primary_label"] if nodenorm_mapping.get(i) else pd.NA for i in dataframe[input_col_name]
+    ]
 
     ## calculate stats: number of rows affected by each type of mapping failure
     n_rows_no_data = dataframe[dataframe[input_col_name].isin(mapping_failures["nodenorm_returned_none"])].shape[0]
-    n_rows_wrong_category = dataframe[
-                                dataframe[input_col_name].isin(mapping_failures["wrong_category"].keys())
-                            ].shape[0]
+    n_rows_wrong_category = dataframe[dataframe[input_col_name].isin(mapping_failures["wrong_category"].keys())].shape[
+        0
+    ]
     n_rows_no_label = dataframe[dataframe[input_col_name].isin(mapping_failures["no_label"])].shape[0]
 
     ## print stats on mapping failures
     print(f"{input_col_name} NodeNorm mapping failures:")
     print(f'{n_rows_no_data} row(s) for {len(mapping_failures["nodenorm_returned_none"])} IDs with no data in NodeNorm')
-    print(f'{n_rows_wrong_category} row(s) for {len(mapping_failures["wrong_category"])} IDs '
-          f'with the wrong NodeNormed category (not {expected_category})')
+    print(
+        f'{n_rows_wrong_category} row(s) for {len(mapping_failures["wrong_category"])} IDs '
+        f"with the wrong NodeNormed category (not {expected_category})"
+    )
     print(f'{n_rows_no_label} row(s) for {len(mapping_failures["no_label"])} IDs with no label in NodeNorm')
     print("\n")
 
@@ -204,26 +205,37 @@ def upload_documents(data_folder: str):
     df["hgnc_id"] = "HGNC:" + df["hgnc_id"]
     df["disease_mim"] = df["disease_mim"].str.replace("Orphanet", "orphanet")
     ## done to preserve NA, orphanet values in column
-    df["disease_mim"] = [i if pd.isna(i)
-                         else "OMIM:" + i if i.isnumeric()
-                         else i 
-                         for i in df["disease_mim"]]
+    df["disease_mim"] = [i if pd.isna(i) else "OMIM:" + i if i.isnumeric() else i for i in df["disease_mim"]]
 
     ## NODENORM, DROP RECORDS/ROWS that aren't completely normalized
-    nodenorm(df, "hgnc_id", "biolink:Gene", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
-             ["gene_nodenorm_id", "gene_nodenorm_label"])
-    nodenorm(df, "disease_mim", "biolink:Disease", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
-             ["disease_nodenorm_id", "disease_nodenorm_label"])
+    nodenorm(
+        df,
+        "hgnc_id",
+        "biolink:Gene",
+        "https://nodenorm.ci.transltr.io/get_normalized_nodes",
+        ["gene_nodenorm_id", "gene_nodenorm_label"],
+    )
+    nodenorm(
+        df,
+        "disease_mim",
+        "biolink:Disease",
+        "https://nodenorm.ci.transltr.io/get_normalized_nodes",
+        ["disease_nodenorm_id", "disease_nodenorm_label"],
+    )
     ## print number of rows before dropping
     n_rows_original = df.shape[0]
     print(f"{n_rows_original} rows/records before NodeNorming")
     ## DROP rows that have empty values in nodenorm columns
-    df.dropna(subset=["gene_nodenorm_id", "gene_nodenorm_label", "disease_nodenorm_id", "disease_nodenorm_label"],
-              inplace=True)
+    df.dropna(
+        subset=["gene_nodenorm_id", "gene_nodenorm_label", "disease_nodenorm_id", "disease_nodenorm_label"],
+        inplace=True,
+    )
     ## print number of rows dropped and left
     n_rows_after_nodenorm = df.shape[0]
-    print(f"{n_rows_original - n_rows_after_nodenorm} rows removed during NodeNorming process. Reasons: "
-          "NA values in hgnc_id or disease_mim columns, NodeNorm mapping failures")
+    print(
+        f"{n_rows_original - n_rows_after_nodenorm} rows removed during NodeNorming process. Reasons: "
+        "NA values in hgnc_id or disease_mim columns, NodeNorm mapping failures"
+    )
     print(f"{n_rows_after_nodenorm} rows after NodeNorming ({n_rows_after_nodenorm/n_rows_original:.1%})\n")
 
     ## COLUMN-LEVEL TRANSFORMS PART 2
@@ -256,7 +268,7 @@ def upload_documents(data_folder: str):
                     "hgnc_symbol": row.gene_symbol,
                     "hgnc": row.hgnc_id,
                 },
-                "type": "Gene"
+                "type": "Gene",
             },
             "association": {
                 "g2p_record_id": row.g2p_id,
@@ -278,7 +290,7 @@ def upload_documents(data_folder: str):
                     ## not putting disease_mim here: parsing into separate OMIM and orphanet fields
                     "name": row.disease_name,
                 },
-                "type": "Disease"
+                "type": "Disease",
             },
         }
 
