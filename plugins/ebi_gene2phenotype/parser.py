@@ -168,8 +168,7 @@ def nodenorm(dataframe: pd.DataFrame, input_col_name: str, expected_category: st
     print(f'{n_rows_no_data} row(s) for {len(mapping_failures["nodenorm_returned_none"])} IDs with no data in NodeNorm')
     print(f'{n_rows_wrong_category} row(s) for {len(mapping_failures["wrong_category"])} IDs '
           f'with the wrong NodeNormed category (not {expected_category})')
-    print(f'{n_rows_no_label} row(s) for {len(mapping_failures["no_label"])} IDs with no label in NodeNorm')
-    print("\n")
+    print(f'{n_rows_no_label} row(s) for {len(mapping_failures["no_label"])} IDs with no label in NodeNorm\n')
 
 
 ## main function can have any name.
@@ -198,9 +197,24 @@ def upload_documents(data_folder: str):
     ## drop duplicates if no error was raised
     df.drop_duplicates(inplace=True, ignore_index=True)
 
-    ## COLUMN-LEVEL TRANSFORMS PART 1
-    ## 1. adding Translator/biolink prefixes to IDs
-    df["gene_mim"] = "OMIM:" + df["gene_mim"]
+    ## DROP RECORDS/ROWS with confidence == "refuted" or "disputed" (strong evidence of no association, negated)
+    ## print n_rows before dropping, with those confidence values
+    n_rows_original = df.shape[0]
+    n_rows_refuted = df[df["confidence"] == "refuted"].shape[0]
+    n_rows_disputed = df[df["confidence"] == "disputed"].shape[0]
+    print(f"{n_rows_original} unique rows/records in original dataset\n")
+    print(f"Removing rows based on confidence:")
+    print(f"{n_rows_refuted}: 'refuted'")
+    print(f"{n_rows_disputed}: 'disputed'\n")
+    ## drop rows, calculate n_rows after
+    df = df[~df["confidence"].isin(["refuted", "disputed"])].reset_index(drop=True)
+    n_rows_after_confidence = df.shape[0]
+    print(f"{n_rows_after_confidence} rows afterwards\n")
+
+    ## COLUMN-LEVEL TRANSFORMS
+    ## UI really wants resource website urls like this. May need to adjust over time as website changes
+    df["g2p_record_url"] = "https://www.ebi.ac.uk/gene2phenotype/lgd/" + df["g2p_id"]
+    ## adding Translator/biolink prefixes to IDs used for NODENORM
     df["hgnc_id"] = "HGNC:" + df["hgnc_id"]
     df["disease_mim"] = df["disease_mim"].str.replace("Orphanet", "orphanet")
     ## done to preserve NA, orphanet values in column
@@ -213,113 +227,75 @@ def upload_documents(data_folder: str):
     nodenorm(df, "hgnc_id", "biolink:Gene", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
              ["gene_nodenorm_id", "gene_nodenorm_label"])
     nodenorm(df, "disease_mim", "biolink:Disease", "https://nodenorm.ci.transltr.io/get_normalized_nodes",
-             ["disease_nodenorm_id", "disease_nodenorm_label"])
-    ## print number of rows before dropping
-    n_rows_original = df.shape[0]
-    print(f"{n_rows_original} rows/records before NodeNorming")
+             ["disease_nodenorm_id", "disease_nodenorm_label"])    
     ## DROP rows that have empty values in nodenorm columns
     df.dropna(subset=["gene_nodenorm_id", "gene_nodenorm_label", "disease_nodenorm_id", "disease_nodenorm_label"],
               inplace=True)
     ## print number of rows dropped and left
     n_rows_after_nodenorm = df.shape[0]
-    print(f"{n_rows_original - n_rows_after_nodenorm} rows removed during NodeNorming process. Reasons: "
+    print(f"{n_rows_after_confidence - n_rows_after_nodenorm} rows removed during NodeNorming process. Reasons: "
           "NA values in hgnc_id or disease_mim columns, NodeNorm mapping failures")
-    print(f"{n_rows_after_nodenorm} rows after NodeNorming ({n_rows_after_nodenorm/n_rows_original:.1%})\n")
-
-    ## COLUMN-LEVEL TRANSFORMS PART 2
-    ## 2. strip whitespace
-    df["disease_name"] = df["disease_name"].str.strip()
-    df["comments"] = df["comments"].str.strip()
-    ## 3. create new columns
-    ## UI really wants resource website urls like this. May need to adjust over time as website changes
-    df["g2p_record_url"] = "https://www.ebi.ac.uk/gene2phenotype/lgd/" + df["g2p_id"]
-    ## 4. replace panel keywords with full human-readable names (based on what's shown on G2P website)
-    ## keeping "Hearing loss" as-is, changing all other values
-    df["panel"] = df["panel"].str.replace("DD", "Developmental disorders")
-    df["panel"] = df["panel"].str.replace("Cancer", "Cancer disorders")
-    df["panel"] = df["panel"].str.replace("Cardiac", "Cardiac disorders")
-    df["panel"] = df["panel"].str.replace("Eye", "Eye disorders")
-    df["panel"] = df["panel"].str.replace("Skeletal", "Skeletal disorders")
-    df["panel"] = df["panel"].str.replace("Skin", "Skin disorders")
+    print(f"{n_rows_after_nodenorm} rows after NodeNorming ({n_rows_after_nodenorm/n_rows_after_confidence:.1%})\n")
 
     ## GENERATING DOCS
+    ## format: list of TRAPI edges, except _id is kept for BioThings just in case
     ## using itertuples because it's faster, preserves column datatypes
     for row in df.itertuples(index=False):
-        ## 1. simple assignments
+        ## simple assignments: no NA or "if"
         document = {
             "_id": row.g2p_id,
-            "subject": {
-                "id": row.gene_nodenorm_id,
-                "label": row.gene_nodenorm_label,
-                "original_subject": row.hgnc_id,
-                "original_data": {
-                    "hgnc_symbol": row.gene_symbol,
-                    "hgnc": row.hgnc_id,
+            "subject": row.gene_nodenorm_id,
+            "qualifiers": [  ## needs data-modeling/TRAPI validation review
+                {
+                    "qualifier_type_id": "biolink:subject_form_or_variant_qualifier",
+                    "qualifier_value": "genetic_variant_form",
+                }
+            ],
+            "object": row.disease_nodenorm_id,
+            "sources": [
+                {
+                    "resource_id": "infores:ebi-gene2phenotype",
+                    "resource_role": "primary_knowledge_source",
+                    "source_record_urls": [row.g2p_record_url],
+                }
+            ],
+            "attributes": [
+                {"attribute_type_id": "biolink:knowledge_level", "value": "knowledge_assertion"},
+                {"attribute_type_id": "biolink:agent_type", "value": "manual_agent"},
+                {
+                    "attribute_type_id": "biolink:original_subject",
+                    "original_attribute_name": "hgnc id",  ## original column name
+                    "value": row.hgnc_id,
                 },
-                "type": "Gene"
-            },
-            "association": {
-                "g2p_record_id": row.g2p_id,
-                "g2p_record_url": row.g2p_record_url,
-                "allelic_requirement": row.allelic_requirement,
-                "confidence": row.confidence,
-                "molecular_mechanism": row.molecular_mechanism,
-                "molecular_mechanism_categorisation": row.molecular_mechanism_categorisation,
-                "g2p_panels": [i.strip() for i in row.panel.split(";")],
-                ## cast into str for export
-                "date_of_last_review": str(row.date_of_last_review),
-            },
-            "object": {
-                "id": row.disease_nodenorm_id,
-                "label": row.disease_nodenorm_label,
-                ## currently, after NodeNorming, no NAs in OMIM/orphanet column
-                "original_object": row.disease_mim,
-                "original_data": {
-                    ## not putting disease_mim here: parsing into separate OMIM and orphanet fields
-                    "name": row.disease_name,
+                {  ## currently, after NodeNorming, no NAs in OMIM/orphanet column
+                    "attribute_type_id": "biolink:original_object",
+                    "original_attribute_name": "disease mim",  ## original column name
+                    "value": row.disease_mim,
                 },
-                "type": "Disease"
-            },
+                {  ## needs data-modeling/TRAPI validation review
+                    ## EBI gene2pheno website calls this "Last Updated"/"Last Updated On"
+                    "attribute_type_id": "biolink:update_date",
+                    "original_attribute_name": "date of last review",  ## original column name
+                    "value": str(row.date_of_last_review),
+                },
+            ],
         }
 
-        ## 2. only create field if value is not NA. list comprehension with split won't work if value is NA
-        ## 2A. Gene
-        if pd.notna(row.gene_mim):
-            document["subject"]["original_data"]["omim"] = row.gene_mim
-        if pd.notna(row.previous_gene_symbols):
-            document["subject"]["original_data"]["previous_gene_symbols"] = [
-                i.strip() for i in row.previous_gene_symbols.split(";")
-            ]
-
-        ## 2B. Association
-        if pd.notna(row.cross_cutting_modifier):
-            document["association"]["cross_cutting_modifiers"] = [
-                i.strip() for i in row.cross_cutting_modifier.split(";")
-            ]
-        if pd.notna(row.variant_consequence):
-            document["association"]["variant_consequences"] = [i.strip() for i in row.variant_consequence.split(";")]
-        if pd.notna(row.variant_types):
-            document["association"]["variant_types"] = [i.strip() for i in row.variant_types.split(";")]
-        ## uses diff delimiters, could do more parsing
-        if pd.notna(row.molecular_mechanism_evidence):
-            document["association"]["molecular_mechanism_evidence"] = [
-                i.strip() for i in row.molecular_mechanism_evidence.split("&")
-            ]
-        if pd.notna(row.phenotypes):
-            document["association"]["phenotypes"] = [i.strip() for i in row.phenotypes.split(";")]
+        ## more complex assignments ("if", handling NA). When value is NA, list comprehension with split won't work
+        ## predicate
+        if row.confidence == "limited":
+            document["predicate"] = "biolink:related_to"
+        elif row.confidence in ["moderate", "strong", "definitive"]:
+            document["predicate"] = "biolink:causes"
+        else:
+            raise ValueError(f"Unexpected confidence value during predicate mapping: {row.confidence}. Adjust parser.")
+        ## publications
         if pd.notna(row.publications):
-            document["association"]["pmids"] = [i.strip() for i in row.publications.split(";")]
-        if pd.notna(row.comments):
-            document["association"]["curator_comments"] = row.comments
-
-        ## 2C. Disease
-        ## disease_mim: create field depending on whether OMIM or orphanet
-        if pd.notna(row.disease_mim):
-            if row.disease_mim.startswith("orphanet"):
-                document["object"]["original_data"]["orphanet"] = row.disease_mim
-            elif row.disease_mim.startswith("OMIM"):
-                document["object"]["original_data"]["omim"] = row.disease_mim
-        if pd.notna(row.disease_MONDO):
-            document["object"]["original_data"]["mondo"] = row.disease_MONDO
+            document["attributes"].append(
+                {
+                    "attribute_type_id": "biolink:publications",
+                    "value": ["PMID:" + i.strip() for i in row.publications.split(";")]
+                }
+            )
 
         yield document
