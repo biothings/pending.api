@@ -59,6 +59,7 @@ from . import multiomics_ehr_risk_kp  # use plugin "clinical_risk_kp"
 from . import multiomics_wellness
 from . import ncit
 from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 'pending-mondo', 'pending-chebi'
+from . import nodenorm
 from . import pfocr
 from . import phewas
 from . import pseudocap_go

@@ -56,6 +56,7 @@ class PendingAPILauncher:
     def _configure_logging(self):
         root_logger = logging.getLogger()
 
+        config = {}
         if isinstance(self.config, ConfigPackage):
             config = self.config.root
         elif isinstance(self.config, PendingAPIConfigModule):

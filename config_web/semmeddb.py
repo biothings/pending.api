@@ -14,6 +14,7 @@ ES_DOC_TYPE = "association"
 
 API_PREFIX = "semmeddb"
 API_VERSION = ""
+SMARTAPI_ID = "1d288b3a3caf75d541ffaae3aab386c8"
 
 #########################
 # URLSpec kwargs Part 1 #

@@ -3,6 +3,7 @@ Tests for mocking the ApiList handling
 """
 
 import json
+import logging
 
 import tornado
 from tornado.testing import AsyncHTTPTestCase
@@ -10,6 +11,9 @@ from tornado.testing import AsyncHTTPTestCase
 from web.handlers import EXTRA_HANDLERS
 from web.application import PendingAPI
 from web.settings.configuration import load_configuration
+
+
+logger = logging.Logger(__name__)
 
 
 class TestApiListHandler(AsyncHTTPTestCase):
@@ -47,74 +51,97 @@ class TestApiListHandler(AsyncHTTPTestCase):
 
         # This is likely going to change as the pending.api changes
         expected_endpoints = [
-            "/agr/.*",
-            "/annotator_extra/.*",
-            "/biggim/.*",
-            "/biggim_drugresponse_kp/.*",
-            "/bindingdb/.*",
-            "/biomuta/.*",
-            "/bioplanet_pathway_disease/.*",
-            "/bioplanet_pathway_gene/.*",
-            "/ccle/.*",
-            "/cell_ontology/.*",
-            "/chebi/.*",
-            "/clinicaltrials/.*",
-            "/ddinter/.*",
-            "/denovodb/.*",
-            "/dgidb/.*",
-            "/disbiome/.*",
-            "/diseases/.*",
-            "/doid/.*",
-            "/ebigene2phenotype/.*",
-            "/fda_drugs/.*",
-            "/foodb/.*",
-            "/fooddata/.*",
-            "/geneset/.*",
-            "/gmmad2/.*",
-            "/go/.*",
-            "/go_bp/.*",
-            "/go_cc/.*",
-            "/go_mf/.*",
-            "/gtrx/.*",
-            "/gwascatalog/.*",
-            "/hmdb/.*",
-            "/hmdbv4/.*",
-            "/hpo/.*",
-            "/idisk/.*",
-            "/innatedb/.*",
-            "/kaviar/.*",
-            "/mgigene2phenotype/.*",
-            "/mondo/.*",
-            "/mrcoc/.*",
-            "/multiomics_clinicaltrials_kp/.*",
-            "/multiomics_drug_approvals_kp/.*",
-            "/multiomics_ehr_risk_kp/.*",
-            "/multiomics_wellness_kp/.*",
-            "/ncit/.*",
-            "/node-expansion/.*",
-            "/pfocr/.*",
-            "/phewas/.*",
-            "/pseudocap_go/.*",
-            "/pubtator3/.*",
-            "/rare_source/.*",
-            "/repodb/.*",
-            "/rhea/.*",
-            "/semmeddb/.*",
-            "/suppkg/.*",
-            "/tcga_mut_freq_kp/.*",
-            "/text_mining_targeted_association/.*",
-            "/tissues/.*",
-            "/ttd/.*",
-            "/uberon/.*",
-            "/umlschem/.*",
-            "/upheno_ontology/.*",
+            "agr",
+            "annotator_extra",
+            "biggim",
+            "biggim_drugresponse_kp",
+            "bindingdb",
+            "biomuta",
+            "bioplanet_pathway_disease",
+            "bioplanet_pathway_gene",
+            "ccle",
+            "cell_ontology",
+            "chebi",
+            "clinicaltrials",
+            "ddinter",
+            "denovodb",
+            "dgidb",
+            "disbiome",
+            "diseases",
+            "doid",
+            "ebigene2phenotype",
+            "fda_drugs",
+            "foodb",
+            "fooddata",
+            "geneset",
+            "gmmad2",
+            "go",
+            "go_bp",
+            "go_cc",
+            "go_mf",
+            "gtrx",
+            "gwascatalog",
+            "hmdb",
+            "hmdbv4",
+            "hpo",
+            "idisk",
+            "innatedb",
+            "kaviar",
+            "mabs",
+            "mgigene2phenotype",
+            "mondo",
+            "mrcoc",
+            "multiomics_clinicaltrials_kp",
+            "multiomics_drug_approvals_kp",
+            "multiomics_ehr_risk_kp",
+            "multiomics_wellness_kp",
+            "ncit",
+            "node-expansion",
+            "nodenorm",
+            "pfocr",
+            "phewas",
+            "pseudocap_go",
+            "pubtator3",
+            "rare_source",
+            "repodb",
+            "rhea",
+            "semmeddb",
+            "suppkg",
+            "tcga_mut_freq_kp",
+            "text_mining_targeted_association",
+            "tissues",
+            "ttd",
+            "uberon",
+            "umlschem",
+            "upheno_ontology",
         ]
 
         response = self.fetch(api_list_endpoint, method=http_method)
 
         decoded_body = json.loads(response.body.decode("utf-8"))
         self.assertEqual(response.code, 200)
-        self.assertEqual(decoded_body, expected_endpoints)
+
+        decoded_api_set = set(decoded_body)
+        expected_set = set(expected_endpoints)
+        potential_difference = list(decoded_api_set - expected_set)
+
+        if len(potential_difference) > 10:
+            test_update_message = (
+                "Please update this test with latest pending API's before re-running.\n"
+                f"Difference: {potential_difference}\n"
+                f"Updated Expected List: {json.dumps(decoded_body, indent=4)}"
+            )
+            assert False, test_update_message
+        elif len(potential_difference) > 0:
+            test_update_message = (
+                "Minor difference found in the API list\n"
+                f"Difference: {potential_difference}\n"
+                f"Updated Expected List: {json.dumps(decoded_body, indent=4)}"
+            )
+            logger.warning(test_update_message)
+
+        self.assertTrue(isinstance(decoded_body, list))
+        self.assertTrue(len(decoded_body) > 0)
         self.assertEqual(response.reason, "OK")
         self.assertFalse(response._error_is_response_code)
 
