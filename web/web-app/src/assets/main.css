@@ -1,0 +1,70 @@
+@import url('app.css');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-main-light: #501cbe;
+  --color-main-medium: #7209b7;
+  --color-main-dark: #1d2050;
+  --color-main-accent: #fbff12;
+  --color-main-muted: #f7f5ef;
+}
+
+#pending-api-table tr:nth-child(even) {
+  @apply bg-gray-200 dark:bg-gray-700;
+}
+
+#pending-api-table tr a {
+  @apply dark:text-white;
+}
+
+.card {
+  @apply bg-gray-500 dark:bg-main-medium;
+}
+
+.text-warning {
+  @apply text-main-accent;
+}
+
+.active-bg {
+  @apply bg-main-light;
+}
+
+.text-mute {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+/* Code Editor */
+
+.syntax {
+  @apply text-blue-700 dark:text-cyan-300;
+}
+
+.string {
+  @apply text-green-700 dark:text-lime-400;
+}
+
+.number {
+  @apply text-purple-700 dark:text-purple-400;
+}
+
+.boolean {
+  @apply text-purple-700 dark:text-fuchsia-400;
+}
+
+.disclosure {
+  font-weight: bold;
+}
+
+.keyword {
+  color: red;
+}
+
+.object.syntax {
+  @apply text-green-700 dark:text-yellow-200;
+}
+
+.array.syntax {
+  @apply text-blue-700 dark:text-blue-300;
+}
