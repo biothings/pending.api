@@ -39,10 +39,17 @@ function toggleType(type) {
       <div class="container row m-auto">
         <div class="col-sm-3 d-flex justify-center align-items-center">
           <img
+            v-if="store.app_version == 'pending'"
             class="hero-image"
             width="150px"
             src="@/assets/img/infinity.svg"
-            alt="BioThings Studio"
+            alt="Pending APIs"
+          />
+          <img v-else
+            class="hero-image"
+            width="250px"
+            src="@/assets/img/tr.jpg"
+            alt="TRANSLATOR"
           />
         </div>
         <template v-if="store.app_version == 'pending'">
@@ -147,8 +154,8 @@ function toggleType(type) {
               <small class="d-block">Filter by Entity Type</small>
               <template v-for="type in apiStore.biothing_types" :key="type.name">
                 <span
-                  class="entity-badge badge border border-light m-1 pointer"
-                  :class="[type.active ? 'bg-main-accent text-black' : 'badge-dark']"
+                  class="entity-badge badge border border-light m-1 pointer shadow"
+                  :class="[type.active ? 'badge-active' : 'badge-dark']"
                   @click.prevent="toggleType(type.name)"
                 >
                   <i class="fas fa-circle" :style="{ color: type.color }"></i> {{ type.name }}

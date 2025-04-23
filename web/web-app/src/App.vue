@@ -11,6 +11,7 @@ const store = useLayoutStore()
 const apiStore = useAPIStore()
 
 onMounted(() => {
+  store.checkLocalStorage();
   if (location.host.includes('pending')) {
     store.setAppVersion('pending')
   } else {

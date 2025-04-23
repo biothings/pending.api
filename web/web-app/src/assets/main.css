@@ -19,6 +19,15 @@
   @apply dark:text-white;
 }
 
+.badge-active{
+  @apply bg-purple-500 dark:bg-main-accent dark:text-black;
+}
+
+.smartapi-box {
+  border-radius: 10px;
+  @apply bg-gray-200 dark:bg-gray-900;
+}
+
 .card {
   @apply bg-gray-500 dark:bg-main-medium;
 }

@@ -5,6 +5,19 @@ export const useLayoutStore = defineStore('layout', () => {
   const darkMode = ref(false)
   function toggleDarkMode() {
     darkMode.value = !darkMode.value
+    if (darkMode.value) {
+      localStorage.setItem('darkMode', 'true')
+    } else {
+      localStorage.removeItem('darkMode')
+    }
+  }
+
+  function checkLocalStorage() {
+    if (localStorage.getItem('darkMode') === 'true') {
+      darkMode.value = true
+    } else {
+      darkMode.value = false
+    }
   }
 
   const app_version = ref('')
@@ -19,5 +32,5 @@ export const useLayoutStore = defineStore('layout', () => {
     }, 1000)
   }
 
-  return { darkMode, toggleDarkMode, app_version, setAppVersion, loading, setLoading }
+  return { darkMode, toggleDarkMode, app_version, setAppVersion, loading, setLoading, checkLocalStorage }
 })

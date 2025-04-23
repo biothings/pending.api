@@ -434,6 +434,41 @@ watch(
             </a>
           </div>
         </div>
+
+        <!-- SmartAPI -->
+         <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-3">
+          <img src="@/assets/img/logo-large-text.png" alt="SmartAPI" class="w-50 m-auto" />
+          <small class="d-block mt-2">
+            <a
+              rel="noopener"
+              :href="'https://smart-api.info/registry?q=' + metadata.smartapi.id"
+              target="_blank"
+            >
+              More Info
+              <i class="fas fa-external-link-square-alt"></i>
+            </a>
+          </small>
+          <small class="d-block mt-2">
+            <a
+              rel="noopener"
+              :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
+              target="_blank"
+            >
+              Documentation
+              <i class="fas fa-external-link-square-alt"></i>
+            </a>
+          </small>
+          <small class="d-block mt-2">
+            <a
+              rel="noopener"
+              :href="'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' + metadata.smartapi.id"
+              target="_blank"
+            >
+              MetaKG
+              <i class="fas fa-external-link-square-alt"></i>
+            </a>
+          </small>
+         </div>
       </div>
 
       <div class="col-sm-12 col-md-9 col-lg-10 p-4 pt-4">

@@ -36,23 +36,23 @@ function handleSubmit() {
       </RouterLink>
     </template>
     <template v-else>
-      <RouterLink class="navbar-brand border border-white" to="/"
+      <RouterLink class="navbar-brand" to="/"
         ><img class="w-[50px]" alt="Translator" src="@/assets/img/tr.jpg"
       /></RouterLink>
     </template>
     <div class="ml-auto">
       <form class="form-inline d-flex mr-4" @submit="handleSubmit">
-        <label for="api_select" class="text-main-accent mr-2">Switch to</label>
+        <label for="api_select" class="text-white mr-2">Switch to</label>
         <input
           list="apis"
           id="api_select"
           placeholder="Enter API Name"
           name="api_select"
-          class="bg-main-accent dark:placeholder:text-main-light border-0 text-theme-dark pl-2"
+          class="bg-white dark:placeholder:text-main-light border-0 text-theme-dark pl-2"
           v-model="store.query"
         />
         <datalist id="apis">
-          <option v-for="api in store.apis" :key="api.name" :value="api.name"></option>
+          <option v-for="api in store.list" :key="api" :value="api"></option>
         </datalist>
       </form>
     </div>
