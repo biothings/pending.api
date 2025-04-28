@@ -1,0 +1,23 @@
+:9000 {
+
+    @staticPaths {
+        path / /favicon.ico /robots.txt /index /index/ /index.html /assets/*
+    }
+
+    log {
+        output stdout
+        format json
+    }
+    encode zstd gzip
+
+    route {
+        handle @staticPaths {
+            root * /srv/app/static
+            file_server
+        }
+
+        handle {
+            reverse_proxy localhost:9001
+        }
+    }
+}
