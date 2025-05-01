@@ -15,6 +15,10 @@
   @apply bg-gray-200 dark:bg-gray-700;
 }
 
+.fa-external-link-square-alt {
+  @apply text-blue-300 dark:text-blue-400;
+}
+
 #pending-api-table tr a {
   @apply dark:text-white;
 }
@@ -25,7 +29,7 @@
 
 .smartapi-box {
   border-radius: 10px;
-  @apply bg-gray-200 dark:bg-gray-900;
+  @apply bg-blue-100 dark:bg-gray-900;
 }
 
 .card {

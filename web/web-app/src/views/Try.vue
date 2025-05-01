@@ -356,7 +356,7 @@ watch(
     >
       <div
         v-if="metadata && metadata.src"
-        class="shadow bg-slate-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
+        class="shadow bg-gray-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
       >
         <div class="text-left">
           <p v-if="!existingEntity" class="m-0">
@@ -436,38 +436,40 @@ watch(
         </div>
 
         <!-- SmartAPI -->
-         <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-3">
-          <img src="@/assets/img/logo-large-text.png" alt="SmartAPI" class="w-50 m-auto" />
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/registry?q=' + metadata.smartapi.id"
-              target="_blank"
-            >
-              More Info
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
-              target="_blank"
-            >
-              Documentation
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' + metadata.smartapi.id"
-              target="_blank"
-            >
-              MetaKG
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
+         <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-5">
+          <div class="text-xs list-none">
+            <div class="mb-2">
+              <i class="fas text-green-700 dark:text-lime-500 fa-registered"></i> Registered on
+              <a
+                rel="noopener"
+                :href="'https://smart-api.info/registry?q=' + metadata.smartapi.id"
+                target="_blank"
+              >
+                SmartAPI
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+            <div>
+              <a
+                rel="noopener"
+                :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
+                target="_blank"
+              >
+                Documentation
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+            <div>
+              <a
+                rel="noopener"
+                :href="'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' + metadata.smartapi.id"
+                target="_blank"
+              >
+                MetaKG
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+          </div>
          </div>
       </div>
 

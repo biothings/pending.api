@@ -1,27 +1,38 @@
 <script setup>
 import { useLayoutStore } from '../stores/layout'
 import { useAPIStore } from '../stores/apis'
-import { watch } from 'vue'
+import { watch, computed, ref } from 'vue'
 import router from '@/router'
 const layout = useLayoutStore()
 const store = useAPIStore()
+const localQuery = ref('')
 
 watch(
-  () => store.query,
+  () => localQuery.value,
   (query) => {
     if (query && store.list.includes(query)) {
       router.push('/try/' + query)
     }
-  },
+  }
 )
+
+let results = computed(() => {
+  if (localQuery.value) {
+    return store.list.filter((api) =>
+      api.toLowerCase().includes(localQuery.value.toLowerCase())
+    )
+  } else {
+    return store.list
+  }
+})
 
 function handleSubmit() {
   if (store.query) {
     router.push('/try/' + query)
   }
 }
-</script>
 
+</script>
 <template>
   <nav
     id="nav"
@@ -41,7 +52,7 @@ function handleSubmit() {
       /></RouterLink>
     </template>
     <div class="ml-auto">
-      <form class="form-inline d-flex mr-4" @submit="handleSubmit">
+      <form class="form-inline d-flex mr-4 relative" @submit="handleSubmit">
         <label for="api_select" class="text-white mr-2">Switch to</label>
         <input
           list="apis"
@@ -49,12 +60,29 @@ function handleSubmit() {
           placeholder="Enter API Name"
           name="api_select"
           class="bg-white dark:placeholder:text-main-light border-0 text-theme-dark pl-2"
-          v-model="store.query"
+          v-model="localQuery"
+          autocomplete="off"
         />
-        <datalist id="apis">
-          <option v-for="api in store.list" :key="api" :value="api"></option>
-        </datalist>
+        <ul
+          v-if="localQuery && results.length"
+          class="absolute top-8 left-20 bg-violet-100 dark:bg-main-dark max-h-[500px] z-400
+          overflow-scroll m-0 p-1 text-sm cursor-pointer shadow hidden sm:inline rounded"
+        >
+          <li
+            v-for="api in results"
+            @click="
+              localQuery = '';
+              store.query = api;
+              router.push('/try/' + api);
+            "
+            :key="api"
+            class="p-0 hover:bg-main-medium hover:text-white"
+          >
+            {{ api }}
+          </li>
+        </ul>
       </form>
+      
     </div>
     <button @click="layout.toggleDarkMode" class="btn btn-sm btn-outline-light">
       <i class="bi bi-sun-fill" v-if="!layout.darkMode"></i>
