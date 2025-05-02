@@ -142,7 +142,8 @@ function toggleType(type) {
               v-model="query"
               type="text"
               name="search"
-              class="bg-white placeholder:text-main-light text-main-dark w-50 px-2"
+              class="bg-white placeholder:text-main-light rounded caret-pink-500
+              focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 text-main-dark w-50 px-2"
               placeholder="Filter by name"
               ref="searchInput"
               autofocus

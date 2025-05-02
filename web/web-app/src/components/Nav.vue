@@ -59,7 +59,9 @@ function handleSubmit() {
           id="api_select"
           placeholder="Enter API Name"
           name="api_select"
-          class="bg-white dark:placeholder:text-main-light border-0 text-theme-dark pl-2"
+          class="bg-white dark:placeholder:text-main-light 
+          focus:outline-2 focus:outline-offset-2 focus:outline-violet-500
+          border-0 text-theme-dark pl-2 caret-pink-500"
           v-model="localQuery"
           autocomplete="off"
         />
