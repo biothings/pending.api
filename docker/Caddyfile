@@ -1,0 +1,29 @@
+:9000 {
+
+    log {
+        output stdout
+        format json
+    }
+    encode zstd gzip
+
+    # Handle /status probe requests directly
+    handle /status {
+        respond "OK" 200
+    }
+
+    # Handle static file requests
+    @staticPaths {
+        path / /favicon.ico /robots.txt /index /index/ /index.html /assets/*
+    }
+    handle @staticPaths {
+        # Root points to the shared volume mount path
+        root * /srv/app/static
+        file_server
+    }
+
+    # Handle other requests by proxying to the Python app
+    handle {
+        reverse_proxy localhost:9001
+    }
+}
+
