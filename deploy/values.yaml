@@ -15,15 +15,30 @@ deployment:
       maxSurge: 0
 
 image:
-  repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: DOCKER_VERSION_VALUE
+  python:
+    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api-python
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: DOCKER_VERSION_VALUE
+  caddy:
+    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api-caddy
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: DOCKER_VERSION_VALUE
 
 containers:
   name: pendingapiserver
   es_host: ES_HOST_VALUE
   port: 9000
+
+containers:
+  python:
+    name: pendingapipython
+    port: 9001
+    es_host: ES_HOST_VALUE
+  caddy:
+    name: pendingapicaddy
+    port: 9000
 
 env:
   OPENTELEMETRY_ENABLED_VALUE: True
