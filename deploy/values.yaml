@@ -27,17 +27,17 @@ image:
     tag: DOCKER_VERSION_VALUE
 
 containers:
-  name: pendingapiserver
+  name: pending-api-server
   es_host: ES_HOST_VALUE
   port: 9000
 
 containers:
   python:
-    name: pendingapipython
+    name: pending-api-python
     port: 9001
     es_host: ES_HOST_VALUE
   caddy:
-    name: pendingapicaddy
+    name: pending-api-caddy
     port: 9000
 
 env:
