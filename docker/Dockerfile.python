@@ -28,5 +28,5 @@ ENV OPENTELEMETRY_JAEGER_PORT 6831
 
 EXPOSE 9001
 
-ENTRYPOINT ["./venv/bin/python", "index.py"]
+ENTRYPOINT ["/home/pending/venv/bin/python", "index.py"]
 CMD ["--conf=config_web", "--port=9001"]
