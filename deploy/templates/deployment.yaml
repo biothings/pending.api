@@ -24,7 +24,8 @@ spec:
     spec:
       containers:
         - name: {{ .Values.containers.caddy.name }}
-          image: "{{ .Values.image.caddy.repository }}:{{ .Values.image.caddy.tag }}"
+          image: "{{ .Values.caddy.image.repository }}:{{ .Values.caddy.image.tag }}"
+          imagePullPolicy: {{ .Values.caddy.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.containers.caddy.port }}
           startupProbe:  # To determine if a container application has started successfully.
@@ -59,17 +60,19 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.python.repository }}:{{ .Values.image.python.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.python.image.repository }}:{{ .Values.python.image.tag }}"
+          imagePullPolicy: {{ .Values.python.image.pullPolicy }}
           env:
             - name: ES_HOST
               value: {{ .Values.containers.python.es_host }}
             - name: OPENTELEMETRY_ENABLED
-              value: "{{ .Values.containers.python.OPENTELEMETRY_ENABLED_VALUE }}"  
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_ENABLED_VALUE | default "False"}}"
+            - name: OPENTELEMETRY_SERVICE_NAME
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_SERVICE_NAME_VALUE | default "Service Provider"}}"
             - name: OPENTELEMETRY_JAEGER_HOST
-              value: "{{ .Values.containers.python.OPENTELEMETRY_JAEGER_HOST_VALUE }}"
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_JAEGER_HOST_VALUE | default "localhost" }}"
             - name: OPENTELEMETRY_JAEGER_PORT
-              value: "{{ .Values.containers.python.OPENTELEMETRY_JAEGER_PORT_VALUE }}"      
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_JAEGER_PORT_VALUE | default 6831 }}"
           ports:
             - name: http
               containerPort: {{ .Values.containers.python.port }}

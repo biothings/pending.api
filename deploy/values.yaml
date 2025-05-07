@@ -14,36 +14,33 @@ deployment:
       # It ensures that a new pod is ready before taking an old pod down.
       maxSurge: 0
 
-image:
-  python:
+python:
+  image:
     repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api-python
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: DOCKER_VERSION_VALUE
-  caddy:
+caddy:
+  image:
     repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api-caddy
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: DOCKER_VERSION_VALUE
 
 containers:
-  name: pending-api-server
-  es_host: ES_HOST_VALUE
-  port: 9000
-
-containers:
   python:
     name: pending-api-python
-    port: 9001
     es_host: ES_HOST_VALUE
+    port: 9001
+    env:
+      OPENTELEMETRY_ENABLED_VALUE: True
+      OPENTELEMETRY_SERVICE_NAME: "Service Provider"
+      OPENTELEMETRY_JAEGER_HOST: localhost
+      OPENTELEMETRY_JAEGER_PORT: 6831
+
   caddy:
     name: pending-api-caddy
     port: 9000
-
-env:
-  OPENTELEMETRY_ENABLED_VALUE: True
-  #OPENTELEMETRY_JAEGER_HOST: OPENTELEMETRY_JAEGER_HOST_VALUE
-  #OPENTELEMETRY_JAEGER_PORT_VALUE: 
 
 service:
   type: ClusterIP
@@ -111,4 +108,3 @@ resources:
   limits:
     memory: 29Gi # 58Gi / 2
     cpu: 5000m # 14000m / 2 
-
