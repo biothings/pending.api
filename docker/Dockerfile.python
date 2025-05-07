@@ -1,5 +1,5 @@
 # Dockerfile.python
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 ARG PENDING_REPO=https://github.com/biothings/pending.api.git
 ARG PENDING_BRANCH=add-caddy-server-container
@@ -20,11 +20,11 @@ RUN ./venv/bin/pip install --upgrade pip && \
 
 WORKDIR /home/pending/pending.api
 
-ENV ES_HOST "http://127.0.0.1:9200"
-ENV OPENTELEMETRY_ENABLED False
-ENV OPENTELEMETRY_SERVICE_NAME "Service Provider"
-ENV OPENTELEMETRY_JAEGER_HOST localhost
-ENV OPENTELEMETRY_JAEGER_PORT 6831
+ENV ES_HOST="http://127.0.0.1:9200"
+ENV OPENTELEMETRY_ENABLED=False
+ENV OPENTELEMETRY_SERVICE_NAME="Service Provider"
+ENV OPENTELEMETRY_JAEGER_HOST="localhost"
+ENV OPENTELEMETRY_JAEGER_PORT=6831
 
 EXPOSE 9001
 
