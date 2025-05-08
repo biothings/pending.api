@@ -67,9 +67,9 @@ function handleSubmit() {
           <li
             v-for="api in results"
             @click="
-              localQuery = ''
-              store.query = api
-              router.push('/try/' + api)
+              localQuery = '';
+              store.query = api;
+              router.push('/try/' + api);
             "
             :key="api"
             class="p-0 hover:bg-main-medium hover:text-white"
