@@ -23,7 +23,7 @@
   @apply dark:text-white;
 }
 
-.badge-active{
+.badge-active {
   @apply bg-purple-500 dark:bg-main-accent dark:text-black;
 }
 

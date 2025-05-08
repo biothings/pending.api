@@ -13,14 +13,12 @@ watch(
     if (query && store.list.includes(query)) {
       router.push('/try/' + query)
     }
-  }
+  },
 )
 
 let results = computed(() => {
   if (localQuery.value) {
-    return store.list.filter((api) =>
-      api.toLowerCase().includes(localQuery.value.toLowerCase())
-    )
+    return store.list.filter((api) => api.toLowerCase().includes(localQuery.value.toLowerCase()))
   } else {
     return store.list
   }
@@ -31,7 +29,6 @@ function handleSubmit() {
     router.push('/try/' + query)
   }
 }
-
 </script>
 <template>
   <nav
@@ -59,23 +56,20 @@ function handleSubmit() {
           id="api_select"
           placeholder="Enter API Name"
           name="api_select"
-          class="bg-white dark:placeholder:text-main-light 
-          focus:outline-2 focus:outline-offset-2 focus:outline-violet-500
-          border-0 text-theme-dark pl-2 caret-pink-500"
+          class="bg-white dark:placeholder:text-main-light focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 border-0 text-theme-dark pl-2 caret-pink-500"
           v-model="localQuery"
           autocomplete="off"
         />
         <ul
           v-if="localQuery && results.length"
-          class="absolute top-8 left-20 bg-violet-100 dark:bg-main-dark max-h-[500px] z-400
-          overflow-scroll m-0 p-1 text-sm cursor-pointer shadow hidden sm:inline rounded"
+          class="absolute top-8 left-20 bg-violet-100 dark:bg-main-dark max-h-[500px] z-400 overflow-scroll m-0 p-1 text-sm cursor-pointer shadow hidden sm:inline rounded"
         >
           <li
             v-for="api in results"
             @click="
-              localQuery = '';
-              store.query = api;
-              router.push('/try/' + api);
+              localQuery = ''
+              store.query = api
+              router.push('/try/' + api)
             "
             :key="api"
             class="p-0 hover:bg-main-medium hover:text-white"
@@ -84,7 +78,6 @@ function handleSubmit() {
           </li>
         </ul>
       </form>
-      
     </div>
     <button @click="layout.toggleDarkMode" class="btn btn-sm btn-outline-light">
       <i class="bi bi-sun-fill" v-if="!layout.darkMode"></i>

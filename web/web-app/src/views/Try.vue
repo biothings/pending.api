@@ -339,12 +339,9 @@ watch(
 
 <template>
   <section id="try-app" class="min-height-100">
-    <div
-      v-if="validAPI"
-      class="p-2 text-left bg-linear-to-r from-main-medium to-main-dark dark:from-main-dark dark:to-main-medium shadow"
-    >
+    <div v-if="validAPI" class="p-2 text-left bg-gray-200 dark:bg-gray-900">
       <h2
-        class="main-font ml-5 text-white"
+        class="main-font ml-5 text-main-dark dark:text-white"
         style="overflow-wrap: break-word"
         :data-text="api"
         v-text="api.split('_').join(' ')"
@@ -436,7 +433,7 @@ watch(
         </div>
 
         <!-- SmartAPI -->
-         <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-5">
+        <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-5">
           <div class="text-xs list-none">
             <div class="mb-2">
               <i class="fas text-green-700 dark:text-lime-500 fa-registered"></i> Registered on
@@ -462,7 +459,10 @@ watch(
             <div>
               <a
                 rel="noopener"
-                :href="'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' + metadata.smartapi.id"
+                :href="
+                  'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' +
+                  metadata.smartapi.id
+                "
                 target="_blank"
               >
                 MetaKG
@@ -470,10 +470,10 @@ watch(
               </a>
             </div>
           </div>
-         </div>
+        </div>
       </div>
 
-      <div class="col-sm-12 col-md-9 col-lg-10 p-4 pt-4">
+      <div class="col-sm-12 col-md-9 col-lg-10 p-4 pt-4 bg-slate-50 dark:bg-main-dark">
         <form
           class="d-flex justify-content-start flex-wrap align-items-center col-sm-12"
           @submit.prevent="testQuery()"
@@ -505,7 +505,12 @@ watch(
               />
             </template>
           </div>
-          <button class="btn btn-outline-success m-2" :disabled="!querySelected" type="submit">
+          <button
+            class="btn m-2"
+            :class="[querySelected ? 'btn-success' : 'btn-outline-secondary']"
+            :disabled="!querySelected"
+            type="submit"
+          >
             Submit
           </button>
         </form>

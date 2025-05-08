@@ -32,5 +32,13 @@ export const useLayoutStore = defineStore('layout', () => {
     }, 1000)
   }
 
-  return { darkMode, toggleDarkMode, app_version, setAppVersion, loading, setLoading, checkLocalStorage }
+  return {
+    darkMode,
+    toggleDarkMode,
+    app_version,
+    setAppVersion,
+    loading,
+    setLoading,
+    checkLocalStorage,
+  }
 })

@@ -45,12 +45,7 @@ function toggleType(type) {
             src="@/assets/img/infinity.svg"
             alt="Pending APIs"
           />
-          <img v-else
-            class="hero-image"
-            width="250px"
-            src="@/assets/img/tr.jpg"
-            alt="TRANSLATOR"
-          />
+          <img v-else class="hero-image" width="250px" src="@/assets/img/tr.jpg" alt="TRANSLATOR" />
         </div>
         <template v-if="store.app_version == 'pending'">
           <div id="home" class="jumbotron bg-none mb-0 py-5 col-sm-9 text-left">
@@ -142,8 +137,7 @@ function toggleType(type) {
               v-model="query"
               type="text"
               name="search"
-              class="bg-white placeholder:text-main-light rounded caret-pink-500
-              focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 text-main-dark w-50 px-2"
+              class="bg-white placeholder:text-main-light rounded caret-pink-500 focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 text-main-dark w-50 px-2"
               placeholder="Filter by name"
               ref="searchInput"
               autofocus
