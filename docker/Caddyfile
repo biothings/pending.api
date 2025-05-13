@@ -13,7 +13,7 @@
 
     # Handle static file requests
     @staticPaths {
-        path / /favicon.ico /robots.txt /index /index/ /index.html /assets/*
+        path / /favicon.ico /robots.txt /index /index/ /index.html /assets/* /try/*
     }
     handle @staticPaths {
         # Root points to the shared volume mount path
