@@ -58,7 +58,7 @@ function toggleType(name) {
 </script>
 
 <template>
-  <div class="card mx-2 bg-hex shadow" :class="{ 'active-bg': isActive }">
+  <div class="card m-2 bg-hex shadow" :class="{ 'active-bg': isActive }">
     <div class="card-body">
       <h5
         class="card-title pointer"

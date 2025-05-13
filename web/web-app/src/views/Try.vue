@@ -339,12 +339,9 @@ watch(
 
 <template>
   <section id="try-app" class="min-height-100">
-    <div
-      v-if="validAPI"
-      class="p-2 text-left bg-linear-to-r from-main-medium to-main-dark dark:from-main-dark dark:to-main-medium shadow"
-    >
+    <div v-if="validAPI" class="p-2 text-left bg-gray-200 dark:bg-gray-900">
       <h2
-        class="main-font ml-5 text-white"
+        class="main-font ml-5 text-main-dark dark:text-white"
         style="overflow-wrap: break-word"
         :data-text="api"
         v-text="api.split('_').join(' ')"
@@ -356,7 +353,7 @@ watch(
     >
       <div
         v-if="metadata && metadata.src"
-        class="shadow bg-slate-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
+        class="shadow bg-gray-300 dark:bg-main-medium p-4 col-sm-12 col-md-3 col-lg-2"
       >
         <div class="text-left">
           <p v-if="!existingEntity" class="m-0">
@@ -436,42 +433,47 @@ watch(
         </div>
 
         <!-- SmartAPI -->
-         <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-3">
-          <img src="@/assets/img/logo-large-text.png" alt="SmartAPI" class="w-50 m-auto" />
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/registry?q=' + metadata.smartapi.id"
-              target="_blank"
-            >
-              More Info
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
-              target="_blank"
-            >
-              Documentation
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
-          <small class="d-block mt-2">
-            <a
-              rel="noopener"
-              :href="'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' + metadata.smartapi.id"
-              target="_blank"
-            >
-              MetaKG
-              <i class="fas fa-external-link-square-alt"></i>
-            </a>
-          </small>
-         </div>
+        <div v-if="metadata.smartapi?.id" class="smartapi-box p-2 mt-5">
+          <div class="text-xs list-none">
+            <div class="mb-2">
+              <i class="fas text-green-700 dark:text-lime-500 fa-registered"></i> Registered on
+              <a
+                rel="noopener"
+                :href="'https://smart-api.info/registry?q=' + metadata.smartapi.id"
+                target="_blank"
+              >
+                SmartAPI
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+            <div>
+              <a
+                rel="noopener"
+                :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
+                target="_blank"
+              >
+                Documentation
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+            <div>
+              <a
+                rel="noopener"
+                :href="
+                  'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' +
+                  metadata.smartapi.id
+                "
+                target="_blank"
+              >
+                MetaKG
+                <i class="fas fa-external-link-square-alt"></i>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-sm-12 col-md-9 col-lg-10 p-4 pt-4">
+      <div class="col-sm-12 col-md-9 col-lg-10 p-4 pt-4 bg-slate-50 dark:bg-main-dark">
         <form
           class="d-flex justify-content-start flex-wrap align-items-center col-sm-12"
           @submit.prevent="testQuery()"
@@ -503,7 +505,12 @@ watch(
               />
             </template>
           </div>
-          <button class="btn btn-outline-success m-2" :disabled="!querySelected" type="submit">
+          <button
+            class="btn m-2"
+            :class="[querySelected ? 'btn-success' : 'btn-outline-secondary']"
+            :disabled="!querySelected"
+            type="submit"
+          >
             Submit
           </button>
         </form>
