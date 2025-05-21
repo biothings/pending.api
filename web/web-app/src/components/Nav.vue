@@ -11,7 +11,7 @@ watch(
   () => localQuery.value,
   (query) => {
     if (query && store.list.includes(query)) {
-      router.push('/try/' + query)
+      router.push('/' + query)
     }
   },
 )
@@ -26,8 +26,14 @@ let results = computed(() => {
 
 function handleSubmit() {
   if (store.query) {
-    router.push('/try/' + query)
+    router.push('/' + query)
   }
+}
+
+function handleClick(api) {
+  localQuery.value = ''
+  store.setQuery(api)
+  router.push('/' + api)
 }
 </script>
 <template>
@@ -66,11 +72,7 @@ function handleSubmit() {
         >
           <li
             v-for="api in results"
-            @click="
-              localQuery = '';
-              store.query = api;
-              router.push('/try/' + api);
-            "
+            @click="handleClick(api)"
             :key="api"
             class="p-0 hover:bg-main-medium hover:text-white"
           >

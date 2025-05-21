@@ -19,7 +19,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/try/:api',
+      path: '/:api',
       name: 'try',
       props: true,
       component: () => import('../views/Try.vue'),

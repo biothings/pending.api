@@ -51,7 +51,7 @@ onMounted(() => {
           return `<span class="text-primary">${cell.getValue()}</span>`
         },
         cellClick: function (e, cell) {
-          router.push(`/try/${cell.getValue()}`) // Use router instance
+          router.push(`/${cell.getValue()}`) // Use router instance
         },
       },
       {
@@ -105,7 +105,7 @@ watch(
   (newVal, oldVal) => {
     table.clearData()
     rows.value = makeTableRows(newVal)
-    table.setData(rows.value)
+    table.replaceData(rows.value)
   },
 )
 </script>
