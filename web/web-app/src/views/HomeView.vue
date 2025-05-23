@@ -19,6 +19,9 @@ const focusSearchInput = async () => {
 }
 
 onMounted(() => {
+  //reset the list of APIs
+  apiStore.setQuery()
+  apiStore.filterAPIs()
   focusSearchInput()
 })
 
