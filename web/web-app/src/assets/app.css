@@ -331,19 +331,6 @@ div.content a:hover {
   padding: 4px;
 }
 
-.link-list {
-  list-style: none;
-  padding: 0;
-}
-
-.link-list li::after {
-  content: ' | ';
-}
-
-.link-list li:last-child::after {
-  content: '';
-}
-
 .introP {
   position: absolute;
   bottom: 20px;

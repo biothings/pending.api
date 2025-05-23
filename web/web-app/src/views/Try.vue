@@ -394,9 +394,9 @@ watch(
         <div class="p-1" v-if="description && !multiSource">
           <small class="d-block mt-2" v-html="description"></small>
         </div>
-        <div v-if="existingEntity" class="text-left">
+        <div v-if="existingEntity" class="text-left mt-5">
           <small>Pending for integration with:</small>
-          <div v-if="metadata.biothing_type" class="badge bg-dark-trans d-block p-1 m-2">
+          <div v-if="metadata.biothing_type" class="badge bg-gray-200 dark:bg-gray-800 d-block p-1 m-2">
             <a
               v-if="metadata.biothing_type === 'gene'"
               href="https://mygene.info/"
@@ -448,6 +448,7 @@ watch(
             </div>
             <div>
               <a
+                class="ml-6"
                 rel="noopener"
                 :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
                 target="_blank"
@@ -458,6 +459,7 @@ watch(
             </div>
             <div>
               <a
+                class="ml-6"
                 rel="noopener"
                 :href="
                   'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' +
