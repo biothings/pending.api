@@ -11,6 +11,7 @@ import mygene from '@/assets/img/mygene-text.svg'
 import myvariant from '@/assets/img/myvariant-text.svg'
 import mychem from '@/assets/img/mychem-text.svg'
 import mydisease from '@/assets/img/mydisease-text.png'
+import Icon from '@/components/Icon.vue'
 
 let metadata = ref(null)
 let numberOfDocs = ref(0)
@@ -359,10 +360,8 @@ watch(
           <p v-if="!existingEntity" class="m-0">
             <small>Entity Type: </small>
             <template v-if="metadata?.biothing_type">
-              <span
-                class="badge bg-main-muted text-black shadow"
-                v-text="metadata.biothing_type"
-              ></span>
+              <strong>
+              <Icon :biotype="metadata?.biothing_type" /> {{ metadata.biothing_type }}</strong>
             </template>
           </p>
           <small class="mt-1" v-if="numberOfDocs">

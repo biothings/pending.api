@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useAPIStore } from '@/stores/apis'
+import Icon from './Icon.vue'
 
 const apiStore = useAPIStore()
 
@@ -58,14 +59,14 @@ function toggleType(name) {
 </script>
 
 <template>
-  <div class="card m-2 bg-hex shadow" :class="{ 'active-bg': isActive }">
+  <div class="card m-2 bg-hex shadow" :style="{border: color + ' 2px solid'}" :class="{ 'active-bg': isActive }">
     <div class="card-body">
       <h5
         class="card-title pointer"
         @click.prevent="toggleType(biotype)"
         :style="{ color: isActive ? '#fbff12' : 'white' }"
       >
-        <i class="fas fa-circle mr-1" :style="{ color: color }"></i>
+        <Icon :biotype="biotype"/>
         {{ list?.length && list?.length }} <span class="capitalize">{{ biotype }}</span> APIs
       </h5>
       <p class="card-text text-white">{{ numberWithCommas(docs) }} documents</p>
