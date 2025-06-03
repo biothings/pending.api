@@ -10,6 +10,7 @@ let props = defineProps({
 let version = props.info?.version
 let source_url = props.info?.source_url
 let source_code = props.info?.code?.url
+let license = props.info?.license
 let license_url = props.info?.license_url
 
 function formatString(input) {
@@ -41,25 +42,25 @@ function trimString(str) {
     <small v-if="version" :title="version" class="d-block">
       {{ 'Version ' + trimString(version) }}
     </small>
-    <ul class="link-list m-0">
-      <li class="d-inline" v-if="source_url">
+    <ul class="m-0 p-0">
+      <li  v-if="source_url">
         <small>
           <a rel="noopener" :href="source_url" target="_blank">
             Source <i class="fas fa-external-link-square-alt"></i>
           </a>
         </small>
       </li>
-      <li class="d-inline" v-if="source_code">
+      <li  v-if="license_url">
         <small>
-          <a rel="noopener" :href="source_code" target="_blank">
-            Code <i class="fas fa-external-link-square-alt"></i>
+          <a rel="noopener" :href="license_url" target="_blank">
+            {{ license ? 'License: ' + license : 'License' }} <i class="fas fa-external-link-square-alt"></i>
           </a>
         </small>
       </li>
-      <li class="d-inline" v-if="license_url">
+      <li  v-if="source_code">
         <small>
-          <a rel="noopener" :href="license_url" target="_blank">
-            License <i class="fas fa-external-link-square-alt"></i>
+          <a rel="noopener" :href="source_code" target="_blank">
+            Code <i class="fas fa-external-link-square-alt"></i>
           </a>
         </small>
       </li>

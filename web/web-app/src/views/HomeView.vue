@@ -4,12 +4,11 @@ import { useAPIStore } from '@/stores/apis'
 import { watch, ref, nextTick, onMounted } from 'vue'
 
 import FeaturedType from '@/components/FeaturedType.vue'
-import APITable from '@/components/APITable.vue'
+import APITableNew from '@/components/APITableNew.vue'
+import Icon from '@/components/Icon.vue'
 
 const store = useLayoutStore()
 const apiStore = useAPIStore()
-
-const query = ref('')
 
 const searchInput = ref(null)
 
@@ -22,7 +21,7 @@ onMounted(() => {
   focusSearchInput()
 })
 
-watch(query, (val) => {
+watch(() => apiStore.query, (val) => {
   apiStore.setQuery(val)
   apiStore.filterAPIs()
 })
@@ -134,7 +133,7 @@ function toggleType(type) {
               >) APIs</label
             >
             <input
-              v-model="query"
+              v-model="apiStore.query"
               type="text"
               name="search"
               class="bg-white placeholder:text-main-light rounded caret-pink-500 focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 text-main-dark w-50 px-2"
@@ -153,14 +152,14 @@ function toggleType(type) {
                   :class="[type.active ? 'badge-active' : 'badge-dark']"
                   @click.prevent="toggleType(type.name)"
                 >
-                  <i class="fas fa-circle" :style="{ color: type.color }"></i> {{ type.name }}
+                  <Icon :biotype="type.name" :key="type.name"></Icon> {{ type.name }}
                 </span>
               </template>
             </div>
           </div>
           <div class="api-main-container">
             <template v-if="apiStore.apis.length">
-              <APITable></APITable>
+              <APITableNew></APITableNew>
             </template>
           </div>
         </div>

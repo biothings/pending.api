@@ -23,7 +23,7 @@ function numberWithCommas(total) {
 <template>
   <tr class="api-row border rounded p-1 m-1 text-left">
     <td>
-      <RouterLink :to="'/try/' + api['name']">
+      <RouterLink :to="'/' + api['name']">
         {{ api.name }}
       </RouterLink>
     </td>

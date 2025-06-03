@@ -11,6 +11,7 @@ import mygene from '@/assets/img/mygene-text.svg'
 import myvariant from '@/assets/img/myvariant-text.svg'
 import mychem from '@/assets/img/mychem-text.svg'
 import mydisease from '@/assets/img/mydisease-text.png'
+import Icon from '@/components/Icon.vue'
 
 let metadata = ref(null)
 let numberOfDocs = ref(0)
@@ -359,10 +360,8 @@ watch(
           <p v-if="!existingEntity" class="m-0">
             <small>Entity Type: </small>
             <template v-if="metadata?.biothing_type">
-              <span
-                class="badge bg-main-muted text-black shadow"
-                v-text="metadata.biothing_type"
-              ></span>
+              <strong>
+              <Icon :biotype="metadata?.biothing_type" /> {{ metadata.biothing_type }}</strong>
             </template>
           </p>
           <small class="mt-1" v-if="numberOfDocs">
@@ -394,9 +393,9 @@ watch(
         <div class="p-1" v-if="description && !multiSource">
           <small class="d-block mt-2" v-html="description"></small>
         </div>
-        <div v-if="existingEntity" class="text-left">
+        <div v-if="existingEntity" class="text-left mt-5">
           <small>Pending for integration with:</small>
-          <div v-if="metadata.biothing_type" class="badge bg-dark-trans d-block p-1 m-2">
+          <div v-if="metadata.biothing_type" class="badge bg-gray-200 dark:bg-gray-800 d-block p-1 m-2">
             <a
               v-if="metadata.biothing_type === 'gene'"
               href="https://mygene.info/"
@@ -448,6 +447,7 @@ watch(
             </div>
             <div>
               <a
+                class="ml-6"
                 rel="noopener"
                 :href="'https://smart-api.info/ui/' + metadata.smartapi.id"
                 target="_blank"
@@ -458,6 +458,7 @@ watch(
             </div>
             <div>
               <a
+                class="ml-6"
                 rel="noopener"
                 :href="
                   'https://smart-api.info/portal/translator/metakg?q=api.smartapi.id:' +

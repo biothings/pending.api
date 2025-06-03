@@ -191,6 +191,21 @@ export const useAPIStore = defineStore('apis', () => {
       })
   }
 
+  function sortBy(field, asc) {
+    const getNestedValue = (obj, path) => {
+      return path.split('.').reduce((o, key) => o?.[key], obj);
+    };
+  
+    apis.value = apis.value.sort((a, b) => {
+      const aVal = getNestedValue(a, field);
+      const bVal = getNestedValue(b, field);
+  
+      if (aVal < bVal) return asc ? -1 : 1;
+      if (aVal > bVal) return asc ? 1 : -1;
+      return 0;
+    });
+  }
+
   return {
     apis,
     setAPIs,
@@ -208,5 +223,6 @@ export const useAPIStore = defineStore('apis', () => {
     getColor,
     fetchAPIs,
     apiUrl,
+    sortBy
   }
 })
