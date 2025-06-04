@@ -1,0 +1,32 @@
+# Dockerfile.python
+FROM python:3.12-slim
+
+ARG PENDING_REPO=https://github.com/biothings/pending.api.git
+ARG PENDING_BRANCH=add-caddy-server-container
+
+# Set up environment
+RUN apt-get update -y && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN useradd -m pending
+USER pending
+
+# Clone repo
+WORKDIR /home/pending
+RUN git clone -b ${PENDING_BRANCH} --recursive ${PENDING_REPO} pending.api
+
+# Python virtualenv
+RUN python -m venv venv
+RUN ./venv/bin/pip install --upgrade pip && \
+    ./venv/bin/pip install -r pending.api/requirements.txt
+
+WORKDIR /home/pending/pending.api
+
+ENV ES_HOST="http://127.0.0.1:9200"
+ENV OPENTELEMETRY_ENABLED=False
+ENV OPENTELEMETRY_SERVICE_NAME="Service Provider"
+ENV OPENTELEMETRY_JAEGER_HOST="localhost"
+ENV OPENTELEMETRY_JAEGER_PORT=6831
+
+EXPOSE 9001
+
+ENTRYPOINT ["/home/pending/venv/bin/python", "index.py"]
+CMD ["--conf=config_web", "--port=9001"]
