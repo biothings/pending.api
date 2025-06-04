@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import moment from 'moment'
@@ -206,8 +206,17 @@ export const useAPIStore = defineStore('apis', () => {
     });
   }
 
+  const uniqueApis = computed(() => {
+    const seen = new Set()
+    return apis.value.filter(api => {
+      if (seen.has(api.name)) return false
+      seen.add(api.name)
+      return true
+    })
+  })
+
   return {
-    apis,
+    apis: uniqueApis,
     setAPIs,
     query,
     getAPIsFullInfo,
