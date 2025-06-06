@@ -30,7 +30,7 @@ spec:
             - containerPort: {{ .Values.containers.caddy.port }}
           startupProbe:  # To determine if a container application has started successfully.
             httpGet:
-              path: /status
+              path: /healthz
               port: 9000
             initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
             periodSeconds: 30  # How often (in seconds) to perform the startup probe.
@@ -39,7 +39,7 @@ spec:
             failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
           readinessProbe:  # To determine when the container is ready to start accepting traffic
             httpGet:
-              path: /status
+              path: /healthz
               port: 9000
             initialDelaySeconds: 30  #  The number of seconds to wait after the container has started before performing the first readiness probe.
             periodSeconds: 60  # How often (in seconds) to perform the readiness probe.
@@ -48,7 +48,7 @@ spec:
             failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
           livenessProbe:  # To determine if a container is still running
             httpGet:
-              path: /status
+              path: /healthz
               port: 9000
             initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
             periodSeconds: 60  # How often (in seconds) to perform the liveness probe.

@@ -7,8 +7,8 @@
 
     encode zstd gzip
 
-    # Handle /status probe requests directly
-    handle /status {
+    # Handle /healthz probe requests directly
+    handle /healthz {
         respond "OK" 200
     }
 
