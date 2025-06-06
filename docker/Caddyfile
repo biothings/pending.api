@@ -17,6 +17,11 @@
         reverse_proxy localhost:9001
     }
 
+    # Route /status to the Python app
+    handle /status {
+        reverse_proxy localhost:9001
+    }
+
     # Handle /favicon.ico, /robots.txt, /assets/* directly
     @assets {
         path /favicon.ico /robots.txt /assets/*
