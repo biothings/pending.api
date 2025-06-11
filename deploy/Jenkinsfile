@@ -51,12 +51,12 @@ pipeline {
                         '''
 
                         // Build and push Python image
-                        def pythonImage = "${DOCKER_REPO_NAME}-python"
+                        def pythonImage = "${DOCKER_REPO_NAME}/python"
                         docker.build(pythonImage, "-f Dockerfile.python --no-cache .")
                         docker.image(pythonImage).push("${BUILD_VERSION}")
 
                         // Build and push Caddy image
-                        def caddyImage = "${DOCKER_REPO_NAME}-caddy"
+                        def caddyImage = "${DOCKER_REPO_NAME}/caddy"
                         docker.build(caddyImage, "-f Dockerfile.caddy --no-cache .")
                         docker.image(caddyImage).push("${BUILD_VERSION}")
                     }
