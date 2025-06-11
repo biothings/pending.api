@@ -2,7 +2,7 @@
 FROM node:18 as builder
 
 ARG PENDING_REPO=https://github.com/biothings/pending.api.git
-ARG PENDING_BRANCH=web-app
+ARG PENDING_BRANCH=master
 
 # Clone repo and build frontend
 WORKDIR /app

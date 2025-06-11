@@ -2,7 +2,7 @@
 FROM python:3.12-slim
 
 ARG PENDING_REPO=https://github.com/biothings/pending.api.git
-ARG PENDING_BRANCH=web-app
+ARG PENDING_BRANCH=master
 
 # Set up environment
 RUN apt-get update -y && apt-get install -y git && rm -rf /var/lib/apt/lists/*
