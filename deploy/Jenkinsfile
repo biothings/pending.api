@@ -42,15 +42,23 @@ pipeline {
             }
         }
         stage('Build Docker') {
-           when { expression { return env.BUILD == 'true' }}
+            when { expression { return env.BUILD == 'true' }}
             steps {
                 dir(env.PACKAGE_DIR) {
-                   script {
-                       sh '''
-                          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 853771734544.dkr.ecr.us-east-1.amazonaws.com
-                          '''
-                       docker.build(env.DOCKER_REPO_NAME, "--build-arg SOURCE_FOLDER=./${BUILD_VERSION} --no-cache ./")
-                          docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
+                    script {
+                        sh '''
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${DOCKER_REPO_NAME}
+                        '''
+
+                        // Build and push Python image
+                        def pythonImage = "${DOCKER_REPO_NAME}-python"
+                        docker.build(pythonImage, "-f Dockerfile.python --no-cache .")
+                        docker.image(pythonImage).push("${BUILD_VERSION}")
+
+                        // Build and push Caddy image
+                        def caddyImage = "${DOCKER_REPO_NAME}-caddy"
+                        docker.build(caddyImage, "-f Dockerfile.caddy --no-cache .")
+                        docker.image(caddyImage).push("${BUILD_VERSION}")
                     }
                 }
             }

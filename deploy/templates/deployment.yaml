@@ -23,53 +23,87 @@ spec:
         {{- toYaml .Values.ncats.labels | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.containers.name }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            - name: ES_HOST
-              value: {{ .Values.containers.es_host }}
-            - name: OPENTELEMETRY_ENABLED
-              value: "{{ .Values.containers.OPENTELEMETRY_ENABLED_VALUE }}"  
-            - name: OPENTELEMETRY_JAEGER_HOST
-              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_HOST_VALUE }}"
-            - name: OPENTELEMETRY_JAEGER_PORT
-              value: "{{ .Values.containers.OPENTELEMETRY_JAEGER_PORT_VALUE }}"      
+        - name: {{ .Values.containers.caddy.name }}
+          image: "{{ .Values.caddy.image.repository }}:{{ .Values.caddy.image.tag }}"
+          imagePullPolicy: {{ .Values.caddy.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.containers.port }}
-              protocol: TCP
+            - containerPort: {{ .Values.containers.caddy.port }}
           startupProbe:  # To determine if a container application has started successfully.
             httpGet:
-              path: /status
+              path: /healthz
               port: 9000
             initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
-            periodSeconds: 30  # How often (in seconds) to perform the startup probe.
+            periodSeconds: 10  # How often (in seconds) to perform the startup probe.
             timeoutSeconds: 15  # The number of seconds after which the probe times out.
             successThreshold: 1  # The number of consecutive successes required to consider the container started successfully.
             failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
           readinessProbe:  # To determine when the container is ready to start accepting traffic
             httpGet:
-              path: /status
+              path: /healthz
               port: 9000
-            initialDelaySeconds: 30  #  The number of seconds to wait after the container has started before performing the first readiness probe.
-            periodSeconds: 60  # How often (in seconds) to perform the readiness probe.
-            timeoutSeconds: 30  # The number of seconds after which the probe times out.
+            initialDelaySeconds: 5  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+            periodSeconds: 30  # How often (in seconds) to perform the readiness probe.
+            timeoutSeconds: 25  # The number of seconds after which the probe times out.
+            successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
+            failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
+          livenessProbe:  # To determine if a container is still running
+            httpGet:
+              path: /healthz
+              port: 9000
+            initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
+            periodSeconds: 60  # How often (in seconds) to perform the liveness probe.
+            timeoutSeconds: 25  # The number of seconds after which the probe times out.
+            successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
+            failureThreshold: 5  # The number of consecutive failures required to consider the container unhealthy and restart it.
+        - name: {{ .Values.containers.python.name }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.python.image.repository }}:{{ .Values.python.image.tag }}"
+          imagePullPolicy: {{ .Values.python.image.pullPolicy }}
+          env:
+            - name: ES_HOST
+              value: {{ .Values.containers.python.es_host }}
+            - name: OPENTELEMETRY_ENABLED
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_ENABLED_VALUE | default "False"}}"
+            - name: OPENTELEMETRY_SERVICE_NAME
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_SERVICE_NAME_VALUE | default "Service Provider"}}"
+            - name: OPENTELEMETRY_JAEGER_HOST
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_JAEGER_HOST_VALUE | default "localhost" }}"
+            - name: OPENTELEMETRY_JAEGER_PORT
+              value: "{{ .Values.containers.python.env.OPENTELEMETRY_JAEGER_PORT_VALUE | default 6831 }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.containers.python.port }}
+              protocol: TCP
+          startupProbe:  # To determine if a container application has started successfully.
+            httpGet:
+              path: /status
+              port: 9001
+            initialDelaySeconds: 10  # The number of seconds to wait after the container has started before performing the first startup probe.
+            periodSeconds: 10  # How often (in seconds) to perform the startup probe.
+            timeoutSeconds: 25  # The number of seconds after which the probe times out.
+            successThreshold: 1  # The number of consecutive successes required to consider the container started successfully.
+            failureThreshold: 5  # The number of consecutive failures required to consider the container startup to have failed.
+          readinessProbe:  # To determine when the container is ready to start accepting traffic
+            httpGet:
+              path: /status
+              port: 9001
+            initialDelaySeconds: 5  #  The number of seconds to wait after the container has started before performing the first readiness probe.
+            periodSeconds: 30  # How often (in seconds) to perform the readiness probe.
+            timeoutSeconds: 25  # The number of seconds after which the probe times out.
             successThreshold: 1  # The number of consecutive successes required to consider the container ready after it has been failing.
             failureThreshold: 3  # The number of consecutive failures required to consider the container not ready.
           livenessProbe:  # To determine if a container is still running
             httpGet:
               path: /status
-              port: 9000
+              port: 9001
             initialDelaySeconds: 30  # The number of seconds to wait after the container has started before performing the first liveness probe.
             periodSeconds: 60  # How often (in seconds) to perform the liveness probe.
-            timeoutSeconds: 30  # The number of seconds after which the probe times out.
+            timeoutSeconds: 25  # The number of seconds after which the probe times out.
             successThreshold: 1  # The number of consecutive successes required to consider the container healthy after it has been failing.
-            failureThreshold: 3  # The number of consecutive failures required to consider the container unhealthy and restart it.
+            failureThreshold: 5  # The number of consecutive failures required to consider the container unhealthy and restart it.
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
