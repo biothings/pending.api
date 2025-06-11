@@ -16,10 +16,10 @@ deployment:
 
 python:
   image:
-    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api/python
+    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: DOCKER_VERSION_VALUE
+    tag: python-DOCKER_VERSION_VALUE
     resources:
       requests:
         memory: 16Gi # 42Gi max
@@ -29,10 +29,10 @@ python:
         cpu: 3700m # 14000m max
 caddy:
   image:
-    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api/caddy
+    repository: 853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-bte-pending-api
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: DOCKER_VERSION_VALUE
+    tag: caddy-DOCKER_VERSION_VALUE
     resources:
       requests:
         memory: 5Gi # 42Gi max
