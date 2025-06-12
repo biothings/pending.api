@@ -49,7 +49,7 @@
 
     # Match /something (1 segment only), fallback to index.html or 404
     @oneSegment {
-        path_regexp ^/[^/]+$
+        path_regexp ^/[^/]+/?$
     }
     handle @oneSegment {
         root * /srv/app/static
