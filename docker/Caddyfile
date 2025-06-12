@@ -1,22 +1,66 @@
-9000 {
+:9000 {
+
+    redir ^(.*)/$ $1 permanent
 
     log {
         output stdout
-        format console
+        format json
     }
 
     encode zstd gzip
 
-    route {
-        @oneSegmentWithSlash path_regexp segment ^(/[^/]+)/$
-        redir @oneSegmentWithSlash {http.regexp.segment.1} permanent
+    # Handle /healthz probe requests directly
+    handle /healthz {
+        respond "OK" 200
+    }
 
-        @oneSegment path_regexp ^/[^/]+$
-        respond @oneSegment "OK from one segment"
+    # Route /version to the Python app
+    handle /version {
+        reverse_proxy localhost:9001
+    }
 
-        @rootPath path /
-        respond @rootPath "OK from root"
+    # Route /status to the Python app
+    handle /status {
+        reverse_proxy localhost:9001
+    }
 
+    # Handle /favicon.ico, /robots.txt, /assets/* directly
+    @assets {
+        path /favicon.ico /robots.txt /assets/*
+    }
+    handle @assets {
+        root * /srv/app/static
+        try_files {path} =404
+        file_server
+    }
+
+    # Handle `/` only, return index.html or 404
+    handle_path / {
+        root * /srv/app/static
+        try_files /index.html =404
+        file_server
+    }
+
+    # Match /something/something (2 segments)
+    @twoSegments {
+        path_regexp ^/[^/]+/[^/]+
+    }
+    handle @twoSegments {
+        reverse_proxy localhost:9001
+    }
+
+    # Match /something (1 segment only), fallback to index.html or 404
+    @oneSegment {
+        path_regexp ^/[^/]+$
+    }
+    handle @oneSegment {
+        root * /srv/app/static
+        try_files /index.html =404
+        file_server
+    }
+
+    # Fallback
+    handle {
         respond "Not Found" 404
     }
 }
