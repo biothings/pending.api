@@ -1,7 +1,5 @@
 :9000 {
 
-    redir ^(.*)/$ $1 permanent
-
     log {
         output stdout
         format json
@@ -39,6 +37,14 @@
         root * /srv/app/static
         try_files /index.html =404
         file_server
+    }
+
+    # Redirect /something/ to /something
+    @oneSegmentWithSlash {
+        path_regexp segment ^/([^/]+)/$
+    }
+    handle @oneSegmentWithSlash {
+        redir /{re.segment.1} permanent
     }
 
     # Match /something/something (2 segments)
