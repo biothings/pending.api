@@ -49,7 +49,7 @@
 
     # Redirect /something/ to /something
     @oneSegmentWithSlash {
-        path_regexp ^/[^/]+/$
+        path_regexp ^/([^/]+)/$
     }
     handle @oneSegmentWithSlash {
         redir /{re.re.1} permanent
