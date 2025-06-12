@@ -32,20 +32,20 @@
         file_server
     }
 
-    # Match /something/something (2 segments)
-    @twoSegments {
-        path_regexp ^/[^/]+/[^/]+
-    }
-    handle @twoSegments {
-        reverse_proxy localhost:9001
-    }
-
     # Redirect /something/ to /something
     @oneSegmentWithSlash {
         path_regexp segment ^/([^/]+)/$
     }
     handle @oneSegmentWithSlash {
         redir /{re.segment.1} permanent
+    }
+
+    # Match /something/something (2 segments)
+    @twoSegments {
+        path_regexp ^/[^/]+/[^/]+
+    }
+    handle @twoSegments {
+        reverse_proxy localhost:9001
     }
 
     # Match /something (1 segment only), fallback to index.html or 404
@@ -58,8 +58,11 @@
         file_server
     }
 
-    # Handle `/` only, return index.html or 404
-    handle_path / {
+    # Match only `/`
+    @rootPath {
+        path /
+    }
+    handle @rootPath {
         root * /srv/app/static
         try_files /index.html =404
         file_server
