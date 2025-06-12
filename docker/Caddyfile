@@ -49,10 +49,10 @@
 
     # Redirect /something/ to /something
     @oneSegmentWithSlash {
-        path_regexp ^/[^/]+/$
+        path_regexp segment ^/([^/]+)/$
     }
     handle @oneSegmentWithSlash {
-        redir {re.path:/^(\/[^\/]+)\/$/$1} permanent
+        redir /{re.segment.1} permanent
     }
 
     # Match /something (1 segment only), fallback to index.html or 404
