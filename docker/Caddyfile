@@ -32,13 +32,6 @@
         file_server
     }
 
-    # Handle `/` only, return index.html or 404
-    handle_path / {
-        root * /srv/app/static
-        try_files /index.html =404
-        file_server
-    }
-
     # Match /something/something (2 segments)
     @twoSegments {
         path_regexp ^/[^/]+/[^/]+
@@ -60,6 +53,13 @@
         path_regexp ^/[^/]+$
     }
     handle @oneSegment {
+        root * /srv/app/static
+        try_files /index.html =404
+        file_server
+    }
+
+    # Handle `/` only, return index.html or 404
+    handle_path / {
         root * /srv/app/static
         try_files /index.html =404
         file_server
