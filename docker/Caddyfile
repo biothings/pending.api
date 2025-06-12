@@ -1,34 +1,22 @@
-:9000 {
+9000 {
 
     log {
         output stdout
-        format json
+        format console
     }
 
     encode zstd gzip
 
-    @oneSegmentWithSlash {
-        path_regexp segment ^/([^/]+)/$
-    }
-    handle @oneSegmentWithSlash {
-        redir /{re.segment.1} permanent
-    }
+    route {
+        @oneSegmentWithSlash path_regexp segment ^(/[^/]+)/$
+        redir @oneSegmentWithSlash {http.regexp.segment.1} permanent
 
-    @oneSegment {
-        path_regexp ^/[^/]+$
-    }
-    handle @oneSegment {
-        respond "OK from one segment"
-    }
+        @oneSegment path_regexp ^/[^/]+$
+        respond @oneSegment "OK from one segment"
 
-    @rootPath {
-        path /
-    }
-    handle @rootPath {
-        respond "OK from root"
-    }
+        @rootPath path /
+        respond @rootPath "OK from root"
 
-    handle {
         respond "Not Found" 404
     }
 }
