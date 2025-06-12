@@ -44,13 +44,13 @@ caddy:
 containers:
   python:
     name: pending-api-python
-    es_host: ES_HOST_VALUE
     port: 9001
     env:
       OPENTELEMETRY_ENABLED_VALUE: True
       OPENTELEMETRY_SERVICE_NAME: "Service Provider"
       OPENTELEMETRY_JAEGER_HOST: localhost
       OPENTELEMETRY_JAEGER_PORT: 6831
+  es_host: ES_HOST_VALUE
 
   caddy:
     name: pending-api-caddy

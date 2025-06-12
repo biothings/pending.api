@@ -64,7 +64,7 @@ spec:
           imagePullPolicy: {{ .Values.python.image.pullPolicy }}
           env:
             - name: ES_HOST
-              value: {{ .Values.containers.python.es_host }}
+              value: {{ .Values.containers.es_host }}
             - name: OPENTELEMETRY_ENABLED
               value: "{{ .Values.containers.python.env.OPENTELEMETRY_ENABLED_VALUE | default "False"}}"
             - name: OPENTELEMETRY_SERVICE_NAME
