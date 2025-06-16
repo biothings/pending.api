@@ -56,4 +56,13 @@ const router = createRouter({
   ],
 })
 
+router.beforeEach((to, from, next) => {
+  const path = to.path
+  if (path !== '/' && path.endsWith('/')) {
+    next({ path: path.slice(0, -1), query: to.query, hash: to.hash })
+  } else {
+    next()
+  }
+})
+
 export default router
