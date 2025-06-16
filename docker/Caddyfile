@@ -43,9 +43,7 @@
     @oneSegmentWithSlash {
         path_regexp segment ^/([^/]+)/$
     }
-    handle @oneSegmentWithSlash {
-        redir /{re.segment.1} permanent
-    }
+    redir @oneSegmentWithSlash /{http.regexp.segment.1} permanent
 
     # Match /something/something (2 segments)
     @twoSegments {
