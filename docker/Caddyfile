@@ -40,12 +40,12 @@
     }
 
     # Redirect /something/ to /something
-    # @oneSegmentWithSlash {
-    #     path_regexp segment ^/([^/]+)/$
-    # }
-    # handle @oneSegmentWithSlash {
-    #     redir /{re.segment.1} permanent
-    # }
+    @oneSegmentWithSlash {
+        path_regexp segment ^/([^/]+)/$
+    }
+    handle @oneSegmentWithSlash {
+        redir /{re.segment.1} permanent
+    }
 
     # Match /something/something (2 segments)
     @twoSegments {
