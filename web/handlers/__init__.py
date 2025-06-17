@@ -2,13 +2,10 @@
 Dynamic Web Pages
 """
 
-import json
 import logging
 import os
-import types
 
 import tornado.httpclient
-import tornado.web
 
 
 from config_web import (
@@ -18,7 +15,6 @@ from config_web import (
     OPENTELEMETRY_SERVICE_NAME,
 )
 
-from .annotator import AnnotatorHandler
 from .api import ApiListHandler
 from .diseases import DiseasesHandler
 from .status import StatusDefaultHandler
@@ -62,6 +58,5 @@ EXTRA_HANDLERS = [
     (r"/status", StatusDefaultHandler),
     (r"/version", VersionHandler),
     (r"/api/list", ApiListHandler),
-    (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
     (r"/DISEASES(?:/.*)?", DiseasesHandler),
 ]
