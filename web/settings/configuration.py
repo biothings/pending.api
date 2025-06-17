@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 class PendingAPIConfigModule(ConfigModule):
     override_mapping = None
 
-
     def __init__(self, config=None, parent=None, validators: tuple = (), **kwargs):
         override_terms = self._build_override_lookup()
         super().__init__(config=config, parent=parent, validators=validators, **override_terms)
