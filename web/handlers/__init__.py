@@ -21,6 +21,8 @@ from config_web import (
 from .annotator import AnnotatorHandler
 from .api import ApiListHandler
 from .diseases import DiseasesHandler
+from .graph import GraphQueryHandler  # Don't remove: It's used to build handlers from API_LIST
+from .ngd import SemmedNGDHandler  # Don't remove: It's used to build handlers from API_LIST
 from .status import StatusDefaultHandler
 from .version import VersionHandler
 
