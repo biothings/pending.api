@@ -20,8 +20,8 @@
   We retrieve this association data from the 'text mining channel' and 'knowledge
   channel' files. We chose to use the 'filtered' versions of these files because we
   wanted the non-redundant data without subclass reasoning. We removed duplicated
-  lines (associations), lines that didn't have an ENSP ID in the gene_id column or a
-  DOID in the disease_id column (wouldn't be able to run NodeNorm on them), and lines
+  rows (associations), rows that didn't have an ENSP ID in the gene_id column or a
+  DOID in the disease_id column (wouldn't be able to run NodeNorm on them), and rows
   from the "UniProtKB-KW" resource (we didn't find DISEASES's ingest of this resource
   high-quality).
 
