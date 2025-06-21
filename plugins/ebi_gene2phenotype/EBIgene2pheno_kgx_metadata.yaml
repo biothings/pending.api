@@ -1,0 +1,70 @@
+# Info about this metadata file
+"id": "EBIgene2pheno_kgx_metadata"         # identifier for this metadata file (may not need this)
+"type": "biolink:IngestMetadata"           # biolink:IngestMetadata (subclassOf InformationContentEntity)
+"name": "EBIgene2pheno_kgx_metadata"       # a name for this metadata file, e.g. "ctd_chem_disease_ingest_meta",
+"created_by": "Colleen Xu"                 # who created this ingest metadata file
+"creation_date": "2025-06-20"              # when it was created
+
+# Metadata about the ingest task/process/code
+"ingest_team": "infores:service-provider-trapi"       # for us, this is the KP that performed the ingest, e.g. "infores:molepro"
+"ingest_contributors":                                # list of developers/curators/modelers who contributed to creating the inges
+  - "Colleen Xu"
+"ingest_contact_person": "Colleen Xu"                 # name of the point of contact about this ingest
+"ingest_contact_email": "colxu@scripps.edu"           # email address to use to contact this person
+# url of link to code on Github (a specific release? or commit?)
+"ingest_code_url": "https://github.com/biothings/pending.api/blob/translator-output/plugins/ebi_gene2phenotype/parser-writing.ipynb"
+# free-text description of how and why data from a source was ingested. Any important details about the ingest/transform. Etc. 
+"ingest_description": >-
+  EBI's Gene2Phenotype contains high-quality gene-disease associations curated by experts. This resource
+  produces a static release on their FTP site ~ every month. We download all association files (organized
+  by panel) and removed duplicate rows (associations), rows that didn't have an ID in the disease_mim
+  column, and rows that had a confidence column value of 'disputed' or 'refuted'. We also do not include
+  many of the resource's columns in our final KGX+ output.
+
+# Metadata about the ingest source(s)
+## removed fields because I didn't have this info:
+## - "source_data_endpoints": not relevant
+## - "source_database": not relevant
+"source_name": "EBI Gene2Phenotype"                # human redable name of the source
+"source_id": "infores:ebi-gene2phenotype"          # infores identifier of the source
+"source_license": >-                               # license / terms of use for the ingested source
+  'All data is made freely available', according to https://www.ebi.ac.uk/gene2phenotype/about/project.
+  The website also links the EMBL-EBI terms of use https://www.ebi.ac.uk/about/terms-of-use/#general.
+"source_data_version": "2025-04-28"                # version of the data from the source
+"source_publication_date": "2025-04-28"            # date that the ingested data was actually published by the source (may or may not be reflected in the source_data_version)
+"source_download_date": "2025-04-30"               # date that data from the resource was downloaded into the ingest system
+"source_access_urls":                              # list of urls where source data was accessed / downloaded / queried
+  - "https://ftp.ebi.ac.uk/pub/databases/gene2phenotype/G2P_data_downloads/2025_04_28/"
+"source_data_format": "csv.gz"                     # format/type of files or payloads that were downloaded/retrieved
+"source_data_files":                               # list of file names from which content was ingested (use when source data is in files)
+  - "CancerG2P_2025-04-28.csv.gz"
+  - "CardiacG2P_2025-04-28.csv.gz"
+  - "DDG2P_2025-04-28.csv.gz"
+  - "EyeG2P_2025-04-28.csv.gz"
+  - "HearingLossG2P_2025-04-28.csv.gz"
+  - "SkeletalG2P_2025-04-28.csv.gz"
+  - "SkinG2P_2025-04-28.csv.gz"
+
+# Metadata about the dataset/graph produced by the ingest (consider what applies to an intermediate KGX- artifact, vs a final KGX+, normalized, Biolink-compliant artifact). 
+## removed fields because I didn't have this info:
+## - "target_data_version": no versioning of this right now
+## - "target_license": I don't know what to put here - likely depends on Translator policy / Andrew and Chunlei input. 
+"target_name": "Translator EBI gene2phenotype KG"      # human redable name of the target data/graph produced by this ingest 
+"target_id": "kg-ebi-gene2pheno"                       # identifier of the target data/graph, as assigned by the ingesting system
+"target_creation_date": "2025-05-07"                   # date that the target data/graph was created 
+"target_access_urls":                                  # list of urls where target data was accessed / downloaded (should include page for it in our KG Registry/Hub, that give mroe info not provided in this metadata file)
+  - "https://kghub.org/kg-registry/resource/kg-ebi-gene2pheno/kg-ebi-gene2pheno.html"
+"target_data_format": "kgx"                            # the format in which the data/graph is serialized. e.g. here, "KGX" is a higher order format, which specifies structure to a json-lines serialization.
+"target_data_model": "infores:biolink-model"           # the data model used to structure the data, e.g. "infores:biolink-model"
+"target_data_model_version": "4.2.6-rc5"               # the version of this data model, e.g. "4.2.6-rc5"
+
+# Descriptive metadata about the content of the target (could be used for validation) - perhaps only for the final KGX+ artifact, not intermediate KGX- artifacts?
+"total_edge_count": 2574       # Count of total number of edges in the graph
+"total_node_count": 4603       # Count of total number of nodes in the graph
+"orphan_node_count": 0         # Count of nodes that do not participate inan edge 
+"node_categories":             # A list of biolink node categories used in the graph
+  - "biolink:Gene"
+  - "biolink:Disease"
+"edge_predicates":             # A list of biolink predicates used in the graph
+  - "biolink:related_to"
+  - "biolink:causes"
