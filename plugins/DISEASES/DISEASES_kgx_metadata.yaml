@@ -1,0 +1,67 @@
+# Info about this metadata file
+"id": "DISEASES_kgx_metadata"              # identifier for this metadata file (may not need this)
+"type": "biolink:IngestMetadata"           # biolink:IngestMetadata (subclassOf InformationContentEntity)
+"name": "DISEASES_kgx_metadata"            # a name for this metadata file, e.g. "ctd_chem_disease_ingest_meta",
+"created_by": "Colleen Xu"                 # who created this ingest metadata file
+"creation_date": "2025-06-20"              # when it was created
+
+# Metadata about the ingest task/process/code
+"ingest_team": "infores:service-provider-trapi"       # for us, this is the KP that performed the ingest, e.g. "infores:molepro"
+"ingest_contributors":                                # list of developers/curators/modelers who contributed to creating the inges
+  - "Colleen Xu"
+"ingest_contact_person": "Colleen Xu"                 # name of the point of contact about this ingest
+"ingest_contact_email": "colxu@scripps.edu"           # email address to use to contact this person
+# url of link to code on Github (a specific release? or commit?)
+"ingest_code_url": "https://github.com/biothings/pending.api/blob/translator-output/plugins/DISEASES/parser-writing.ipynb"
+# free-text description of how and why data from a source was ingested. Any important details about the ingest/transform. Etc. 
+"ingest_description": >-
+  JensenLab DISEASES contains associations from their text-mining pipeline and from
+  human-curated resources that are hard to access or parse (MedlinePlus, AmyCo).
+  We retrieve this association data from the 'text mining channel' and 'knowledge
+  channel' files. We chose to use the 'filtered' versions of these files because we
+  wanted the non-redundant data without subclass reasoning. We removed duplicated
+  lines (associations), lines that didn't have an ENSP ID in the gene_id column or a
+  DOID in the disease_id column (wouldn't be able to run NodeNorm on them), and lines
+  from the "UniProtKB-KW" resource (we didn't find DISEASES's ingest of this resource
+  high-quality).
+
+# Metadata about the ingest source(s)
+## removed fields because I didn't have this info:
+## - "source_data_version": DISEASES doesn't provide any versioning
+## - "source_publication_date": DISEASES doesn't provide a publication/creation date for their download files
+## - "source_data_files": seems redundant with source_access_urls in this case (we only downloaded files we used)
+## - "source_data_endpoints": not relevant
+## - "source_database": not relevant
+"source_name": "JensenLab DISEASES"        # human redable name of the source
+"source_id": "infores:diseases"            # infores identifier of the source
+"source_license": "CC BY 4.0"              # license / terms of use for the ingested source
+"source_download_date": "2025-05-02"       # date that data from the resource was downloaded into the ingest system
+"source_access_urls":                      # list of urls where source data was accessed / downloaded / queried
+  - "https://download.jensenlab.org/human_disease_textmining_filtered.tsv"
+  - "https://download.jensenlab.org/human_disease_knowledge_filtered.tsv"
+"source_data_format": "tsv"                # format/type of files or payloads that were downloaded/retrieved
+
+# Metadata about the dataset/graph produced by the ingest (consider what applies to an intermediate KGX- artifact, vs a final KGX+, normalized, Biolink-compliant artifact). 
+## removed fields because I didn't have this info:
+## - "target_data_version": no versioning of this right now
+## - "target_license": I don't know what to put here - likely depends on Translator policy / Andrew and Chunlei input. 
+"target_name": "Translator DISEASES KG"            # human redable name of the target data/graph produced by this ingest 
+"target_id": "kg-jensenlab-diseases"               # identifier of the target data/graph, as assigned by the ingesting system
+"target_creation_date": "2025-05-05"               # date that the target data/graph was created 
+"target_access_urls":                              # list of urls where target data was accessed / downloaded (should include page for it in our KG Registry/Hub, that give mroe info not provided in this metadata file)
+  - "https://kghub.org/kg-registry/resource/kg-jensenlab-diseases/kg-jensenlab-diseases.html"
+"target_data_format": "kgx"                        # the format in which the data/graph is serialized. e.g. here, "KGX" is a higher order format, which specifies structure to a json-lines serialization.
+"target_data_model": "infores:biolink-model"       # the data model used to structure the data, e.g. "infores:biolink-model"
+"target_data_model_version": "4.2.6-rc5"           # the version of this data model, e.g. "4.2.6-rc5"
+
+# Descriptive metadata about the content of the target (could be used for validation) - perhaps only for the final KGX+ artifact, not intermediate KGX- artifacts?
+"total_edge_count": 269602      # Count of total number of edges in the graph
+"total_node_count": 21952       # Count of total number of nodes in the graph
+"orphan_node_count": 0          # Count of nodes that do not participate inan edge 
+"node_categories":              # A list of biolink node categories used in the graph
+  - "biolink:Gene"
+  - "biolink:Protein"
+  - "biolink:Disease"
+"edge_predicates":              # A list of biolink predicates used in the graph
+  - "biolink:genetically_associated_with"
+  - "biolink:occurs_together_in_literature_with"  
