@@ -1,67 +1,38 @@
 # Info about this metadata file
-"id": "DISEASES_kgx_metadata"              # identifier for this metadata file (may not need this)
-"type": "biolink:IngestMetadata"           # biolink:IngestMetadata (subclassOf InformationContentEntity)
-"name": "DISEASES_kgx_metadata"            # a name for this metadata file, e.g. "ctd_chem_disease_ingest_meta",
-"created_by": "Colleen Xu"                 # who created this ingest metadata file
-"creation_date": "2025-06-20"              # when it was created
+"title": "DISEASES Source-to-KGX Ingest Metadata"        # an informative, human-readable name for this metadata file/object, e.g. "CTD Chemical-Disease Source-KGX Ingest Metadata"   |   1..1 string
+"created_by": "Colleen Xu"                               # who created this ingest metadata file    |   1..m string   (for now . . . may evolve to require identifiers (e.g. ORCIDs), or Agent instances/objects)
+"creation_date": "2025-06-20"                            # when it was created                      |   1..1 date
 
 # Metadata about the ingest task/process/code
-"ingest_team": "infores:service-provider-trapi"       # for us, this is the KP that performed the ingest, e.g. "infores:molepro"
-"ingest_contributors":                                # list of developers/curators/modelers who contributed to creating the inges
-  - "Colleen Xu"
-"ingest_contact_person": "Colleen Xu"                 # name of the point of contact about this ingest
-"ingest_contact_email": "colxu@scripps.edu"           # email address to use to contact this person
-# url of link to code on Github (a specific release? or commit?)
+## removed fields because I didn't have this info:
+## - "ingest_guide_url": reference ingest guide doesn't exist yet
+# url a specific official release or tagged branch of the code used to generate the target product     |    1..1 iriOrCurie     TO DO: explore hwo this would actually work
 "ingest_code_url": "https://github.com/biothings/pending.api/blob/translator-output/plugins/DISEASES/parser-writing.ipynb"
-# free-text description of how and why data from a source was ingested. Any important details about the ingest/transform. Etc. 
-"ingest_description": >-
-  JensenLab DISEASES contains associations from their text-mining pipeline and from
-  human-curated resources that are hard to access or parse (MedlinePlus, AmyCo).
-  We retrieve this association data from the 'text mining channel' and 'knowledge
-  channel' files. We chose to use the 'filtered' versions of these files because we
-  wanted the non-redundant data without subclass reasoning. We removed duplicated
-  rows (associations), rows that didn't have an ENSP ID in the gene_id column or a
-  DOID in the disease_id column (wouldn't be able to run NodeNorm on them), and rows
-  from the "UniProtKB-KW" resource (we didn't find DISEASES's ingest of this resource
-  high-quality).
-
-# Metadata about the ingest source(s)
+ 
+# General and ingest-specific info about the ingest source(s)
 ## removed fields because I didn't have this info:
 ## - "source_data_version": DISEASES doesn't provide any versioning
 ## - "source_publication_date": DISEASES doesn't provide a publication/creation date for their download files
 ## - "source_data_files": seems redundant with source_access_urls in this case (we only downloaded files we used)
-## - "source_data_endpoints": not relevant
-## - "source_database": not relevant
-"source_name": "JensenLab DISEASES"        # human redable name of the source
-"source_id": "infores:diseases"            # infores identifier of the source
-"source_license": "CC BY 4.0"              # license / terms of use for the ingested source
-"source_download_date": "2025-05-02"       # date that data from the resource was downloaded into the ingest system
-"source_access_urls":                      # list of urls where source data was accessed / downloaded / queried
+"source_infores_id": "infores:diseases"          # infores identifier of the source                   |   1..1 iriOrCurie
+"source_license": "CC BY 4.0"                    # license / terms of use for the ingested source.    |   0..1 string      TO DO: Provide additional guidance on how to populate. Consider a more cosntrained or richer model of licenses (see proposal 2 below)
+"source_access_date": "2025-05-02"               # date that data from the resource was accessed and downloaded into the ingest system.   |    0..1 date
+"source_access_urls":                            # urls or urls where source data was accessed / downloaded / queried        |    0..m iriOrCURIE
   - "https://download.jensenlab.org/human_disease_textmining_filtered.tsv"
   - "https://download.jensenlab.org/human_disease_knowledge_filtered.tsv"
-"source_data_format": "tsv"                # format/type of files or payloads that were downloaded/retrieved
+"source_data_formats":                           # format/type of files or payloads that were downloaded/retrieved.          |   0..m   string 
+  - "tsv"
 
 # Metadata about the dataset/graph produced by the ingest (consider what applies to an intermediate KGX- artifact, vs a final KGX+, normalized, Biolink-compliant artifact). 
 ## removed fields because I didn't have this info:
-## - "target_data_version": no versioning of this right now
+## - "target_data_version": not sure what to put here. Would have to ask ingest team
 ## - "target_license": I don't know what to put here - likely depends on Translator policy / Andrew and Chunlei input. 
-"target_name": "Translator DISEASES KG"            # human redable name of the target data/graph produced by this ingest 
-"target_id": "kg-jensenlab-diseases"               # identifier of the target data/graph, as assigned by the ingesting system
-"target_creation_date": "2025-05-05"               # date that the target data/graph was created 
-"target_access_urls":                              # list of urls where target data was accessed / downloaded (should include page for it in our KG Registry/Hub, that give mroe info not provided in this metadata file)
-  - "https://kghub.org/kg-registry/resource/kg-jensenlab-diseases/kg-jensenlab-diseases.html"
-"target_data_format": "kgx"                        # the format in which the data/graph is serialized. e.g. here, "KGX" is a higher order format, which specifies structure to a json-lines serialization.
-"target_data_model": "infores:biolink-model"       # the data model used to structure the data, e.g. "infores:biolink-model"
-"target_data_model_version": "4.2.6-rc5"           # the version of this data model, e.g. "4.2.6-rc5"
-
-# Descriptive metadata about the content of the target (could be used for validation) - perhaps only for the final KGX+ artifact, not intermediate KGX- artifacts?
-"total_edge_count": 269602      # Count of total number of edges in the graph
-"total_node_count": 21952       # Count of total number of nodes in the graph
-"orphan_node_count": 0          # Count of nodes that do not participate inan edge 
-"node_categories":              # A list of biolink node categories used in the graph
-  - "biolink:Gene"
-  - "biolink:Protein"
-  - "biolink:Disease"
-"edge_predicates":              # A list of biolink predicates used in the graph
-  - "biolink:genetically_associated_with"
-  - "biolink:occurs_together_in_literature_with"  
+"target_title": "DISEASES Translator KG"                               # a unique human readable name of the target data/graph produced by this ingest.  e.g. "CTD Chemical-Disease Source-KG", or "CTD Chemical-Disease Biolink-KG".     |   1..1   string
+"target_type": "Normalized KG"                                         # a flag that reports the levelof processing/modeling applied to the KG  {"Source-KG"  | "Biolink KG"  |  "Normalized KG" } . . .  TO DO: consider if we want something like this?    |   1..1   string / enum
+"target_creation_date": "2025-05-05"                                   # date that the target data/graph was created.    |    1..1 date
+"target_data_format": "kgx"                                            # the format in which the data/graph is serialized. Will be "KGX" for all Translator KGs (KGX is a higher order format, which specifies a json-lines serialization)     |   1..1   string 
+"target_data_model": "https://w3id.org/biolink/biolink-model"          # the model used to structure the graph data. Will be Biolink Model for all Translator KGs (except directly parsed "Source KGX" graphs). Reference using the url "https://w3id.org/biolink/biolink-model"?   |   0..1   string
+"target_data_model_version": "4.2.6-rc5"  # the version of this data model, e.g. "4.2.6-rc5     |   0..1   string
+"node_normalizer": "https://nodenormalization-sri.renci.org/docs"      # the node normalizer tool applied to the graph (for KGs that  have been normalized)       |   0..1   string
+# the version of the node normalizer tool        |   0..1   string
+"node_normalizer_version": "2025mar31"      ## I think this was the Babel version being used at the time, but I'm not sure
