@@ -1,0 +1,26 @@
+{
+    "version": "0.2",
+    "dumper": {
+        "data_url": [
+            "http://su06:8080/dataupload/edges.jsonl",
+            "http://su06:8080/dataupload/nodes.jsonl"
+        ],
+        "uncompress": false,
+        "release": "version:get_release",
+        "schedule": "0 0 * * *"
+    },
+    "uploaders": [
+        {
+            "name" : "edge_uploader",
+            "parser": "parser:load_edges",
+            "on_duplicates": "merge",
+            "mapping" : "mapping:edge_mapping"
+        },
+        {
+            "name" : "node_uploader",
+            "parser": "parser:load_nodes",
+            "on_duplicates": "merge",
+            "mapping" : "mapping:node_mapping"
+        }
+    ]
+}
