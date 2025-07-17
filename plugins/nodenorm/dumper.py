@@ -13,8 +13,11 @@ from biothings.utils.manager import JobManager
 
 logger = config.logger
 
+PRIOR_URL = ["https://stars.renci.org/var/babel_outputs/2025jan23/compendia/"]
 
-BASE_URL = "https://stars.renci.org/var/babel_outputs/2025jan23/compendia/"
+
+BASE_URL = "https://stars.renci.org/var/babel_outputs/2025mar31/compendia/"
+
 NODENORM_FILE_COLLECTION = [
     "AnatomicalEntity.txt",
     "BiologicalProcess.txt",
