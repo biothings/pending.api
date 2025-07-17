@@ -72,8 +72,8 @@ HUB_ENV = ""
 INDEX_CONFIG = {
     # "build_config_key" : None, # used to select proper idxr/syncer
     "indexer_select": {
-        # default
-        # None : "path.to.special.Indexer",
+        None: "hub.dataindex.indexer.PendingHubIndexer",  # default
+        "build_config.rtx_kg2": "hub.dataindex.indexer.RTXKG2Indexer",
     },
     "env": {
         "test": {

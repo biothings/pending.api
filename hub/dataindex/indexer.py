@@ -31,7 +31,7 @@ from biothings.hub.manager import JobManager
 from biothings.hub.dataindex.indexer import _BuildDoc, Step
 
 
-class BasePendingHubIndexer(Indexer):
+class PendingHubIndexer(Indexer):
     """
     Indexer specific to the PendingHub
 
