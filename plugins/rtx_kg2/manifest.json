@@ -1,5 +1,6 @@
 {
     "version": "0.2",
+    "requires": ["jsonlines"],
     "dumper": {
         "data_url": [
             "http://su06:8080/dataupload/edges.jsonl",
