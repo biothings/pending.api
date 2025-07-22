@@ -1,0 +1,27 @@
+{
+    "version": "0.2",
+    "requires": ["jsonlines"],
+    "dumper": {
+        "data_url": [
+            "http://su06:8080/dataupload/edges.jsonl",
+            "http://su06:8080/dataupload/nodes.jsonl"
+        ],
+        "uncompress": false,
+        "release": "version:get_release",
+        "schedule": "0 0 * * *"
+    },
+    "uploaders": [
+        {
+            "name" : "rtx_kg2_edges",
+            "parser": "parser:load_edges",
+            "on_duplicates": "merge",
+            "mapping" : "mapping:edge_mapping"
+        },
+        {
+            "name" : "rtx_kg2_nodes",
+            "parser": "parser:load_nodes",
+            "on_duplicates": "merge",
+            "mapping" : "mapping:node_mapping"
+        }
+    ]
+}
