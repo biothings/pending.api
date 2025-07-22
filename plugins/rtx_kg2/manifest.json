@@ -11,13 +11,13 @@
     },
     "uploaders": [
         {
-            "name" : "edge_uploader",
+            "name" : "rtx_kg2_edges",
             "parser": "parser:load_edges",
             "on_duplicates": "merge",
             "mapping" : "mapping:edge_mapping"
         },
         {
-            "name" : "node_uploader",
+            "name" : "rtx_kg2_nodes",
             "parser": "parser:load_nodes",
             "on_duplicates": "merge",
             "mapping" : "mapping:node_mapping"
