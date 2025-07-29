@@ -21,10 +21,13 @@ onMounted(() => {
   focusSearchInput()
 })
 
-watch(() => apiStore.query, (val) => {
-  apiStore.setQuery(val)
-  apiStore.filterAPIs()
-})
+watch(
+  () => apiStore.query,
+  (val) => {
+    apiStore.setQuery(val)
+    apiStore.filterAPIs()
+  },
+)
 
 function toggleType(type) {
   apiStore.toggleType({ name: type })

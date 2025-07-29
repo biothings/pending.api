@@ -193,27 +193,45 @@ export const useAPIStore = defineStore('apis', () => {
 
   function sortBy(field, asc) {
     const getNestedValue = (obj, path) => {
-      return path.split('.').reduce((o, key) => o?.[key], obj);
-    };
-  
+      return path.split('.').reduce((o, key) => o?.[key], obj)
+    }
+
     apis.value = apis.value.sort((a, b) => {
-      const aVal = getNestedValue(a, field);
-      const bVal = getNestedValue(b, field);
-  
-      if (aVal < bVal) return asc ? -1 : 1;
-      if (aVal > bVal) return asc ? 1 : -1;
-      return 0;
-    });
+      const aVal = getNestedValue(a, field)
+      const bVal = getNestedValue(b, field)
+
+      if (aVal < bVal) return asc ? -1 : 1
+      if (aVal > bVal) return asc ? 1 : -1
+      return 0
+    })
   }
 
   const uniqueApis = computed(() => {
     const seen = new Set()
-    return apis.value.filter(api => {
+    return apis.value.filter((api) => {
       if (seen.has(api.name)) return false
       seen.add(api.name)
       return true
     })
   })
+
+  const querySelected = ref('')
+
+  function setQuerySelected(value) {
+    querySelected.value = value
+  }
+
+  const currentAPI = ref('')
+
+  function setCurrentAPI(value) {
+    currentAPI.value = value
+  }
+
+  const viewPythonClient = ref(false)
+
+  function togglePythonMode() {
+    viewPythonClient.value = !viewPythonClient.value
+  }
 
   return {
     apis: uniqueApis,
@@ -232,6 +250,12 @@ export const useAPIStore = defineStore('apis', () => {
     getColor,
     fetchAPIs,
     apiUrl,
-    sortBy
+    sortBy,
+    querySelected,
+    setQuerySelected,
+    currentAPI,
+    setCurrentAPI,
+    viewPythonClient,
+    togglePythonMode,
   }
 })
