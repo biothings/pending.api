@@ -59,14 +59,18 @@ function toggleType(name) {
 </script>
 
 <template>
-  <div class="card m-2 bg-hex shadow" :style="{border: color + ' 2px solid'}" :class="{ 'active-bg': isActive }">
+  <div
+    class="card m-2 bg-hex shadow"
+    :style="{ border: color + ' 2px solid' }"
+    :class="{ 'active-bg': isActive }"
+  >
     <div class="card-body">
       <h5
         class="card-title pointer"
         @click.prevent="toggleType(biotype)"
         :style="{ color: isActive ? '#fbff12' : 'white' }"
       >
-        <Icon :biotype="biotype"/>
+        <Icon :biotype="biotype" />
         {{ list?.length && list?.length }} <span class="capitalize">{{ biotype }}</span> APIs
       </h5>
       <p class="card-text text-white">{{ numberWithCommas(docs) }} documents</p>

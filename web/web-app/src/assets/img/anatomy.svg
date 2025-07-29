@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 300 300">
+  <!-- Generator: Adobe Illustrator 29.6.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 9)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #faffeb;
+      }
+
+      .st1 {
+        fill: #232323;
+      }
+
+      .st2 {
+        fill: #ff8af1;
+      }
+    </style>
+  </defs>
+  <path class="st2" d="M145.2,275c-57.6,0-104.2-56-104.2-125S87.7,25,145.2,25"/>
+  <path class="st0" d="M145.2,25c57.6,0,104.2,56,104.2,125s-46.7,125-104.2,125"/>
+  <circle class="st1" cx="184" cy="128" r="30"/>
+  <path class="st1" d="M145.2,197h46.8c7.7,0,14,6.3,14,14h0c0,7.7-6.3,14-14,14h-46.8v-28h0Z"/>
+  <polyline class="st1" points="145.2 154.4 155.8 174 145.2 174"/>
+</svg>
