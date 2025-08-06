@@ -405,7 +405,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
         curies = [c.upper() for c in curies]
         curie_order = {curie: index for index, curie in enumerate(curies)}
         curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
-        source_fields = ["identifiers.i", "type", "ic"]
+        source_fields = ["identifiers", "type", "ic"]
         index = self.biothings.elasticsearch.metadata.indices["node"]
         term_search_result = await self.biothings.elasticsearch.async_client.search(
             query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
@@ -419,8 +419,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 identifiers_set.add(identifier.get("i", None))
         malformed_curies = set(curies) - identifiers_set
         curies = [c for c in curies if c not in malformed_curies]
-
-        breakpoint()
 
         nodes = []
         for input_curie, result in zip(curies, term_search_result.body["hits"]["hits"]):
