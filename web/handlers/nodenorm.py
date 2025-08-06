@@ -1,4 +1,5 @@
 import dataclasses
+import itertools
 import logging
 import os
 import time
@@ -38,7 +39,7 @@ defaultconfig = {
 }
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class NormalizedNode:
     curie: str
     canonical_identifier: str
@@ -198,14 +199,14 @@ class NormalizedNodesHandler(BaseAPIHandler):
         nodes = await self._lookup_curie_metadata(curies, conflations)
 
         normal_nodes = {}
-        for input_curie, aggregate_node in zip(curies, nodes):
+        for aggregate_node in nodes:
             normal_node = await self.create_normalized_node(
                 aggregate_node,
                 include_descriptions=include_descriptions,
                 include_individual_types=include_individual_types,
                 conflations=conflations,
             )
-            normal_nodes[input_curie] = normal_node
+            normal_nodes[aggregate_node.curie] = normal_node
 
         end_time = time.perf_counter_ns()
         logger.info(
@@ -401,16 +402,28 @@ class NormalizedNodesHandler(BaseAPIHandler):
         document, so we can determine which terms were not found via set difference between the
         returned document CURIE identifiers and the user provided set of CURIE identifiers
         """
-        curie_set = {c.upper() for c in curies}
-        curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": list(curie_set)}}]}}
+        curies = [c.upper() for c in curies]
+        curie_order = {curie: index for index, curie in enumerate(curies)}
+        curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
         source_fields = ["identifiers.i", "type", "ic"]
         index = self.biothings.elasticsearch.metadata.indices["node"]
         term_search_result = await self.biothings.elasticsearch.async_client.search(
-            query=curie_terms_query, index=index, size=len(curie_set), source_includes=source_fields
+            query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
         )
 
+        # Post processing to ensure we can identify invalid curies provided by the query
+        identifiers_set = set()
+        for result in term_search_result.body["hits"]["hits"]:
+            identifiers = result.get("_source", {}).get("identifiers", [])
+            for identifier in identifiers:
+                identifiers_set.add(identifier.get("i", None))
+        malformed_curies = set(curies) - identifiers_set
+        curies = [c for c in curies if c not in malformed_curies]
+
+        breakpoint()
+
         nodes = []
-        for input_curie, result in zip(curie_set, term_search_result.body["hits"]["hits"]):
+        for input_curie, result in zip(curies, term_search_result.body["hits"]["hits"]):
             result_source = result.get("_source", {})
             identifiers = result_source.get("identifiers", [])
             biolink_type = result_source.get("type", None)
@@ -452,6 +465,16 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 types=node_types,
             )
             nodes.append(node)
+
+        for curie in malformed_curies:
+            node = NormalizedNode(
+                curie=curie,
+                canonical_identifier=None,
+                identifiers=[],
+                information_content=-1.0,
+                types=[],
+            )
+            nodes.insert(curie_order[curie], node)
         return nodes
 
     async def _populate_biolink_type_ancestors(
