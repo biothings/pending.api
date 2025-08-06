@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 class PendingAPIConfigModule(ConfigModule):
     override_mapping = None
 
-
     def __init__(self, config=None, parent=None, validators: tuple = (), **kwargs):
         super().__init__(config=config, parent=parent, validators=validators)
         self.module = config
