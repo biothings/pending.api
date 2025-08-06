@@ -1,5 +1,4 @@
 import dataclasses
-import itertools
 import logging
 import os
 import time
@@ -8,7 +7,6 @@ from typing import Union
 import bmt as bmt
 
 from biothings.web.handlers import BaseAPIHandler
-from biothings.web.settings.default import COMMON_KWARGS
 from tornado.web import HTTPError
 
 
@@ -402,7 +400,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
         document, so we can determine which terms were not found via set difference between the
         returned document CURIE identifiers and the user provided set of CURIE identifiers
         """
-        curies = [c.upper() for c in curies]
         curie_order = {curie: index for index, curie in enumerate(curies)}
         curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
         source_fields = ["identifiers", "type", "ic"]
@@ -413,15 +410,22 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
         # Post processing to ensure we can identify invalid curies provided by the query
         identifiers_set = set()
-        for result in term_search_result.body["hits"]["hits"]:
+        identifier_result_lookup = {}
+        for result, search_curie in zip(term_search_result.body["hits"]["hits"], curie_order.values()):
             identifiers = result.get("_source", {}).get("identifiers", [])
             for identifier in identifiers:
-                identifiers_set.add(identifier.get("i", None))
+                equivalent_identifier = identifier.get("i", None)
+                identifiers_set.add(equivalent_identifier)
+                identifier_result_lookup[equivalent_identifier] = result
+
         malformed_curies = set(curies) - identifiers_set
-        curies = [c for c in curies if c not in malformed_curies]
+        if malformed_curies:
+            curies = [c for c in curies if c not in malformed_curies]
 
         nodes = []
-        for input_curie, result in zip(curies, term_search_result.body["hits"]["hits"]):
+        # for input_curie, result in zip(curies, term_search_result.body["hits"]["hits"]):
+        for input_curie in curies:
+            result = identifier_result_lookup[input_curie]
             result_source = result.get("_source", {})
             identifiers = result_source.get("identifiers", [])
             biolink_type = result_source.get("type", None)
