@@ -31,12 +31,12 @@ function formatPOSTQuery() {
 
   if (body?.q) {
     const qterms = Array.isArray(body.q)
-      ? '[\n  ' + body.q.map((val) => `"${val}"`).join(',\n  ') + '\n]'
+      ? '[\n\t' + body.q.map((val) => `"${val}"`).join(',\n\t') + '\n]'
       : JSON.stringify(body.q)
 
     const scopes = body.scopes
       ? Array.isArray(body.scopes)
-        ? '[\n  ' + body.scopes.map((val) => `"${val}"`).join(',\n  ') + '\n]'
+        ? '[\n\t' + body.scopes.map((val) => `"${val}"`).join(',\n\t') + '\n]'
         : JSON.stringify(body.scopes)
       : null
 
@@ -47,7 +47,7 @@ function formatPOSTQuery() {
 
   if (body?.ids) {
     const ids = Array.isArray(body.ids)
-      ? '[\n  ' + body.ids.map((id) => `"${id}"`).join(',\n  ') + '\n]'
+      ? '[\n\t' + body.ids.map((id) => `"${id}"`).join(',\n\t') + '\n]'
       : JSON.stringify(body.ids)
 
     return `\nclient.get${type}s(${ids})`

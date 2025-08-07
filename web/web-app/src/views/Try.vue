@@ -12,7 +12,6 @@ import myvariant from '@/assets/img/myvariant-text.svg'
 import mychem from '@/assets/img/mychem-text.svg'
 import mydisease from '@/assets/img/mydisease-text.png'
 import Icon from '@/components/Icon.vue'
-import { at } from 'lodash'
 
 let metadata = ref(null)
 let numberOfDocs = ref(0)
@@ -102,30 +101,20 @@ function generateGETEntityQuery(dataObject) {
 }
 
 function randomProperty(obj) {
-  if (isPlainObject(obj)) {
-    var keys = Object.keys(obj)
-    if (keys.includes('_id')) {
-      var index = keys.indexOf('_id')
-      if (index > -1) {
-        keys.splice(index, 1)
-      }
-    }
-    if (keys.includes('_score')) {
-      var index = keys.indexOf('_score')
-      if (index > -1) {
-        keys.splice(index, 1)
-      }
-    }
-    let rdmKeyIndex = (keys.length * Math.random()) << 0
-    if (typeof obj[keys[rdmKeyIndex]] == 'string' && obj[keys[rdmKeyIndex]].includes('http')) {
-      console.warn('Skipped URL value: ', obj[keys[rdmKeyIndex]])
-      return false
-    } else {
-      return keys[rdmKeyIndex]
-    }
-  } else {
-    return false
-  }
+  if (!isPlainObject(obj)) return null
+
+  // Filter out unwanted keys and values
+  const keys = Object.keys(obj).filter((key) => {
+    if (['_id', '_score'].includes(key)) return false
+    const val = obj[key]
+    return !(typeof val === 'string' && val.includes('http'))
+  })
+
+  if (keys.length === 0) return null
+
+  // Pick a random key
+  const randomKey = keys[Math.floor(Math.random() * keys.length)]
+  return randomKey
 }
 
 function handleStringValue(string) {
@@ -417,7 +406,7 @@ function createPOSTScopeQuery(results, size) {
 }
 
 function generateAllQueries() {
-  let unique_queries = new Set()
+  let uniqueFieldsQueried = new Set()
   // console.log("🤖 Generate queries")
   loadingExamplesQueries.value = true
   // testing only: numberOfDocs will be null so set to 100
@@ -466,11 +455,12 @@ function generateAllQueries() {
         let problematic = []
         for (var picksIndex = 0; picksIndex < picks.length; picksIndex++) {
           let value = getQueryString(picks[picksIndex])
+          let dottedField = value.split(':')[0]
           if (value) {
             let query = '/query?q=' + value
             //excludes duplicates and results with undefined terms
-            if (!unique_queries.has(query) && !query.includes('undefined')) {
-              unique_queries.add(query)
+            if (!uniqueFieldsQueried.has(dottedField) && !query.includes('undefined')) {
+              uniqueFieldsQueried.add(dottedField)
               getExampleQueries.value.push({
                 method: 'GET',
                 query: query,
