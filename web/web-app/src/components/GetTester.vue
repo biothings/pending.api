@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAPIStore } from '@/stores/apis'
 import { useLayoutStore } from '@/stores/layout'
 import axios from 'axios'
@@ -7,6 +8,7 @@ import axios from 'axios'
 const callResults = ref(null)
 const apiStore = useAPIStore()
 const store = useLayoutStore()
+const router = useRouter()
 let success = ref(false)
 const origin = computed(() => window.location.origin)
 let finalURL = ref('')
@@ -20,6 +22,14 @@ function testQuery() {
     callApi(queryString.value)
   }
 }
+
+watch(
+  () => apiStore.currentAPI,
+  async (newVal) => {
+    //reload to reset workspace if API changes
+    router.go(0)
+  },
+)
 
 function callApi(q) {
   if (!callResults.value) return // Ensure ref is available

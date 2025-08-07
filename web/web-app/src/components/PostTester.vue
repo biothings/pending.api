@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAPIStore } from '@/stores/apis'
 import { useLayoutStore } from '@/stores/layout'
 import { basicSetup, EditorView } from 'codemirror'
@@ -13,6 +14,7 @@ import Toastify from 'toastify-js'
 
 const apiStore = useAPIStore()
 const store = useLayoutStore()
+const router = useRouter()
 const editor = ref(null)
 const callResults = ref(null)
 let success = ref(false)
@@ -53,9 +55,9 @@ onMounted(() => {
 
 watch(
   () => apiStore.querySelected,
-  (newVal) => {
+  (v) => {
     generatePostURL()
-    if (editor.value) {
+    if (editor.value && v) {
       editor.value.dispatch({
         changes: {
           from: 0,
@@ -64,6 +66,14 @@ watch(
         },
       })
     }
+  },
+)
+
+watch(
+  () => apiStore.currentAPI,
+  async (newVal) => {
+    //reload to reset workspace if API changes
+    router.go(0)
   },
 )
 
@@ -236,11 +246,12 @@ function callApi() {
         >
           Send Request
         </button>
+        <div class="d-inline bg-gray-300 dark:bg-main-light ml-2 p-1 rounded-l-lg">POST</div>
         <input
           disabled
           type="text"
           :value="displayURL"
-          class="col-sm-8 bg-gray-200 dark:bg-gray-900 p-1 rounded pl-4"
+          class="col-sm-8 bg-gray-200 dark:bg-gray-900 p-1 rounded-r-lg pl-4"
         />
       </form>
     </div>

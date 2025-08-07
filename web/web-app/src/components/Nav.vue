@@ -33,6 +33,7 @@ function handleSubmit() {
 function handleClick(api) {
   localQuery.value = ''
   store.setQuery(api)
+  store.setCurrentAPI(api)
   router.push('/' + api)
 }
 </script>
