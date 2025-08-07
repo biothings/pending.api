@@ -1903,6 +1903,8 @@
 {"id":"NCBIGene:25973","name":"PARS2","category":["biolink:Gene"]}
 {"id":"NCBIGene:64864","name":"RFX7","category":["biolink:Gene"]}
 {"id":"NCBIGene:10616","name":"RBCK1","category":["biolink:Gene"]}
+{"id":"NCBIGene:79631","name":"EFL1","category":["biolink:Gene"]}
+{"id":"NCBIGene:51776","name":"MAP3K20","category":["biolink:Gene"]}
 {"id":"NCBIGene:4771","name":"NF2","category":["biolink:Gene"]}
 {"id":"NCBIGene:5925","name":"RB1","category":["biolink:Gene"]}
 {"id":"NCBIGene:7428","name":"VHL","category":["biolink:Gene"]}
@@ -4338,6 +4340,9 @@
 {"id":"MONDO:0032752","name":"developmental and epileptic encephalopathy, 75","category":["biolink:Disease"]}
 {"id":"MONDO:0957228","name":"intellectual developmental disorder, autosomal dominant 71, with behavioral abnormalities","category":["biolink:Disease"]}
 {"id":"MONDO:0014389","name":"polyglucosan body myopathy 1 with or without immunodeficiency","category":["biolink:Disease"]}
+{"id":"MONDO:0044205","name":"Shwachman-Diamond syndrome 2","category":["biolink:Disease"]}
+{"id":"MONDO:0014816","name":"split-foot malformation-mesoaxial polydactyly syndrome","category":["biolink:Disease"]}
+{"id":"MONDO:0054695","name":"myopathy, centronuclear, 6, with fiber-type disproportion","category":["biolink:Disease"]}
 {"id":"OMIM:614327","name":"TUMOR PREDISPOSITION SYNDROME 1","category":["biolink:Disease"]}
 {"id":"DOID:0111252","name":"vestibular schwannomatosis","category":["biolink:Disease"]}
 {"id":"MONDO:0008380","name":"retinoblastoma","category":["biolink:Disease"]}
