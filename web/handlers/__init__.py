@@ -2,13 +2,8 @@
 Dynamic Web Pages
 """
 
-import json
 import logging
 import os
-import types
-
-import tornado.httpclient
-import tornado.web
 
 
 from config_web import (
@@ -21,8 +16,9 @@ from config_web import (
 from .annotator import AnnotatorHandler
 from .api import ApiListHandler
 from .diseases import DiseasesHandler
-from .graph import GraphQueryHandler  # Don't remove: It's used to build handlers from API_LIST
-from .ngd import SemmedNGDHandler  # Don't remove: It's used to build handlers from API_LIST
+from .graph import GraphQueryHandler  # noqa # pylint: disable=unused-import
+from .ngd import SemmedNGDHandler  # noqa # pylint: disable=unused-import
+from .nodenorm import NormalizedNodesHandler  # noqa # pylint: disable=unused-import
 from .status import StatusDefaultHandler
 from .version import VersionHandler
 

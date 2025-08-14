@@ -1,6 +1,8 @@
 import asyncio
 import concurrent.futures
+import json
 import os
+import sqlite3
 from pathlib import Path
 from functools import partial
 from typing import override, Union
@@ -13,10 +15,9 @@ from biothings.utils.manager import JobManager
 
 logger = config.logger
 
-PRIOR_URL = ["https://stars.renci.org/var/babel_outputs/2025jan23/compendia/"]
+PRIOR_URL = ["https://stars.renci.org/var/babel_outputs/2025jan23"]
+BASE_URL = "https://stars.renci.org/var/babel_outputs/2025mar31/"
 
-
-BASE_URL = "https://stars.renci.org/var/babel_outputs/2025mar31/compendia/"
 
 NODENORM_FILE_COLLECTION = [
     "AnatomicalEntity.txt",
@@ -38,6 +39,10 @@ NODENORM_FILE_COLLECTION = [
     "Polypeptide.txt",
     "umls.txt",
 ]
+
+NODENORM_CONFLATION_COLLECTION = ["DrugChemical.txt", "GeneProtein.txt"]
+
+
 NODENORM_BIG_FILE_COLLECTION = {
     "MolecularMixture.txt": 50,
     "Gene.txt": 75,
@@ -47,10 +52,20 @@ NODENORM_BIG_FILE_COLLECTION = {
 }
 
 
+file_collections = {
+    "compendia": NODENORM_FILE_COLLECTION,
+    "compendia-large": NODENORM_BIG_FILE_COLLECTION,
+    "conflation": NODENORM_CONFLATION_COLLECTION,
+}
+
+CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
+
+
 class NodeNormDumper(LastModifiedHTTPDumper):
     SRC_NAME = "nodenorm"
     SRC_ROOT_FOLDER = Path(config.DATA_ARCHIVE_ROOT) / SRC_NAME
-    AUTO_UPLOAD = False
+    SCHEDULE = "0 2 1 * *"  # Monthly updates on the 1st of every month
+    AUTO_UPLOAD = True
     SUFFIX_ATTR = "release"
 
     ARCHIVE = False
@@ -62,17 +77,28 @@ class NodeNormDumper(LastModifiedHTTPDumper):
 
     def create_todump_list(self, force: bool = False) -> None:
         self.set_release()
-
         local_datafolder = Path(self.current_data_folder)
-        for nodenorm_file in NODENORM_FILE_COLLECTION:
+
+        for nodenorm_file in file_collections["compendia"]:
             self.to_dump.append(
-                {"remote": f"{BASE_URL}{nodenorm_file}", "local": str(local_datafolder.joinpath(nodenorm_file))}
+                {
+                    "remote": f"{BASE_URL}/compendia/{nodenorm_file}",
+                    "local": str(local_datafolder.joinpath(nodenorm_file)),
+                }
             )
 
-        for nodenorm_file, file_partitions in NODENORM_BIG_FILE_COLLECTION.items():
+        for nodenorm_file in file_collections["conflation"]:
+            self.to_dump.append(
+                {
+                    "remote": f"{BASE_URL}/conflation/{nodenorm_file}",
+                    "local": str(local_datafolder.joinpath(nodenorm_file)),
+                }
+            )
+
+        for nodenorm_file, file_partitions in file_collections["compendia-large"].items():
             self.to_dump_large.append(
                 {
-                    "remoteurl": f"{BASE_URL}{nodenorm_file}",
+                    "remoteurl": f"{BASE_URL}/compendia/{nodenorm_file}",
                     "localfile": str(local_datafolder.joinpath(nodenorm_file)),
                     "num_partitions": file_partitions,
                 }
@@ -222,4 +248,63 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Parses the BASE_URL to extract the data from the url pathing
         """
         parse_result = urlparse(BASE_URL)
-        self.release = parse_result.path.split("/")[-3]
+        self.release = parse_result.path.split("/")[-1]
+
+    def post_dump(self, *args, **kwargs):
+        """
+        Takes the generated conflation files and creates a sqlite3 database used for looking
+        up the conflation identifiers for the supported types of nodes
+        """
+        # Force creation of the to_dump collection
+        self.create_todump_list(force=True)
+        local_zip_file = self.to_dump[0]["local"]
+        data_directory = Path(local_zip_file).parent
+
+        conflation_database_path = data_directory.joinpath(CONFLATION_LOOKUP_DATABASE).resolve().absolute()
+        conflation_database = sqlite3.connect(conflation_database_path)
+        cursor = conflation_database.cursor()
+
+        enable_foreign_keys = "PRAGMA foreign_keys = ON;"
+        cursor.execute(enable_foreign_keys)
+
+        conflation_existance_check = "DROP TABLE IF EXISTS conflations"
+        cursor.execute(conflation_existance_check)
+
+        conflations_table = (
+            "CREATE TABLE conflations "
+            "("
+            "conflation text PRIMARY KEY NOT NULL, "
+            "identifiers text NOT NULL, "
+            "type text NOT NULL"
+            ");"
+        )
+        cursor.execute(conflations_table)
+
+        conflation_files = [
+            data_directory.joinpath("GeneProtein.txt").resolve().absolute(),
+            data_directory.joinpath("DrugChemical.txt").resolve().absolute(),
+        ]
+        for conflation_file in conflation_files:
+            if not conflation_file.exists():
+                raise OSError(f"Unable to locate conflation file {conflation_file}")
+
+            with open(conflation_file, "r", encoding="utf-8") as handle:
+                batch = []
+                for line in handle.readlines():
+                    identifiers = json.loads(line)
+                    identifiers_repr = ",".join(identifiers)
+
+                    for identifier in identifiers:
+                        batch.append(
+                            {"conflation": identifier, "identifiers": identifiers_repr, "type": conflation_file.stem}
+                        )
+
+                    if len(batch) >= 10000:
+                        cursor.executemany("INSERT INTO conflations VALUES (:conflation, :identifiers, :type)", batch)
+                        batch = []
+
+        if len(batch) > 0:
+            cursor.executemany("INSERT INTO conflations VALUES (:conflation, :identifiers, :type)", batch)
+            batch = []
+        conflation_database.commit()
+        conflation_database.close()
