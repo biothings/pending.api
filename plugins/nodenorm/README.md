@@ -1,6 +1,6 @@
 ## pending-nodenorm
 
-Hosted API of the nodenorm data provided by [RENCI](https://stars.renci.org/var/babel_outputs/2025jan23/compendia/)
+Hosted API of the nodenorm data provided by [RENCI](https://stars.renci.org/var/babel_outputs/2025mar31/compendia/)
 
 File list (with smaller chunk files removed) as of March 12th 2025
 
@@ -89,5 +89,66 @@ umls.txt                                           24-Jan-2025 07:11           2
     "extra_index_settings": {
         "auto_expand_replicas": "0-all"
     }
+}
+```
+
+
+### API
+
+In order to validate elasticsearch as a backend, we want to mimic parts of the current nodenorm API
+to compare the performance between the two. We currently want to support the following endpoints:
+
+
+* `get_normalized_nodes` (GET | POST)
+
+##### JSONSchema for `get_normalized_nodes`
+
+```JSON
+"CurieList": {
+  "properties": {
+    "curies": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "List of CURIEs to normalize"
+    },
+    "conflate": {
+      "type": "boolean",
+      "title": "Whether to apply gene/protein conflation",
+      "default": true
+    },
+    "description": {
+      "type": "boolean",
+      "title": "Whether to return CURIE descriptions when possible",
+      "default": false
+    },
+    "drug_chemical_conflate": {
+      "type": "boolean",
+      "title": "Whether to apply drug/chemical conflation",
+      "default": false
+    },
+    "individual_types": {
+      "type": "boolean",
+      "title": "Whether to return individual types for equivalent identifiers",
+      "default": false
+    }
+  },
+  "type": "object",
+  "required": [
+    "curies"
+  ],
+  "title": "CurieList",
+  "description": "Curie list input model",
+  "example": {
+    "curies": [
+      "MESH:D014867",
+      "NCIT:C34373"
+    ],
+    "conflate": true,
+    "description": false,
+    "drug_chemical_conflate": false
+  }
 }
 ```
