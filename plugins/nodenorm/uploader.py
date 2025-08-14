@@ -18,10 +18,9 @@ class NodeNormUploader(ParallelizedSourceUploader):
     __metadata__ = {"src_meta": {"url": BASE_URL}}
 
     def jobs(self) -> list[tuple]:
-        data_path = pathlib.Path(self.data_folder).glob("**/*")
         file_names = [*NODENORM_FILE_COLLECTION, *NODENORM_BIG_FILE_COLLECTION.keys()]
-        files = [data_path.joinpath(file) for file in file_names]
-        conflation_database = data_path.joinpath(CONFLATION_LOOKUP_DATABASE)
+        files = [pathlib.Path(self.data_folder).joinpath(file) for file in file_names]
+        conflation_database = pathlib.Path(self.data_folder).joinpath(CONFLATION_LOOKUP_DATABASE)
         return [(f, conflation_database) for f in files]
 
     def load_data(self, data_path: Union[str, pathlib.Path], conflation_database: Union[str, pathlib.Path]):
