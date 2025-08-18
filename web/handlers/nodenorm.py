@@ -57,13 +57,13 @@ class NormalizedNodesHandler(BaseAPIHandler):
     name = "normalizednodes"
 
     async def get(self, *args, **kwargs):
-        normalized_curies = self.args.get("curie", [])
-        conflate = self.args.get(
+        normalized_curies = self.args_json.get("curie", [])
+        conflate = self.args_json.get(
             "conflate", False
         )  # Original defaults to True, TODO revert once conflation is supported
-        drug_chemical_conflate = self.args.get("drug_chemical_conflate", False)
-        description = self.args.get("description", False)
-        individual_types = self.args.get("individual_types", False)
+        drug_chemical_conflate = self.args_json.get("drug_chemical_conflate", False)
+        description = self.args_json.get("description", False)
+        individual_types = self.args_json.get("individual_types", False)
 
         if len(normalized_curies) == 0:
             raise HTTPError(
@@ -96,10 +96,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
             "NCIT:C34373"
           ]
         }
-        We don't currently support the following flags that renci does:
-        >>> conflate
-        >>> drug_chemical_conflate
-        >>> description
 
         Example output
         {
@@ -152,9 +148,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
         }
         """
         normalization_curies = self.args_json.get("curie", [])
-        conflate = self.args.get(
-            "conflate", False
-        )  # Original defaults to True, TODO revert once conflation is supported
+        conflate = self.args_json.get("conflate", True)
         drug_chemical_conflate = self.args_json.get("drug_chemical_conflate", False)
         description = self.args_json.get("description", False)
         individual_types = self.args_json.get("individual_types", False)
@@ -277,10 +271,25 @@ class NormalizedNodesHandler(BaseAPIHandler):
             # No conflation. We just use the identifiers we've been given.
             identifiers_with_labels = aggregate_node.identifiers
         else:
-            logger.warning("No operation - skipping conflation logic")
+            # We have a conflation going on! To replicate Babel's behavior, we need to run the algorithem
+            # on the list of labels corresponding to the first
+            # So we need to run the algorithm on the first set of identifiers that have any
+            # label whatsoever.
+            identifiers_with_labels = []
+            curies_already_checked = set()
+            for identifier in aggregate_node.identifiers:
+                curie = identifier.get("i", "")
+                if curie in curies_already_checked:
+                    continue
 
-            # TODO Add support for conflation (gene-protion and chemical-drug)
-            # Modifies the equivalent identifiers and types for a canonical identifier
+                identifiers_with_labels = aggregate_node.identifiers[0]
+                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
+                if any(map(lambda l: l != "", labels)):
+                    break
+
+                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
+                # we don't make redundant queries to the database.
+                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
 
         # We might get here without any labels, which is fine. At least we tried.
 
@@ -423,7 +432,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
             curies = [c for c in curies if c not in malformed_curies]
 
         nodes = []
-        # for input_curie, result in zip(curies, term_search_result.body["hits"]["hits"]):
         for input_curie in curies:
             result = identifier_result_lookup[input_curie]
             result_source = result.get("_source", {})
@@ -450,14 +458,40 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
             if any(conflations.values()):
                 conflation_identifiers = []
+                conflations = identifiers[0].get("c", {})
                 if conflations.get("GeneProtein", False):
-                    logger.warning("No operation - gene protein conflation not implemented yet")
+                    conflation_identifiers.extend(conflations.get("gp", []))
 
                 if conflations.get("DrugChemical", False):
-                    logger.warning("No operation - chemical drug conflation not implemented yet")
+                    conflation_identifiers.extend(conflations.get("dc", []))
 
-                # TODO Add support for conflation (gene-protion and chemical-drug)
-                # Modifies the equivalent identifiers and types for a canonical identifier
+                conflation_curie_terms_query = {
+                    "bool": {"filter": [{"terms": {"identifiers.i": conflation_identifiers}}]}
+                }
+                source_fields = ["identifiers", "type"]
+                index = self.biothings.elasticsearch.metadata.indices["node"]
+                conflation_term_search_result = await self.biothings.elasticsearch.async_client.search(
+                    query=conflation_curie_terms_query,
+                    index=index,
+                    size=len(conflation_identifiers),
+                    source_includes=source_fields,
+                )
+
+                conflation_equivalent_identifiers = []
+                conflation_types = []
+                for conflation_result in conflation_term_search_result.body["hits"]["hits"]:
+                    identifiers = conflation_result.get("_source", {}).get("identifiers", [])
+                    conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
+                    for identifier in identifiers:
+                        equivalent_identifier = identifier.get("i", None)
+                        conflation_equivalent_identifiers.append(equivalent_identifier)
+
+                    node_types = await self._populate_biolink_type_ancestors(
+                        biolink_type, identifiers[0].get("i", None)
+                    )
+                    for node_type in node_types:
+                        if node_type not in conflation_types:
+                            conflation_types.append(node_type)
 
             node = NormalizedNode(
                 curie=input_curie,
