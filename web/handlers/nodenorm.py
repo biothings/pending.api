@@ -41,8 +41,9 @@ defaultconfig = {
 class NormalizedNode:
     curie: str
     canonical_identifier: str
-    identifiers: list[str]
     information_content: float
+    identifiers: list[str]
+    labels: list[str]
     types: list[str]
 
 
@@ -276,20 +277,13 @@ class NormalizedNodesHandler(BaseAPIHandler):
             # So we need to run the algorithm on the first set of identifiers that have any
             # label whatsoever.
             identifiers_with_labels = []
-            curies_already_checked = set()
-            for identifier in aggregate_node.identifiers:
+            for identifier, label in zip(aggregate_node.identifiers, aggregate_node.labels):
                 curie = identifier.get("i", "")
-                if curie in curies_already_checked:
+                if curie in identifiers_with_labels:
                     continue
 
-                identifiers_with_labels = aggregate_node.identifiers[0]
-                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
-                if any(map(lambda l: l != "", labels)):
-                    break
-
-                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
-                # we don't make redundant queries to the database.
-                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
+                if label != "":
+                    identifiers_with_labels.append(identifier)
 
         # We might get here without any labels, which is fine. At least we tried.
 
@@ -458,12 +452,13 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
             if any(conflations.values()):
                 conflation_identifiers = []
-                conflations = identifiers[0].get("c", {})
+                conflation_information = identifiers[0].get("c", {})
                 if conflations.get("GeneProtein", False):
-                    conflation_identifiers.extend(conflations.get("gp", []))
+                    gene_protein_identifiers = conflation_information.get("gp", [])
+                    conflation_identifiers.extend(gene_protein_identifiers)
 
                 if conflations.get("DrugChemical", False):
-                    conflation_identifiers.extend(conflations.get("dc", []))
+                    conflation_identifiers.extend(conflation_information.get("dc", []))
 
                 conflation_curie_terms_query = {
                     "bool": {"filter": [{"terms": {"identifiers.i": conflation_identifiers}}]}
@@ -477,37 +472,65 @@ class NormalizedNodesHandler(BaseAPIHandler):
                     source_includes=source_fields,
                 )
 
-                conflation_equivalent_identifiers = []
-                conflation_types = []
-                for conflation_result in conflation_term_search_result.body["hits"]["hits"]:
-                    identifiers = conflation_result.get("_source", {}).get("identifiers", [])
+                conflation_metadata = {}
+                for conflation_identifier, conflation_result in zip(
+                    conflation_identifiers, conflation_term_search_result.body["hits"]["hits"]
+                ):
                     conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
-                    for identifier in identifiers:
-                        equivalent_identifier = identifier.get("i", None)
-                        conflation_equivalent_identifiers.append(equivalent_identifier)
+                    conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
 
-                    node_types = await self._populate_biolink_type_ancestors(
-                        biolink_type, identifiers[0].get("i", None)
+                    for conflation_entry in conflation_identifier_lookup:
+                        conflation_entry.update({"t": conflation_biolink_type})
+
+                    identifiers.extend(conflation_result.get("_source", {}).get("identifiers", []))
+
+                    conflation_types = await self._populate_biolink_type_ancestors(
+                        conflation_biolink_type, identifiers[0].get("i", None)
                     )
-                    for node_type in node_types:
-                        if node_type not in conflation_types:
-                            conflation_types.append(node_type)
 
-            node = NormalizedNode(
-                curie=input_curie,
-                canonical_identifier=canonical_identifier,
-                identifiers=identifiers,
-                information_content=information_content,
-                types=node_types,
-            )
-            nodes.append(node)
+                    conflation_metadata[conflation_identifier] = {
+                        "identifiers": conflation_identifier_lookup,
+                        "types": conflation_types,
+                    }
+
+                replacement_identifiers = []
+                replacement_types = []
+                for metadata in conflation_metadata.values():
+                    replacement_identifiers += metadata["identifiers"]
+                    replacement_types += metadata["types"]
+
+                replacement_types = self.unique_list(replacement_types)
+
+                labels = [identifier.get("l", "") for identifier in replacement_identifiers]
+
+                node = NormalizedNode(
+                    curie=input_curie,
+                    canonical_identifier=canonical_identifier,
+                    information_content=information_content,
+                    identifiers=replacement_identifiers,
+                    labels=labels,
+                    types=replacement_types,
+                )
+                nodes.append(node)
+            else:
+                labels = [identifier.get("l", "") for identifier in identifiers]
+                node = NormalizedNode(
+                    curie=input_curie,
+                    canonical_identifier=canonical_identifier,
+                    information_content=information_content,
+                    identifiers=identifiers,
+                    labels=labels,
+                    types=node_types,
+                )
+                nodes.append(node)
 
         for curie in malformed_curies:
             node = NormalizedNode(
                 curie=curie,
                 canonical_identifier=None,
-                identifiers=[],
                 information_content=-1.0,
+                identifiers=[],
+                labels=[],
                 types=[],
             )
             nodes.insert(curie_order[curie], node)
@@ -566,3 +589,8 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 else len(prefixes)
             ),
         )
+
+    def unique_list(self, seq) -> list:
+        seen = set()
+        seen_add = seen.add
+        return [x for x in seq if not (x in seen or seen_add(x))]
