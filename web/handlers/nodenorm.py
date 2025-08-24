@@ -276,14 +276,22 @@ class NormalizedNodesHandler(BaseAPIHandler):
             # on the list of labels corresponding to the first
             # So we need to run the algorithm on the first set of identifiers that have any
             # label whatsoever.
-            identifiers_with_labels = []
-            for identifier, label in zip(aggregate_node.identifiers, aggregate_node.labels):
+            curies_already_checked = set()
+            for identifier in aggregate_node.identifiers:
                 curie = identifier.get("i", "")
-                if curie in identifiers_with_labels:
+                if curie in curies_already_checked:
                     continue
 
-                if label != "":
-                    identifiers_with_labels.append(identifier)
+                _, _, curie_label_lookup = await self._lookup_equivalent_identifiers([curie], {curie: 0})
+                identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
+
+                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
+                if any(map(lambda l: l != "", labels)):
+                    break
+
+                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
+                # we don't make redundant queries to the database.
+                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
 
         # We might get here without any labels, which is fine. At least we tried.
 
@@ -404,26 +412,9 @@ class NormalizedNodesHandler(BaseAPIHandler):
         returned document CURIE identifiers and the user provided set of CURIE identifiers
         """
         curie_order = {curie: index for index, curie in enumerate(curies)}
-        curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
-        source_fields = ["identifiers", "type", "ic"]
-        index = self.biothings.elasticsearch.metadata.indices["node"]
-        term_search_result = await self.biothings.elasticsearch.async_client.search(
-            query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
+        valid_curies, malformed_curies, identifier_result_lookup = await self._lookup_equivalent_identifiers(
+            curies, curie_order
         )
-
-        # Post processing to ensure we can identify invalid curies provided by the query
-        identifiers_set = set()
-        identifier_result_lookup = {}
-        for result, search_curie in zip(term_search_result.body["hits"]["hits"], curie_order.values()):
-            identifiers = result.get("_source", {}).get("identifiers", [])
-            for identifier in identifiers:
-                equivalent_identifier = identifier.get("i", None)
-                identifiers_set.add(equivalent_identifier)
-                identifier_result_lookup[equivalent_identifier] = result
-
-        malformed_curies = set(curies) - identifiers_set
-        if malformed_curies:
-            curies = [c for c in curies if c not in malformed_curies]
 
         nodes = []
         for input_curie in curies:
@@ -460,44 +451,27 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 if conflations.get("DrugChemical", False):
                     conflation_identifiers.extend(conflation_information.get("dc", []))
 
-                conflation_curie_terms_query = {
-                    "bool": {"filter": [{"terms": {"identifiers.i": conflation_identifiers}}]}
-                }
-                source_fields = ["identifiers", "type"]
-                index = self.biothings.elasticsearch.metadata.indices["node"]
-                conflation_term_search_result = await self.biothings.elasticsearch.async_client.search(
-                    query=conflation_curie_terms_query,
-                    index=index,
-                    size=len(conflation_identifiers),
-                    source_includes=source_fields,
+                conflation_order = {curie: index for index, curie in enumerate(conflation_identifiers)}
+                conflation_curies, _, conflation_result_lookup = await self._lookup_equivalent_identifiers(
+                    conflation_identifiers, conflation_order
                 )
 
-                conflation_metadata = {}
-                for conflation_identifier, conflation_result in zip(
-                    conflation_identifiers, conflation_term_search_result.body["hits"]["hits"]
-                ):
+                replacement_identifiers = []
+                replacement_types = []
+                for conflation_curie in conflation_curies:
+                    conflation_result = conflation_result_lookup.get(conflation_curie, {})
                     conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
                     conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
 
                     for conflation_entry in conflation_identifier_lookup:
                         conflation_entry.update({"t": conflation_biolink_type})
 
-                    identifiers.extend(conflation_result.get("_source", {}).get("identifiers", []))
-
                     conflation_types = await self._populate_biolink_type_ancestors(
-                        conflation_biolink_type, identifiers[0].get("i", None)
+                        conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
                     )
 
-                    conflation_metadata[conflation_identifier] = {
-                        "identifiers": conflation_identifier_lookup,
-                        "types": conflation_types,
-                    }
-
-                replacement_identifiers = []
-                replacement_types = []
-                for metadata in conflation_metadata.values():
-                    replacement_identifiers += metadata["identifiers"]
-                    replacement_types += metadata["types"]
+                    replacement_identifiers += conflation_identifier_lookup
+                    replacement_types += conflation_types
 
                 replacement_types = self.unique_list(replacement_types)
 
@@ -594,3 +568,64 @@ class NormalizedNodesHandler(BaseAPIHandler):
         seen = set()
         seen_add = seen.add
         return [x for x in seq if not (x in seen or seen_add(x))]
+
+    async def _lookup_equivalent_identifiers(self, curies: list[str], curie_order: dict) -> tuple[list, list, list]:
+        if len(curies) == 0:
+            return [], [], []
+
+        curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
+        source_fields = ["identifiers", "type", "ic"]
+        index = self.biothings.elasticsearch.metadata.indices["node"]
+        term_search_result = await self.biothings.elasticsearch.async_client.search(
+            query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
+        )
+
+        # Post processing to ensure we can identify invalid curies provided by the query
+        identifiers_set = set()
+        identifier_result_lookup = {}
+        for result, search_curie in zip(term_search_result.body["hits"]["hits"], curie_order.values()):
+            identifiers = result.get("_source", {}).get("identifiers", [])
+            for identifier in identifiers:
+                equivalent_identifier = identifier.get("i", None)
+                identifiers_set.add(equivalent_identifier)
+                identifier_result_lookup[equivalent_identifier] = result
+
+        malformed_curies = set(curies) - identifiers_set
+        if malformed_curies:
+            curies = [c for c in curies if c not in malformed_curies]
+
+        return curies, malformed_curies, identifier_result_lookup
+
+    async def _lookup_conflation_identifiers(self, conflation_curies: list[str]) -> dict:
+        if len(conflation_curies) == 0:
+            return {}
+
+        conflation_curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": conflation_curies}}]}}
+        source_fields = ["identifiers", "type"]
+        index = self.biothings.elasticsearch.metadata.indices["node"]
+        conflation_term_search_result = await self.biothings.elasticsearch.async_client.search(
+            query=conflation_curie_terms_query,
+            index=index,
+            size=len(conflation_curies),
+            source_includes=source_fields,
+        )
+
+        conflation_metadata = {}
+        for conflation_identifier, conflation_result in zip(
+            conflation_curies, conflation_term_search_result.body["hits"]["hits"]
+        ):
+            conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
+            conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
+
+            for conflation_entry in conflation_identifier_lookup:
+                conflation_entry.update({"t": conflation_biolink_type})
+
+            conflation_types = await self._populate_biolink_type_ancestors(
+                conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
+            )
+
+            conflation_metadata[conflation_identifier] = {
+                "identifiers": conflation_identifier_lookup,
+                "types": conflation_types,
+            }
+        return conflation_metadata
