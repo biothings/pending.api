@@ -356,7 +356,10 @@ class NormalizedNodesHandler(BaseAPIHandler):
             }
         else:
             # Sometimes, nothing has a label :(
-            normal_node = {"id": {"identifier": aggregate_node.identifiers[0]["i"]}}
+            if aggregate_node.identifiers is not None and len(aggregate_node.identifiers) > 0:
+                normal_node = {"id": {"identifier": aggregate_node.identifiers[0]["i"]}}
+            else:
+                normal_node = {"id": {"identifier": aggregate_node.canonical_identifier}}
 
         # Now that we've determined a label for this clique, we should never use identifiers_with_labels, possible_labels,
         # or filtered_possible_labels after this point.
@@ -436,21 +439,26 @@ class NormalizedNodesHandler(BaseAPIHandler):
                     continue
             try:
                 information_content = round(float(result_source.get("ic", None)), 1)
+                if information_content == 0.0:
+                    information_content = None
             except TypeError:
                 information_content = None
 
             node_types = await self._populate_biolink_type_ancestors(biolink_type, canonical_identifier)
 
-            if any(conflations.values()):
-                conflation_identifiers = []
-                conflation_information = identifiers[0].get("c", {})
-                if conflations.get("GeneProtein", False):
-                    gene_protein_identifiers = conflation_information.get("gp", [])
+            conflation_identifiers = []
+            conflation_information = identifiers[0].get("c", {})
+            if conflations.get("GeneProtein", False):
+                gene_protein_identifiers = conflation_information.get("gp", None)
+                if gene_protein_identifiers is not None:
                     conflation_identifiers.extend(gene_protein_identifiers)
 
-                if conflations.get("DrugChemical", False):
-                    conflation_identifiers.extend(conflation_information.get("dc", []))
+            if conflations.get("DrugChemical", False):
+                drug_chemical_identifiers = conflation_information.get("dc", None)
+                if drug_chemical_identifiers is not None:
+                    conflation_identifiers.extend(drug_chemical_identifiers)
 
+            if any(conflations.values()) and len(conflation_identifiers) > 0:
                 conflation_order = {curie: index for index, curie in enumerate(conflation_identifiers)}
                 conflation_curies, _, conflation_result_lookup = await self._lookup_equivalent_identifiers(
                     conflation_identifiers, conflation_order
