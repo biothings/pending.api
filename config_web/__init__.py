@@ -67,6 +67,7 @@ from . import pubtator3
 from . import rare_source
 from . import repodb
 from . import rhea
+from . import rtx_kg2
 
 # from . import semmed
 # from . import semmed_anatomy  # use plugin "semmedana"
@@ -88,9 +89,7 @@ from . import umlschem
 from . import upheno_ontology
 
 
-APP_LIST += [
-    (r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")
-]
+APP_LIST += [(r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")]
 
 # Default Opentelemetry Settings
 OPENTELEMETRY_ENABLED = "False"

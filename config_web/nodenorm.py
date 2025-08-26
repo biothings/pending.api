@@ -9,3 +9,10 @@ APP_LIST = [(r"/{pre}/{ver}/get_normalized_nodes?", "web.handlers.NormalizedNode
 API_PREFIX = "nodenorm"
 API_VERSION = ""
 API_DEPRECATED = False
+
+
+APP_LIST = [(r"/{pre}/{ver}/query/graph?", "web.handlers.GraphQueryHandler"), *APP_LIST]
+
+ES_QUERY_PIPELINE = "web.pipeline.PendingQueryPipeline"
+ES_QUERY_BUILDER = "web.pipeline.PendingQueryBuilder"
+ES_RESULT_TRANSFORM = "web.pipeline.GraphResultTransform"
