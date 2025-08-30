@@ -1,6 +1,7 @@
 import asyncio
 import concurrent.futures
 import json
+import multiprocessing
 import os
 import sqlite3
 from pathlib import Path
@@ -11,6 +12,8 @@ from urllib.parse import urlparse
 from biothings import config
 from biothings.hub.dataload.dumper import DumperException, LastModifiedHTTPDumper
 from biothings.utils.manager import JobManager
+
+from .parse import DRUG_CHEMICAL_IDENTIFIER_FILES, GENE_PROTEIN_IDENTIFER_FILES
 
 
 logger = config.logger
@@ -251,22 +254,36 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         self.release = parse_result.path.split("/")[-1]
 
     def post_dump(self, *args, **kwargs):
-        """
-        Takes the generated conflation files and creates a sqlite3 database used for looking
-        up the conflation identifiers for the supported types of nodes
-        """
         # Force creation of the to_dump collection
         self.create_todump_list(force=True)
         local_zip_file = self.to_dump[0]["local"]
         data_directory = Path(local_zip_file).parent
+        self._generate_conflation_database(data_directory)
+        self._lookup_conflation_identifier(data_directory, conflation_database_path)
 
+    def _generate_conflation_database(self, data_directory: Union[str, Path]) -> Union[str, Path]:
+        """
+        Takes the generated conflation files and creates a sqlite3 database used for looking
+        up the conflation identifiers for the supported types of nodes
+
+        Finds the identifiers and then flattens so each identifier found within the conflation list
+        points back to the same list of identifiers, so every CURIE within the list points to the
+        same list
+
+        Example:
+        conflation  | identifiers
+        identifier0 | identifer0,identifer1,identifer2,identifer3,identifer4
+        identifier1 | identifer0,identifer1,identifer2,identifer3,identifer4
+        identifier2 | identifer0,identifer1,identifer2,identifer3,identifer4
+        identifier3 | identifer0,identifer1,identifer2,identifer3,identifer4
+        identifier4 | identifer0,identifer1,identifer2,identifer3,identifer4
+        """
         conflation_database_path = data_directory.joinpath(CONFLATION_LOOKUP_DATABASE).resolve().absolute()
         conflation_database = sqlite3.connect(conflation_database_path)
         cursor = conflation_database.cursor()
 
         enable_foreign_keys = "PRAGMA foreign_keys = ON;"
         cursor.execute(enable_foreign_keys)
-
         conflation_existance_check = "DROP TABLE IF EXISTS conflations"
         cursor.execute(conflation_existance_check)
 
