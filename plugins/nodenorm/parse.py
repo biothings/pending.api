@@ -1,7 +1,5 @@
-import collections
 import itertools
 import json
-import multiprocessing
 import pathlib
 import sqlite3
 
@@ -106,40 +104,28 @@ def _update_buffer_with_conflations(
 
 
 def load_conflation_specific_data(input_file: str, conflation_database: Union[str, pathlib.Path]):
-    connection = sqlite3.connect(str(conflation_database))
+    buffer = []
+    with open(input_file, "r", encoding="utf-8") as data_handle:
+        while file_slice := [json.loads(line) for line in itertools.islice(data_handle, 10000)]:
+            slice_mapping = {doc["identifiers"][0]["i"]: doc for doc in file_slice}
+            query_result = locate_conflation_identifiers(slice_mapping, conflation_database)
+            buffer.extend(query_result)
 
-    def query_conflation_database(compendia_lines: dict, connection: sqlite3.Connection) -> list[dict]:
-        identifier_results = connection.executemany(
-            "SELECT conflation FROM conflations WHERE conflation = VALUES(:identifier)",
-            [{"identifier": i} for i in compendia_lines.keys()],
+            if len(buffer) >= 10000:
+                yield from buffer
+                buffer = []
+
+    yield from buffer
+
+
+def locate_conflation_identifiers(compendia_lines: dict, conflation_database: Union[str, pathlib.Path]) -> list[dict]:
+    with sqlite3.connect(conflation_database) as conn:
+        cursor = conn.cursor()
+        query = (
+            f"SELECT conflation FROM conflations WHERE conflation IN ({','.join(['?'] * len(compendia_lines.keys()))})"
         )
+        identifier_results = cursor.execute(query, (*compendia_lines.keys(),))
         query_buffer = []
         for lookup_result in identifier_results.fetchall():
             query_buffer.append(compendia_lines[lookup_result[0]])
         return query_buffer
-
-    with multiprocessing.Pool() as file_pool:
-        result_buffer = collections.deque()
-        return_buffer = []
-        with open(input_file, "r", encoding="utf-8") as data_handle:
-            while file_slice := [json.loads(line) for line in itertools.islice(data_handle, 10000)]:
-                slice_mapping = {doc["identifiers"][0]["i"]: doc for doc in file_slice}
-                query_result = file_pool.apply_async(query_conflation_database, [slice_mapping, connection])
-                result_buffer.append(query_result)
-
-                if len(result_buffer) >= 10000:
-                    result_buffer[0].wait()
-
-                while len(result_buffer) > 0 and result_buffer[0].ready():
-                    result = result_buffer.popleft()
-                    return_buffer.extend(result.get())
-
-                if len(return_buffer) >= 10000:
-                    yield from return_buffer
-                    return_buffer = []
-
-        for result in result_buffer:
-            result.wait()
-            return_buffer.extend(result.get())
-
-        yield from return_buffer
