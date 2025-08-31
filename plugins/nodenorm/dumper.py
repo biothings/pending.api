@@ -259,7 +259,6 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         local_zip_file = self.to_dump[0]["local"]
         data_directory = Path(local_zip_file).parent
         self._generate_conflation_database(data_directory)
-        self._lookup_conflation_identifier(data_directory, conflation_database_path)
 
     def _generate_conflation_database(self, data_directory: Union[str, Path]) -> Union[str, Path]:
         """
