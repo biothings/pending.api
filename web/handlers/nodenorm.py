@@ -191,10 +191,21 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
         nodes = await self._lookup_curie_metadata(curies, conflations)
 
+        # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
+        # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
+        # we prefer the prefixes listed there.
+        #
+        # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
+        # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
+        # for the FIRST clique of the conflated cliques with labels.
+        node_identifier_label_mapping = await self._lookup_identifiers_with_labels(nodes)
+
         normal_nodes = {}
         for aggregate_node in nodes:
+            identifiers_with_labels = node_identifier_label_mapping[aggregate_node.curie]
             normal_node = await self.create_normalized_node(
                 aggregate_node,
+                identifiers_with_labels,
                 include_descriptions=include_descriptions,
                 include_individual_types=include_individual_types,
                 conflations=conflations,
@@ -214,6 +225,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
     async def create_normalized_node(
         self,
         aggregate_node: NormalizedNode,
+        identifiers_with_labels: list[str],
         include_descriptions: bool = True,
         include_individual_types: bool = False,
         conflations: dict = None,
@@ -258,40 +270,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
             return None
 
         # OK, now we should have id's in the format [ {"i": "MONDO:12312", "l": "Scrofula"}, {},...]
-
-        # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
-        # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
-        # we prefer the prefixes listed there.
-        #
-        # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
-        # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
-        # for the FIRST clique of the conflated cliques with labels.
-        conflated_identifiers = any(conflations.values())
-        identifiers_with_labels = []
-        if not conflated_identifiers:
-            # No conflation. We just use the identifiers we've been given.
-            identifiers_with_labels = aggregate_node.identifiers
-        else:
-            # We have a conflation going on! To replicate Babel's behavior, we need to run the algorithem
-            # on the list of labels corresponding to the first
-            # So we need to run the algorithm on the first set of identifiers that have any
-            # label whatsoever.
-            curies_already_checked = set()
-            for identifier in aggregate_node.identifiers:
-                curie = identifier.get("i", "")
-                if curie in curies_already_checked:
-                    continue
-
-                _, _, curie_label_lookup = await self._lookup_equivalent_identifiers([curie], {curie: 0})
-                identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
-
-                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
-                if any(map(lambda l: l != "", labels)):
-                    break
-
-                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
-                # we don't make redundant queries to the database.
-                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
 
         # We might get here without any labels, which is fine. At least we tried.
 
@@ -603,3 +581,39 @@ class NormalizedNodesHandler(BaseAPIHandler):
             curies = [c for c in curies if c not in malformed_curies]
 
         return curies, malformed_curies, identifier_result_lookup
+
+    async def _lookup_identifiers_with_labels(self, nodes: list[NormalizedNode]) -> dict:
+        """
+        Used specifically for handling conflations.
+
+        Replicates Babel's behavior
+
+        Runs on the first set of identifiers and greedily returns the first set with labels found
+        """
+        curies = []
+        for node in nodes:
+            curies.extend((identifier["i"] for identifier in node.identifiers))
+
+        curie_order = {curie: index for index, curie in enumerate(curies)}
+        _, _, curie_label_lookup = await self._lookup_equivalent_identifiers(curies, curie_order)
+
+        curies_already_checked = set()
+        node_identifier_label_mapping = {}
+        for aggregate_node in nodes:
+            for identifier in aggregate_node.identifiers:
+                curie = identifier.get("i", "")
+                if curie in curies_already_checked:
+                    continue
+
+                identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
+
+                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
+                if any(map(lambda l: l != "", labels)):
+                    break
+
+                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
+                # we don't make redundant queries to the database.
+                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
+
+            node_identifier_label_mapping[aggregate_node.curie] = identifiers_with_labels
+        return node_identifier_label_mapping

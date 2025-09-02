@@ -1,2 +1,2 @@
 from .dumper import NodeNormDumper
-from .uploader import NodeNormUploader
+from .uploader import NodeNormUploader, NodeNormConflationUploader

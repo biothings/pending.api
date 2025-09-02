@@ -1,10 +1,11 @@
+import itertools
 import json
 import pathlib
 import sqlite3
 
 from typing import Union
 
-drug_chemical_identifier_files = [
+DRUG_CHEMICAL_IDENTIFIER_FILES = [
     "Drug.txt",
     "ChemicalEntity.txt",
     "SmallMolecule.txt",
@@ -14,12 +15,12 @@ drug_chemical_identifier_files = [
 ]
 
 
-gene_protein_identifier_files = ["Protein.txt", "Gene.txt"]
+GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
 
 
 def load_data_file(input_file: str, conflation_database: Union[str, pathlib.Path]):
     connection = sqlite3.connect(str(conflation_database))
-    if input_file.name in drug_chemical_identifier_files or input_file.name in gene_protein_identifier_files:
+    if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
         _load_data_file_with_conflations(input_file, connection)
     else:
         _load_data_file(input_file)
@@ -100,3 +101,31 @@ def _update_buffer_with_conflations(
             elif conflation_type == "DrugChemical":
                 document["identifiers"]["c"]["dc"] = identifiers
     return buffer
+
+
+def load_conflation_specific_data(input_file: str, conflation_database: Union[str, pathlib.Path]):
+    buffer = []
+    with open(input_file, "r", encoding="utf-8") as data_handle:
+        while file_slice := [json.loads(line) for line in itertools.islice(data_handle, 10000)]:
+            slice_mapping = {doc["identifiers"][0]["i"]: doc for doc in file_slice}
+            query_result = locate_conflation_identifiers(slice_mapping, conflation_database)
+            buffer.extend(query_result)
+
+            if len(buffer) >= 10000:
+                yield from buffer
+                buffer = []
+
+    yield from buffer
+
+
+def locate_conflation_identifiers(compendia_lines: dict, conflation_database: Union[str, pathlib.Path]) -> list[dict]:
+    with sqlite3.connect(conflation_database) as conn:
+        cursor = conn.cursor()
+        query = (
+            f"SELECT conflation FROM conflations WHERE conflation IN ({','.join(['?'] * len(compendia_lines.keys()))})"
+        )
+        identifier_results = cursor.execute(query, (*compendia_lines.keys(),))
+        query_buffer = []
+        for lookup_result in identifier_results.fetchall():
+            query_buffer.append(compendia_lines[lookup_result[0]])
+        return query_buffer
