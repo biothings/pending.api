@@ -305,6 +305,7 @@
 {"id":"NCBIGene:343637","name":"RSPO4","category":["biolink:Gene"]}
 {"id":"NCBIGene:788","name":"SLC25A20","category":["biolink:Gene"]}
 {"id":"NCBIGene:7480","name":"WNT10B","category":["biolink:Gene"]}
+{"id":"NCBIGene:5189","name":"PEX1","category":["biolink:Gene"]}
 {"id":"NCBIGene:11277","name":"TREX1","category":["biolink:Gene"]}
 {"id":"NCBIGene:3737","name":"KCNA2","category":["biolink:Gene"]}
 {"id":"NCBIGene:5885","name":"RAD21","category":["biolink:Gene"]}
@@ -500,7 +501,6 @@
 {"id":"NCBIGene:10585","name":"POMT1","category":["biolink:Gene"]}
 {"id":"NCBIGene:5744","name":"PTHLH","category":["biolink:Gene"]}
 {"id":"NCBIGene:157657","name":"CFAP418","category":["biolink:Gene"]}
-{"id":"NCBIGene:91252","name":"SLC39A13","category":["biolink:Gene"]}
 {"id":"NCBIGene:80254","name":"CEP63","category":["biolink:Gene"]}
 {"id":"NCBIGene:23299","name":"BICD2","category":["biolink:Gene"]}
 {"id":"NCBIGene:121391","name":"KRT74","category":["biolink:Gene"]}
@@ -551,7 +551,6 @@
 {"id":"NCBIGene:9382","name":"COG1","category":["biolink:Gene"]}
 {"id":"NCBIGene:6785","name":"ELOVL4","category":["biolink:Gene"]}
 {"id":"NCBIGene:56776","name":"FMN2","category":["biolink:Gene"]}
-{"id":"NCBIGene:203068","name":"TUBB","category":["biolink:Gene"]}
 {"id":"NCBIGene:5979","name":"RET","category":["biolink:Gene"]}
 {"id":"NCBIGene:55906","name":"ZC4H2","category":["biolink:Gene"]}
 {"id":"NCBIGene:54982","name":"CLN6","category":["biolink:Gene"]}
@@ -941,6 +940,7 @@
 {"id":"NCBIGene:80781","name":"COL18A1","category":["biolink:Gene"]}
 {"id":"NCBIGene:25839","name":"COG4","category":["biolink:Gene"]}
 {"id":"NCBIGene:7299","name":"TYR","category":["biolink:Gene"]}
+{"id":"NCBIGene:2657","name":"GDF1","category":["biolink:Gene"]}
 {"id":"NCBIGene:3508","name":"IGHMBP2","category":["biolink:Gene"]}
 {"id":"NCBIGene:7846","name":"TUBA1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:10661","name":"KLF1","category":["biolink:Gene"]}
@@ -1008,6 +1008,7 @@
 {"id":"NCBIGene:6853","name":"SYN1","category":["biolink:Gene"]}
 {"id":"NCBIGene:28952","name":"CCDC22","category":["biolink:Gene"]}
 {"id":"NCBIGene:6497","name":"SKI","category":["biolink:Gene"]}
+{"id":"NCBIGene:8642","name":"DCHS1","category":["biolink:Gene"]}
 {"id":"NCBIGene:51082","name":"POLR1D","category":["biolink:Gene"]}
 {"id":"NCBIGene:90","name":"ACVR1","category":["biolink:Gene"]}
 {"id":"NCBIGene:8929","name":"PHOX2B","category":["biolink:Gene"]}
@@ -1242,6 +1243,7 @@
 {"id":"NCBIGene:493856","name":"CISD2","category":["biolink:Gene"]}
 {"id":"NCBIGene:6334","name":"SCN8A","category":["biolink:Gene"]}
 {"id":"NCBIGene:1663","name":"DDX11","category":["biolink:Gene"]}
+{"id":"NCBIGene:283989","name":"TSEN54","category":["biolink:Gene"]}
 {"id":"NCBIGene:55572","name":"FOXRED1","category":["biolink:Gene"]}
 {"id":"NCBIGene:25885","name":"POLR1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:2588","name":"GALNS","category":["biolink:Gene"]}
@@ -1261,6 +1263,7 @@
 {"id":"NCBIGene:1387","name":"CREBBP","category":["biolink:Gene"]}
 {"id":"NCBIGene:2719","name":"GPC3","category":["biolink:Gene"]}
 {"id":"NCBIGene:8036","name":"SHOC2","category":["biolink:Gene"]}
+{"id":"NCBIGene:91252","name":"SLC39A13","category":["biolink:Gene"]}
 {"id":"NCBIGene:7249","name":"TSC2","category":["biolink:Gene"]}
 {"id":"NCBIGene:9451","name":"EIF2AK3","category":["biolink:Gene"]}
 {"id":"NCBIGene:71","name":"ACTG1","category":["biolink:Gene"]}
@@ -1276,6 +1279,7 @@
 {"id":"NCBIGene:118856","name":"MMP21","category":["biolink:Gene"]}
 {"id":"NCBIGene:6328","name":"SCN3A","category":["biolink:Gene"]}
 {"id":"NCBIGene:54806","name":"AHI1","category":["biolink:Gene"]}
+{"id":"NCBIGene:203068","name":"TUBB","category":["biolink:Gene"]}
 {"id":"NCBIGene:10982","name":"MAPRE2","category":["biolink:Gene"]}
 {"id":"NCBIGene:2122","name":"MECOM","category":["biolink:Gene"]}
 {"id":"NCBIGene:57410","name":"SCYL1","category":["biolink:Gene"]}
@@ -1451,6 +1455,7 @@
 {"id":"NCBIGene:51095","name":"TRNT1","category":["biolink:Gene"]}
 {"id":"NCBIGene:6821","name":"SUOX","category":["biolink:Gene"]}
 {"id":"NCBIGene:79581","name":"SLC52A2","category":["biolink:Gene"]}
+{"id":"NCBIGene:23028","name":"KDM1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:10584","name":"COLEC10","category":["biolink:Gene"]}
 {"id":"NCBIGene:124583","name":"CANT1","category":["biolink:Gene"]}
 {"id":"NCBIGene:55773","name":"TBC1D23","category":["biolink:Gene"]}
@@ -1734,12 +1739,14 @@
 {"id":"NCBIGene:7701","name":"ZNF142","category":["biolink:Gene"]}
 {"id":"NCBIGene:23102","name":"TBC1D2B","category":["biolink:Gene"]}
 {"id":"NCBIGene:7030","name":"TFE3","category":["biolink:Gene"]}
+{"id":"NCBIGene:1832","name":"DSP","category":["biolink:Gene"]}
 {"id":"NCBIGene:477","name":"ATP1A2","category":["biolink:Gene"]}
 {"id":"NCBIGene:1105","name":"CHD1","category":["biolink:Gene"]}
 {"id":"NCBIGene:54805","name":"CNNM2","category":["biolink:Gene"]}
 {"id":"NCBIGene:1501","name":"CTNND2","category":["biolink:Gene"]}
 {"id":"NCBIGene:23116","name":"TOGARAM1","category":["biolink:Gene"]}
 {"id":"NCBIGene:8567","name":"MADD","category":["biolink:Gene"]}
+{"id":"NCBIGene:4677","name":"NARS1","category":["biolink:Gene"]}
 {"id":"NCBIGene:29895","name":"MYL11","category":["biolink:Gene"]}
 {"id":"NCBIGene:84842","name":"HPDL","category":["biolink:Gene"]}
 {"id":"NCBIGene:80000","name":"GREB1L","category":["biolink:Gene"]}
@@ -1843,6 +1850,7 @@
 {"id":"NCBIGene:498","name":"ATP5F1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:208","name":"AKT2","category":["biolink:Gene"]}
 {"id":"NCBIGene:91801","name":"ALKBH8","category":["biolink:Gene"]}
+{"id":"NCBIGene:51343","name":"FZR1","category":["biolink:Gene"]}
 {"id":"NCBIGene:200734","name":"SPRED2","category":["biolink:Gene"]}
 {"id":"NCBIGene:3703","name":"STT3A","category":["biolink:Gene"]}
 {"id":"NCBIGene:2801","name":"GOLGA2","category":["biolink:Gene"]}
@@ -1910,6 +1918,7 @@
 {"id":"NCBIGene:170689","name":"ADAMTS15","category":["biolink:Gene"]}
 {"id":"NCBIGene:8883","name":"NAE1","category":["biolink:Gene"]}
 {"id":"NCBIGene:9203","name":"ZMYM3","category":["biolink:Gene"]}
+{"id":"NCBIGene:154810","name":"AMOTL1","category":["biolink:Gene"]}
 {"id":"NCBIGene:8087","name":"FXR1","category":["biolink:Gene"]}
 {"id":"NCBIGene:55593","name":"OTUD5","category":["biolink:Gene"]}
 {"id":"NCBIGene:84678","name":"KDM2B","category":["biolink:Gene"]}
@@ -1953,6 +1962,7 @@
 {"id":"NCBIGene:90459","name":"ERI1","category":["biolink:Gene"]}
 {"id":"NCBIGene:55362","name":"TMEM63B","category":["biolink:Gene"]}
 {"id":"NCBIGene:51567","name":"TDP2","category":["biolink:Gene"]}
+{"id":"NCBIGene:2145","name":"EZH1","category":["biolink:Gene"]}
 {"id":"NCBIGene:26173","name":"INTS1","category":["biolink:Gene"]}
 {"id":"NCBIGene:1861","name":"TOR1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:3156","name":"HMGCR","category":["biolink:Gene"]}
@@ -1963,6 +1973,7 @@
 {"id":"NCBIGene:26834","name":"RNU4-2","category":["biolink:Gene"]}
 {"id":"NCBIGene:8541","name":"PPFIA3","category":["biolink:Gene"]}
 {"id":"NCBIGene:817","name":"CAMK2D","category":["biolink:Gene"]}
+{"id":"NCBIGene:23031","name":"MAST3","category":["biolink:Gene"]}
 {"id":"NCBIGene:3751","name":"KCND2","category":["biolink:Gene"]}
 {"id":"NCBIGene:3781","name":"KCNN2","category":["biolink:Gene"]}
 {"id":"NCBIGene:54973","name":"INTS11","category":["biolink:Gene"]}
@@ -1977,7 +1988,9 @@
 {"id":"NCBIGene:163786","name":"SASS6","category":["biolink:Gene"]}
 {"id":"NCBIGene:11267","name":"SNF8","category":["biolink:Gene"]}
 {"id":"NCBIGene:57282","name":"SLC4A10","category":["biolink:Gene"]}
+{"id":"NCBIGene:2563","name":"GABRD","category":["biolink:Gene"]}
 {"id":"NCBIGene:11340","name":"EXOSC8","category":["biolink:Gene"]}
+{"id":"NCBIGene:23136","name":"EPB41L3","category":["biolink:Gene"]}
 {"id":"NCBIGene:56704","name":"JPH1","category":["biolink:Gene"]}
 {"id":"NCBIGene:908","name":"CCT6A","category":["biolink:Gene"]}
 {"id":"NCBIGene:5861","name":"RAB1A","category":["biolink:Gene"]}
@@ -2000,15 +2013,27 @@
 {"id":"NCBIGene:11193","name":"WBP4","category":["biolink:Gene"]}
 {"id":"NCBIGene:406932","name":"MIR140","category":["biolink:Gene"]}
 {"id":"NCBIGene:171019","name":"ADAMTS19","category":["biolink:Gene"]}
+{"id":"NCBIGene:26855","name":"RNU2-2","category":["biolink:Gene"]}
 {"id":"NCBIGene:56886","name":"UGGT1","category":["biolink:Gene"]}
 {"id":"NCBIGene:23429","name":"RYBP","category":["biolink:Gene"]}
 {"id":"NCBIGene:25973","name":"PARS2","category":["biolink:Gene"]}
+{"id":"NCBIGene:5991","name":"RFX3","category":["biolink:Gene"]}
 {"id":"NCBIGene:64864","name":"RFX7","category":["biolink:Gene"]}
+{"id":"NCBIGene:5992","name":"RFX4","category":["biolink:Gene"]}
+{"id":"NCBIGene:171546","name":"SPTSSA","category":["biolink:Gene"]}
 {"id":"NCBIGene:60493","name":"FASTKD5","category":["biolink:Gene"]}
 {"id":"NCBIGene:54521","name":"WDR44","category":["biolink:Gene"]}
 {"id":"NCBIGene:10616","name":"RBCK1","category":["biolink:Gene"]}
 {"id":"NCBIGene:79631","name":"EFL1","category":["biolink:Gene"]}
 {"id":"NCBIGene:51776","name":"MAP3K20","category":["biolink:Gene"]}
+{"id":"NCBIGene:4733","name":"DRG1","category":["biolink:Gene"]}
+{"id":"NCBIGene:91461","name":"PKDCC","category":["biolink:Gene"]}
+{"id":"NCBIGene:2557","name":"GABRA4","category":["biolink:Gene"]}
+{"id":"NCBIGene:122553","name":"TRAPPC6B","category":["biolink:Gene"]}
+{"id":"NCBIGene:63925","name":"ZNF335","category":["biolink:Gene"]}
+{"id":"NCBIGene:6650","name":"CAPN15","category":["biolink:Gene"]}
+{"id":"NCBIGene:10073","name":"SNUPN","category":["biolink:Gene"]}
+{"id":"NCBIGene:51398","name":"WDR83OS","category":["biolink:Gene"]}
 {"id":"NCBIGene:4771","name":"NF2","category":["biolink:Gene"]}
 {"id":"NCBIGene:5925","name":"RB1","category":["biolink:Gene"]}
 {"id":"NCBIGene:7428","name":"VHL","category":["biolink:Gene"]}
@@ -2045,7 +2070,6 @@
 {"id":"NCBIGene:6010","name":"RHO","category":["biolink:Gene"]}
 {"id":"NCBIGene:1595","name":"CYP51A1","category":["biolink:Gene"]}
 {"id":"NCBIGene:1969","name":"EPHA2","category":["biolink:Gene"]}
-{"id":"NCBIGene:1413","name":"CRYBA4","category":["biolink:Gene"]}
 {"id":"NCBIGene:631","name":"BFSP1","category":["biolink:Gene"]}
 {"id":"NCBIGene:4284","name":"MIP","category":["biolink:Gene"]}
 {"id":"NCBIGene:23568","name":"ARL2BP","category":["biolink:Gene"]}
@@ -2277,7 +2301,6 @@
 {"id":"NCBIGene:55612","name":"FERMT1","category":["biolink:Gene"]}
 {"id":"NCBIGene:64240","name":"ABCG5","category":["biolink:Gene"]}
 {"id":"NCBIGene:64241","name":"ABCG8","category":["biolink:Gene"]}
-{"id":"NCBIGene:1832","name":"DSP","category":["biolink:Gene"]}
 {"id":"NCBIGene:3872","name":"KRT17","category":["biolink:Gene"]}
 {"id":"NCBIGene:6888","name":"TALDO1","category":["biolink:Gene"]}
 {"id":"NCBIGene:7274","name":"TTPA","category":["biolink:Gene"]}
@@ -2366,7 +2389,6 @@
 {"id":"NCBIGene:51702","name":"PADI3","category":["biolink:Gene"]}
 {"id":"NCBIGene:10058","name":"ABCB6","category":["biolink:Gene"]}
 {"id":"NCBIGene:6786","name":"STIM1","category":["biolink:Gene"]}
-{"id":"NCBIGene:5189","name":"PEX1","category":["biolink:Gene"]}
 {"id":"NCBIGene:657","name":"BMPR1A","category":["biolink:Gene"]}
 {"id":"NCBIGene:1050","name":"CEBPA","category":["biolink:Gene"]}
 {"id":"NCBIGene:11200","name":"CHEK2","category":["biolink:Gene"]}
@@ -2769,6 +2791,7 @@
 {"id":"MONDO:0008798","name":"ANONYCHIA","category":["biolink:Disease"]}
 {"id":"MONDO:0008918","name":"carnitine-acylcarnitine translocase deficiency","category":["biolink:Disease"]}
 {"id":"MONDO:0009157","name":"split hand-foot malformation 6","category":["biolink:Disease"]}
+{"id":"MONDO:0019234","name":"peroxisome biogenesis disorder","category":["biolink:Disease"]}
 {"id":"MONDO:0009165","name":"Aicardi-Goutieres syndrome 1","category":["biolink:Disease"]}
 {"id":"MONDO:0014607","name":"developmental and epileptic encephalopathy, 32","category":["biolink:Disease"]}
 {"id":"MONDO:0013864","name":"Cornelia de Lange syndrome 4","category":["biolink:Disease"]}
@@ -2976,7 +2999,6 @@
 {"id":"MONDO:0009364","name":"muscular dystrophy-dystroglycanopathy (congenital with brain and eye anomalies), type A1","category":["biolink:Disease"]}
 {"id":"MONDO:0013244","name":"brachydactyly type E2","category":["biolink:Disease"]}
 {"id":"MONDO:0013786","name":"cone-rod dystrophy 16","category":["biolink:Disease"]}
-{"id":"MONDO:0011124","name":"spondyloepimetaphyseal dysplasia-abnormal dentition syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0013871","name":"Seckel syndrome 6","category":["biolink:Disease"]}
 {"id":"MONDO:0014121","name":"autosomal dominant childhood-onset proximal spinal muscular atrophy with contractures","category":["biolink:Disease"]}
 {"id":"MONDO:0013514","name":"hypotrichosis 3","category":["biolink:Disease"]}
@@ -3031,7 +3053,6 @@
 {"id":"MONDO:0012637","name":"COG1-congenital disorder of glycosylation","category":["biolink:Disease"]}
 {"id":"MONDO:0013760","name":"congenital ichthyosis-intellectual disability-spastic quadriplegia syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0014524","name":"intellectual disability, autosomal recessive 47","category":["biolink:Disease"]}
-{"id":"MONDO:0014341","name":"complex cortical dysplasia with other brain malformations 6","category":["biolink:Disease"]}
 {"id":"DOID:10016","name":"multiple endocrine neoplasia type 2B","category":["biolink:Disease"]}
 {"id":"MONDO:0026762","name":"Wieacker-Wolff syndrome, female-restricted","category":["biolink:Disease"]}
 {"id":"MONDO:0011144","name":"ceroid lipofuscinosis, neuronal, 6A","category":["biolink:Disease"]}
@@ -3115,7 +3136,6 @@
 {"id":"MONDO:0013116","name":"congenital cataract-progressive muscular hypotonia-hearing loss-developmental delay syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0012654","name":"atrial septal defect 4","category":["biolink:Disease"]}
 {"id":"MONDO:0013870","name":"TMEM165-congenital disorder of glycosylation","category":["biolink:Disease"]}
-{"id":"MONDO:0010318","name":"FG syndrome 4","category":["biolink:Disease"]}
 {"id":"MONDO:0024550","name":"frontometaphyseal dysplasia 1","category":["biolink:Disease"]}
 {"id":"MONDO:0012514","name":"hypomyelinating leukodystrophy 5","category":["biolink:Disease"]}
 {"id":"MONDO:0007669","name":"renal cysts and diabetes syndrome","category":["biolink:Disease"]}
@@ -3470,6 +3490,7 @@
 {"id":"MONDO:0800167","name":"Knobloch syndrome 1","category":["biolink:Disease"]}
 {"id":"MONDO:0013281","name":"COG4-congenital disorder of glycosylation","category":["biolink:Disease"]}
 {"id":"MONDO:0008745","name":"oculocutaneous albinism type 1A","category":["biolink:Disease"]}
+{"id":"MONDO:0013463","name":"congenital heart defects, multiple types, 6","category":["biolink:Disease"]}
 {"id":"MONDO:0011436","name":"autosomal recessive distal spinal muscular atrophy 1","category":["biolink:Disease"]}
 {"id":"MONDO:0012703","name":"Lissencephaly 3","category":["biolink:Disease"]}
 {"id":"MONDO:0013355","name":"congenital dyserythropoietic anemia type 4","category":["biolink:Disease"]}
@@ -3546,6 +3567,7 @@
 {"id":"MONDO:0008426","name":"Shprintzen-Goldberg syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0007481","name":"Leri-Weill dyschondrosteosis","category":["biolink:Disease"]}
 {"id":"MONDO:0010984","name":"Usher syndrome type 1D","category":["biolink:Disease"]}
+{"id":"MONDO:0011070","name":"van Maldergem syndrome 1","category":["biolink:Disease"]}
 {"id":"MONDO:0013385","name":"Treacher Collins syndrome 2","category":["biolink:Disease"]}
 {"id":"MONDO:0007606","name":"fibrodysplasia ossificans progressiva","category":["biolink:Disease"]}
 {"id":"MONDO:0800026","name":"central hypoventilation syndrome, congenital, 1, with or without Hirschsprung disease","category":["biolink:Disease"]}
@@ -3818,10 +3840,12 @@
 {"id":"MONDO:0008769","name":"neuronal ceroid lipofuscinosis 2","category":["biolink:Disease"]}
 {"id":"MONDO:0007252","name":"Gordon syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0009798","name":"Primrose syndrome","category":["biolink:Disease"]}
+{"id":"MONDO:0010318","name":"FG syndrome 4","category":["biolink:Disease"]}
 {"id":"MONDO:0013255","name":"arthrogryposis, renal dysfunction, and cholestasis 2","category":["biolink:Disease"]}
 {"id":"MONDO:0011502","name":"Wolfram syndrome 2","category":["biolink:Disease"]}
 {"id":"MONDO:0013801","name":"developmental and epileptic encephalopathy, 13","category":["biolink:Disease"]}
 {"id":"MONDO:0013252","name":"Warsaw breakage syndrome","category":["biolink:Disease"]}
+{"id":"MONDO:0020135","name":"pontocerebellar hypoplasia","category":["biolink:Disease"]}
 {"id":"MONDO:0011640","name":"genitopatellar syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0032624","name":"mitochondrial complex 1 deficiency, nuclear type 19","category":["biolink:Disease"]}
 {"id":"MONDO:0014651","name":"acrofacial dysostosis Cincinnati type","category":["biolink:Disease"]}
@@ -4014,6 +4038,7 @@
 {"id":"MONDO:0010510","name":"intellectual disability, X-linked 105","category":["biolink:Disease"]}
 {"id":"MONDO:0011211","name":"axial spondylometaphyseal dysplasia","category":["biolink:Disease"]}
 {"id":"MONDO:0012792","name":"mitochondrial DNA depletion syndrome 8a","category":["biolink:Disease"]}
+{"id":"MONDO:0016576","name":"Ectrodactyly","category":["biolink:Disease"]}
 {"id":"MONDO:0014195","name":"microcornea-myopic chorioretinal atrophy","category":["biolink:Disease"]}
 {"id":"MONDO:0008948","name":"cerebrotendinous xanthomatosis","category":["biolink:Disease"]}
 {"id":"MONDO:0054636","name":"Skraban-Deardorff syndrome","category":["biolink:Disease"]}
@@ -4048,6 +4073,7 @@
 {"id":"MONDO:0014850","name":"retinitis pigmentosa and erythrocytic microcytosis","category":["biolink:Disease"]}
 {"id":"MONDO:0010089","name":"isolated sulfite oxidase deficiency","category":["biolink:Disease"]}
 {"id":"MONDO:0013867","name":"Brown-Vialetto-van Laere syndrome 2","category":["biolink:Disease"]}
+{"id":"MONDO:0014751","name":"palatal anomalies-widely spaced teeth-facial dysmorphism-developmental delay syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0010233","name":"heterotopia, periventricular, X-linked dominant","category":["biolink:Disease"]}
 {"id":"MONDO:0009554","name":"3MC syndrome 3","category":["biolink:Disease"]}
 {"id":"MONDO:0014196","name":"Hartsfield-Bixler-Demyer syndrome","category":["biolink:Disease"]}
@@ -4336,6 +4362,7 @@
 {"id":"MONDO:0020787","name":"hypomagnesemia, seizures, and intellectual disability 1","category":["biolink:Disease"]}
 {"id":"MONDO:0005308","name":"ciliopathy","category":["biolink:Disease"]}
 {"id":"MONDO:0033562","name":"neurodevelopmental disorder with dysmorphic facies, impaired speech, and hypotonia","category":["biolink:Disease"]}
+{"id":"MONDO:0100038","name":"complex neurodevelopmental disorder","category":["biolink:Disease"]}
 {"id":"MONDO:0030847","name":"arthrogryposis, distal, type 1C","category":["biolink:Disease"]}
 {"id":"MONDO:0033613","name":"neurodevelopmental disorder with progressive spasticity and brain white matter abnormalities","category":["biolink:Disease"]}
 {"id":"MONDO:0024520","name":"renal hypodysplasia/aplasia 3","category":["biolink:Disease"]}
@@ -4444,6 +4471,7 @@
 {"id":"MONDO:0014091","name":"mitochondrial complex V (ATP synthase) deficiency nuclear type 4B","category":["biolink:Disease"]}
 {"id":"MONDO:0009416","name":"hypoinsulinemic hypoglycemia and body hemihypertrophy","category":["biolink:Disease"]}
 {"id":"MONDO:0032789","name":"intellectual developmental disorder, autosomal recessive 71","category":["biolink:Disease"]}
+{"id":"MONDO:0859325","name":"developmental and epileptic encephalopathy 109","category":["biolink:Disease"]}
 {"id":"MONDO:0030679","name":"Noonan syndrome 14","category":["biolink:Disease"]}
 {"id":"MONDO:0859223","name":"congenital disorder of glycosylation, type Iw, autosomal dominant","category":["biolink:Disease"]}
 {"id":"MONDO:0859375","name":"developmental delay with hypotonia, myopathy, and brain abnormalities","category":["biolink:Disease"]}
@@ -4464,7 +4492,6 @@
 {"id":"MONDO:0024540","name":"Jervell and Lange-Nielsen syndrome 1","category":["biolink:Disease"]}
 {"id":"MONDO:0008919","name":"systemic primary carnitine deficiency disease","category":["biolink:Disease"]}
 {"id":"MONDO:0032699","name":"epilepsy, idiopathic generalized, susceptibility to, 15","category":["biolink:Disease"]}
-{"id":"MONDO:0100038","name":"complex neurodevelopmental disorder","category":["biolink:Disease"]}
 {"id":"MONDO:0030607","name":"Bryant-Li-Bhoj neurodevelopmental syndrome 2","category":["biolink:Disease"]}
 {"id":"MONDO:0010979","name":"Timothy syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0008104","name":"Noonan syndrome 1","category":["biolink:Disease"]}
@@ -4508,6 +4535,7 @@
 {"id":"MONDO:0859331","name":"Rabin-Pappas syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0859361","name":"neurodevelopmental disorder with dysmorphic facies and ischiopubic hypoplasia","category":["biolink:Disease"]}
 {"id":"MONDO:0957496","name":"intellectual developmental disorder, X-linked 112","category":["biolink:Disease"]}
+{"id":"MONDO:0971064","name":"orofacial clefting-cardiac anomalies-facial dysmorphism syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0030472","name":"developmental and epileptic encephalopathy 98","category":["biolink:Disease"]}
 {"id":"MONDO:0859204","name":"fetal akinesia, respiratory insufficiency, microcephaly, polymicrogyria, and dysmorphic facies","category":["biolink:Disease"]}
 {"id":"MONDO:0025351","name":"multiple congenital anomalies-neurodevelopmental syndrome, X-linked","category":["biolink:Disease"]}
@@ -4553,6 +4581,7 @@
 {"id":"MONDO:0971172","name":"neurodevelopmental disorder with hypotonia, brain anomalies, distinctive facies, and absent language","category":["biolink:Disease"]}
 {"id":"MONDO:1040014","name":"PPFIA3-related neurodevelopmental disorder","category":["biolink:Disease"]}
 {"id":"MONDO:1040008","name":"CAMK2D-related neurodevelopmental disorder and dilated cardiomyopathy","category":["biolink:Disease"]}
+{"id":"MONDO:0859314","name":"developmental and epileptic encephalopathy 108","category":["biolink:Disease"]}
 {"id":"MONDO:1040003","name":"KCND2-related neurodevelopmental disorder with or without seizures","category":["biolink:Disease"]}
 {"id":"MONDO:0859225","name":"neurodevelopmental disorder with or without variable movement or behavioral abnormalities","category":["biolink:Disease"]}
 {"id":"MONDO:0957386","name":"neurodevelopmental disorder with motor and language delay, ocular defects, and brain abnormalities","category":["biolink:Disease"]}
@@ -4580,10 +4609,18 @@
 {"id":"MONDO:0015286","name":"congenital disorder of glycosylation","category":["biolink:Disease"]}
 {"id":"MONDO:0032752","name":"developmental and epileptic encephalopathy, 75","category":["biolink:Disease"]}
 {"id":"MONDO:0957228","name":"intellectual developmental disorder, autosomal dominant 71, with behavioral abnormalities","category":["biolink:Disease"]}
+{"id":"MONDO:0957308","name":"spastic paraplegia 90A, autosomal dominant","category":["biolink:Disease"]}
 {"id":"MONDO:0014389","name":"polyglucosan body myopathy 1 with or without immunodeficiency","category":["biolink:Disease"]}
 {"id":"MONDO:0044205","name":"Shwachman-Diamond syndrome 2","category":["biolink:Disease"]}
 {"id":"MONDO:0014816","name":"split-foot malformation-mesoaxial polydactyly syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0054695","name":"myopathy, centronuclear, 6, with fiber-type disproportion","category":["biolink:Disease"]}
+{"id":"MONDO:0957990","name":"Tan-Almurshedi syndrome","category":["biolink:Disease"]}
+{"id":"MONDO:0032935","name":"rhizomelic limb shortening with dysmorphic features","category":["biolink:Disease"]}
+{"id":"MONDO:0060640","name":"neurodevelopmental disorder with microcephaly, epilepsy, and brain atrophy","category":["biolink:Disease"]}
+{"id":"MONDO:0014043","name":"microcephalic primordial dwarfism due to ZNF335 deficiency","category":["biolink:Disease"]}
+{"id":"MONDO:0036189","name":"oculogastrointestinal-neurodevelopmental syndrome","category":["biolink:Disease"]}
+{"id":"MONDO:0971171","name":"muscular dystrophy, limb-girdle, autosomal recessive 29","category":["biolink:Disease"]}
+{"id":"MONDO:0975877","name":"neurodevelopmental disorder with variable familial hypercholanemia","category":["biolink:Disease"]}
 {"id":"OMIM:614327","name":"TUMOR PREDISPOSITION SYNDROME 1","category":["biolink:Disease"]}
 {"id":"DOID:0111252","name":"vestibular schwannomatosis","category":["biolink:Disease"]}
 {"id":"MONDO:0008380","name":"retinoblastoma","category":["biolink:Disease"]}
@@ -4628,7 +4665,6 @@
 {"id":"MONDO:0010818","name":"retinitis pigmentosa 12","category":["biolink:Disease"]}
 {"id":"MONDO:0005129","name":"cataract","category":["biolink:Disease"]}
 {"id":"MONDO:0007288","name":"cataract 6 multiple types","category":["biolink:Disease"]}
-{"id":"MONDO:0012489","name":"cataract 23","category":["biolink:Disease"]}
 {"id":"MONDO:0012665","name":"cataract 33","category":["biolink:Disease"]}
 {"id":"MONDO:0014110","name":"cataract 15 multiple types","category":["biolink:Disease"]}
 {"id":"MONDO:0014186","name":"retinitis pigmentosa with or without situs inversus","category":["biolink:Disease"]}
@@ -4897,7 +4933,6 @@
 {"id":"MONDO:0011245","name":"HID Syndrome","category":["biolink:Disease"]}
 {"id":"MONDO:0013380","name":"LEOPARD syndrome 3","category":["biolink:Disease"]}
 {"id":"MONDO:0013379","name":"Noonan syndrome 7","category":["biolink:Disease"]}
-{"id":"MONDO:0007522","name":"Ehlers-Danlos syndrome, classic type","category":["biolink:Disease"]}
 {"id":"MONDO:0007525","name":"Ehlers-Danlos syndrome, arthrochalasia type","category":["biolink:Disease"]}
 {"id":"MONDO:0007524","name":"autosomal dominant Ehlers-Danlos syndrome, vascular type","category":["biolink:Disease"]}
 {"id":"MONDO:0007866","name":"Bart-Pumphrey syndrome","category":["biolink:Disease"]}
@@ -4927,6 +4962,7 @@
 {"id":"MONDO:0008371","name":"Dowling-Degos disease","category":["biolink:Disease"]}
 {"id":"MONDO:0011472","name":"epidermolysis bullosa simplex due to plakophilin deficiency","category":["biolink:Disease"]}
 {"id":"MONDO:0011177","name":"ectodermal dysplasia 4, hair/nail type","category":["biolink:Disease"]}
+{"id":"MONDO:0007522","name":"Ehlers-Danlos syndrome, classic type","category":["biolink:Disease"]}
 {"id":"MONDO:0009161","name":"Ehlers-Danlos syndrome, dermatosparaxis type","category":["biolink:Disease"]}
 {"id":"MONDO:0009159","name":"Ehlers-Danlos syndrome, cardiac valvular type","category":["biolink:Disease"]}
 {"id":"MONDO:0100045","name":"epidermodysplasia verruciformis, susceptibility to, 1","category":["biolink:Disease"]}
