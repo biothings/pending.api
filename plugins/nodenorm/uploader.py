@@ -7,7 +7,6 @@ from biothings.utils.storage import MergerStorage
 
 from .parse import (
     load_data_file,
-    load_conflation_specific_data,
     DRUG_CHEMICAL_IDENTIFIER_FILES,
     GENE_PROTEIN_IDENTIFER_FILES,
 )
