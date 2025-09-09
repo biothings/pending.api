@@ -56,6 +56,6 @@ class NodeNormUploader(ParallelizedSourceUploader):
             },
             "preferred_name": {"type": "text"},
             "taxa": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
-            "all": {"drug_chemical_identifier_filestype": "text"},
+            "all": {"type": "text"},
         }
         return mapping
