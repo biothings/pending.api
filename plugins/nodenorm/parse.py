@@ -1,10 +1,11 @@
+import itertools
 import json
 import pathlib
 import sqlite3
 
 from typing import Union
 
-drug_chemical_identifier_files = [
+DRUG_CHEMICAL_IDENTIFIER_FILES = [
     "Drug.txt",
     "ChemicalEntity.txt",
     "SmallMolecule.txt",
@@ -14,12 +15,12 @@ drug_chemical_identifier_files = [
 ]
 
 
-gene_protein_identifier_files = ["Protein.txt", "Gene.txt"]
+GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
 
 
 def load_data_file(input_file: str, conflation_database: Union[str, pathlib.Path]):
     connection = sqlite3.connect(str(conflation_database))
-    if input_file.name in drug_chemical_identifier_files or input_file.name in gene_protein_identifier_files:
+    if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
         _load_data_file_with_conflations(input_file, connection)
     else:
         _load_data_file(input_file)

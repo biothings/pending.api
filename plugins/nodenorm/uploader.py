@@ -5,7 +5,11 @@ import biothings, config
 from biothings.hub.dataload.uploader import ParallelizedSourceUploader
 from biothings.utils.storage import MergerStorage
 
-from .parse import load_data_file
+from .parse import (
+    load_data_file,
+    DRUG_CHEMICAL_IDENTIFIER_FILES,
+    GENE_PROTEIN_IDENTIFER_FILES,
+)
 from .dumper import NODENORM_FILE_COLLECTION, NODENORM_BIG_FILE_COLLECTION, BASE_URL, CONFLATION_LOOKUP_DATABASE
 
 
