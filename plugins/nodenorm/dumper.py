@@ -15,6 +15,7 @@ from biothings.utils.manager import JobManager
 
 from .static import (
     BASE_URL,
+    CONFLATION_LOOKUP_DATABASE,
     NODENORM_BIG_FILE_COLLECTION,
     NODENORM_CONFLATION_COLLECTION,
     NODENORM_FILE_COLLECTION,
@@ -117,7 +118,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Handles downloading of particularly large files. It breaks it into further smaller
         chunks
         """
-        logger.info(f"Downloading (large) file %s -> %s | Partitions %s", remoteurl, localfile, num_partitions)
+        logger.info("Downloading (large) file %s -> %s | Partitions %s", remoteurl, localfile, num_partitions)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
@@ -149,7 +150,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Leverages multiple threads to download the remote file in multiple chunks
         concurrently and then combines them at the end
         """
-        logger.info(f"Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
+        logger.info("Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
