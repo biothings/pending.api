@@ -97,19 +97,31 @@ def _update_buffer_with_conflations(
 ) -> list[str]:
     """
     Batch updates the buffer documents with the conflation identifiers found
+
+    Performs a lookup against the conflation database to find all conflation identifiers
+    We then create an index table so we can quickly lookup up the buffer index based off the
+    canonical identifier
+
+    We iterate over the discovered conflation identifier results and update the buffer with the
+    conflation information before returning the newly updated buffer
     """
-    identifiers = [{"canonical_identifier": identifier for identifier in canonical_identifiers}]
-    identifier_results = conflation_database.executemany(
-        "SELECT identifiers, type FROM conflations WHERE conflation = VALUES(:canonical_identifier)", identifiers
-    )
+    identifiers_repr = ", ".join("?" for _ in canonical_identifiers)
+    search_statement = f"SELECT identifiers, type FROM conflations WHERE conflation in ({identifiers_repr})"
+    identifier_results = conflation_database.execute(search_statement, canonical_identifiers)
 
-    for document, conflation_results in zip(buffer, identifier_results.fetchall()):
-        if conflation_results is not None:
-            identifiers = conflation_results[0].split(",").strip()
-            conflation_type = conflation_results[1]
+    lookup_buffer_index = {document["identifiers"][0]["i"]: index for index, document in enumerate(buffer)}
 
-            if conflation_type == "GeneProtein":
-                document["identifiers"]["c"]["gp"] = identifiers
-            elif conflation_type == "DrugChemical":
-                document["identifiers"]["c"]["dc"] = identifiers
+    for conflation_result in identifier_results.fetchall():
+        if conflation_result is not None:
+            identifiers = conflation_result[0].strip().split(",")
+            conflation_type = conflation_result[1]
+
+            for identifier in identifiers:
+                buffer_index = lookup_buffer_index.get(identifier, None)
+                if buffer_index is not None:
+                    for identifier in buffer[buffer_index]["identifiers"]:
+                        if conflation_type == "GeneProtein":
+                            identifier["c"]["gp"] = identifiers
+                        elif conflation_type == "DrugChemical":
+                            identifier["c"]["dc"] = identifiers
     return buffer
