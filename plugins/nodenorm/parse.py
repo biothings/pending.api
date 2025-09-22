@@ -29,9 +29,9 @@ def load_data_file(input_file: str):
 
     input_file = pathlib.Path(input_file).absolute().resolve()
     if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
-        _load_data_file_with_conflations(input_file, connection)
+        yield from _load_data_file_with_conflations(input_file, connection)
     else:
-        _load_data_file(input_file)
+        yield from _load_data_file(input_file)
 
 
 def _load_data_file(input_file: Union[str, pathlib.Path]):
@@ -46,7 +46,9 @@ def _load_data_file(input_file: Union[str, pathlib.Path]):
             except (TypeError, ValueError):
                 doc["ic"] = 0.0
             buffer.append(doc)
-            doc["identifiers"]["c"] = {"gp": None, "cd": None}
+
+            for identifier in doc["identifiers"]:
+                identifier["c"] = {"gp": None, "cd": None}
 
             if len(buffer) >= 1024:
                 yield from buffer
@@ -73,7 +75,9 @@ def _load_data_file_with_conflations(input_file: Union[str, pathlib.Path], confl
             except (TypeError, ValueError):
                 doc["ic"] = 0.0
             buffer.append(doc)
-            doc["identifiers"]["c"] = {"gp": None, "cd": None}
+
+            for identifier in doc["identifiers"]:
+                identifier["c"] = {"gp": None, "cd": None}
 
             if len(buffer) >= 1024:
                 buffer = _update_buffer_with_conflations(buffer, canonical_identifiers, conflation_database)
