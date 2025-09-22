@@ -4,20 +4,11 @@ import sqlite3
 
 from typing import Union
 
-# Duplication of definiton from dumper to avoid circular reference
-CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
-
-DRUG_CHEMICAL_IDENTIFIER_FILES = [
-    "Drug.txt",
-    "ChemicalEntity.txt",
-    "SmallMolecule.txt",
-    "ComplexMolecularMixture.txt",
-    "MolecularMixture.txt",
-    "Protein.txt",
-]
-
-
-GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
+from .static import (
+    DRUG_CHEMICAL_IDENTIFIER_FILES,
+    GENE_PROTEIN_IDENTIFER_FILES,
+    CONFLATION_LOOKUP_DATABASE,
+)
 
 
 def load_data_file(input_file: str):
@@ -36,6 +27,7 @@ def load_data_file(input_file: str):
     conflation_database = data_folder.joinpath(CONFLATION_LOOKUP_DATABASE)
     connection = sqlite3.connect(str(conflation_database))
 
+    input_file = pathlib.Path(input_file).absolute().resolve()
     if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
         _load_data_file_with_conflations(input_file, connection)
     else:
