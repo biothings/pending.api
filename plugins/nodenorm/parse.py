@@ -1,9 +1,11 @@
-import itertools
 import json
 import pathlib
 import sqlite3
 
 from typing import Union
+
+# Duplication of definiton from dumper to avoid circular reference
+CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
 
 DRUG_CHEMICAL_IDENTIFIER_FILES = [
     "Drug.txt",
@@ -18,8 +20,22 @@ DRUG_CHEMICAL_IDENTIFIER_FILES = [
 GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
 
 
-def load_data_file(input_file: str, conflation_database: Union[str, pathlib.Path]):
+def load_data_file(input_file: str):
+    """
+    Originally attempted to pass the conflation_database as a second argument, but ran into issues
+    with the parallelized uploader worker handling multiple arguments
+
+    The conflation_database is a static singular sqlite3 file located in the same directory as the
+    data files as it's generated post-dump. We can just derived it at run-time from the provided
+    data filepath
+
+    Afterwards the data processing is straight forward, we effectively don't transform the state of
+    the nodenorm files
+    """
+    data_folder = pathlib.Path(input_file).absolute().resolve().parent
+    conflation_database = data_folder.joinpath(CONFLATION_LOOKUP_DATABASE)
     connection = sqlite3.connect(str(conflation_database))
+
     if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
         _load_data_file_with_conflations(input_file, connection)
     else:
