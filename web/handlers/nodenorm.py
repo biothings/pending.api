@@ -58,18 +58,16 @@ class NormalizedNodesHandler(BaseAPIHandler):
     name = "normalizednodes"
 
     async def get(self, *args, **kwargs):
-        normalized_curies = self.args_json.get("curie", [])
-        conflate = self.args_json.get(
-            "conflate", False
-        )  # Original defaults to True, TODO revert once conflation is supported
-        drug_chemical_conflate = self.args_json.get("drug_chemical_conflate", False)
-        description = self.args_json.get("description", False)
-        individual_types = self.args_json.get("individual_types", False)
-
+        normalized_curies = self.get_arguments("curie")
         if len(normalized_curies) == 0:
             raise HTTPError(
                 detail="Missing curie argument, there must be at least one curie to normalize", status_code=400
             )
+
+        conflate = self.get_argument("conflate", True)
+        drug_chemical_conflate = self.get_argument("drug_chemical_conflate", False)
+        description = self.get_arguments("description", False)
+        individual_types = self.get_arguments("individual_types", False)
 
         normalized_nodes = await self.get_normalized_nodes(
             normalized_curies,
@@ -92,7 +90,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
         Example body
         {
-          "curies": [
+          "curie": [
             "MESH:D014867",
             "NCIT:C34373"
           ]
@@ -149,15 +147,15 @@ class NormalizedNodesHandler(BaseAPIHandler):
         }
         """
         normalization_curies = self.args_json.get("curie", [])
-        conflate = self.args_json.get("conflate", True)
-        drug_chemical_conflate = self.args_json.get("drug_chemical_conflate", False)
-        description = self.args_json.get("description", False)
-        individual_types = self.args_json.get("individual_types", False)
-
         if len(normalization_curies) == 0:
             raise HTTPError(
                 detail="Missing curie argument, there must be at least one curie to normalize", status_code=400
             )
+
+        conflate = self.args_json.get("conflate", True)
+        drug_chemical_conflate = self.args_json.get("drug_chemical_conflate", False)
+        description = self.args_json.get("description", False)
+        individual_types = self.args_json.get("individual_types", False)
 
         normalized_nodes = await self.get_normalized_nodes(
             normalization_curies,

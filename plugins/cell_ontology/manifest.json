@@ -2,7 +2,7 @@
     "version": "1.0",
     "__metadata__": {
         "license_url": "http://www.obofoundry.org/docs/Citation.html",
-        "licence": "",
+        "license": "",
         "url": "http://www.obofoundry.org/ontology/cl.html"
     },
     "requires": [

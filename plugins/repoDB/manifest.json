@@ -3,7 +3,7 @@
     "requires": ["pandas", "requests"],
     "__metadata__": {
         "license_url": "https://creativecommons.org/licenses/by/4.0/",
-        "licence": "Creative Commons Attribution 4.0 International License",
+        "license": "Creative Commons Attribution 4.0 International License",
         "url": "https://unmtid-shinyapps.net/shiny/repodb/",
         "description": "repoDB contains a standard set of drug repositioning successes and failures that can be used to fairly and reproducibly benchmark computational repositioning methods. repoDB data was extracted from DrugCentral and ClinicalTrials.gov."
     },
