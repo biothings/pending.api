@@ -3,8 +3,11 @@ Static defintions for urls and file locations
 """
 
 CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
-PRIOR_URL = ["https://stars.renci.org/var/babel_outputs/2025jan23"]
-BASE_URL = "https://stars.renci.org/var/babel_outputs/2025mar31/"
+PRIOR_URL = [
+    "https://stars.renci.org/var/babel_outputs/2025mar31/",
+    "https://stars.renci.org/var/babel_outputs/2025jan23",
+]
+BASE_URL = "https://stars.renci.org/var/babel_outputs/2025sep1/"
 
 
 NODENORM_FILE_COLLECTION = [
