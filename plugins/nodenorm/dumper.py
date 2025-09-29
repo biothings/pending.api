@@ -276,9 +276,13 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 batch = []
                 for line in handle.readlines():
                     identifiers = json.loads(line)
-                    identifiers_repr = ",".join(identifiers)
 
-                    for identifier in identifiers:
+                    # There have been bugs in the past with Babel where duplicate identifiers appear
+                    # on the line. This ensures we have unique identifiers in the original order
+                    cleaned_identifiers = list(dict.fromkeys(identifiers))
+
+                    identifiers_repr = ",".join(cleaned_identifiers)
+                    for identifier in cleaned_identifiers:
                         batch.append(
                             {"conflation": identifier, "identifiers": identifiers_repr, "type": conflation_file.stem}
                         )
