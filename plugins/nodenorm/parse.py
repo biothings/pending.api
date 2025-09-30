@@ -5,25 +5,34 @@ import sqlite3
 
 from typing import Union
 
-DRUG_CHEMICAL_IDENTIFIER_FILES = [
-    "Drug.txt",
-    "ChemicalEntity.txt",
-    "SmallMolecule.txt",
-    "ComplexMolecularMixture.txt",
-    "MolecularMixture.txt",
-    "Protein.txt",
-]
+from .static import (
+    DRUG_CHEMICAL_IDENTIFIER_FILES,
+    GENE_PROTEIN_IDENTIFER_FILES,
+    CONFLATION_LOOKUP_DATABASE,
+)
 
 
-GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
+def load_data_file(input_file: str):
+    """
+    Originally attempted to pass the conflation_database as a second argument, but ran into issues
+    with the parallelized uploader worker handling multiple arguments
 
+    The conflation_database is a static singular sqlite3 file located in the same directory as the
+    data files as it's generated post-dump. We can just derived it at run-time from the provided
+    data filepath
 
-def load_data_file(input_file: str, conflation_database: Union[str, pathlib.Path]):
+    Afterwards the data processing is straight forward, we effectively don't transform the state of
+    the nodenorm files
+    """
+    data_folder = pathlib.Path(input_file).absolute().resolve().parent
+    conflation_database = data_folder.joinpath(CONFLATION_LOOKUP_DATABASE)
     connection = sqlite3.connect(str(conflation_database))
+
+    input_file = pathlib.Path(input_file).absolute().resolve()
     if input_file.name in DRUG_CHEMICAL_IDENTIFIER_FILES or input_file.name in GENE_PROTEIN_IDENTIFER_FILES:
-        _load_data_file_with_conflations(input_file, connection)
+        yield from _load_data_file_with_conflations(input_file, connection)
     else:
-        _load_data_file(input_file)
+        yield from _load_data_file(input_file)
 
 
 def _load_data_file(input_file: Union[str, pathlib.Path]):
@@ -38,7 +47,9 @@ def _load_data_file(input_file: Union[str, pathlib.Path]):
             except (TypeError, ValueError):
                 doc["ic"] = 0.0
             buffer.append(doc)
-            doc["identifiers"]["c"] = {"gp": None, "cd": None}
+
+            for identifier in doc["identifiers"]:
+                identifier["c"] = {"gp": None, "cd": None}
 
             if len(buffer) >= 1024:
                 yield from buffer
@@ -65,7 +76,9 @@ def _load_data_file_with_conflations(input_file: Union[str, pathlib.Path], confl
             except (TypeError, ValueError):
                 doc["ic"] = 0.0
             buffer.append(doc)
-            doc["identifiers"]["c"] = {"gp": None, "cd": None}
+
+            for identifier in doc["identifiers"]:
+                identifier["c"] = {"gp": None, "cd": None}
 
             if len(buffer) >= 1024:
                 buffer = _update_buffer_with_conflations(buffer, canonical_identifiers, conflation_database)
@@ -85,19 +98,31 @@ def _update_buffer_with_conflations(
 ) -> list[str]:
     """
     Batch updates the buffer documents with the conflation identifiers found
+
+    Performs a lookup against the conflation database to find all conflation identifiers
+    We then create an index table so we can quickly lookup up the buffer index based off the
+    canonical identifier
+
+    We iterate over the discovered conflation identifier results and update the buffer with the
+    conflation information before returning the newly updated buffer
     """
-    identifiers = [{"canonical_identifier": identifier for identifier in canonical_identifiers}]
-    identifier_results = conflation_database.executemany(
-        "SELECT identifiers, type FROM conflations WHERE conflation = VALUES(:canonical_identifier)", identifiers
-    )
+    identifiers_repr = ", ".join("?" for _ in canonical_identifiers)
+    search_statement = f"SELECT identifiers, type FROM conflations WHERE conflation in ({identifiers_repr})"
+    identifier_results = conflation_database.execute(search_statement, canonical_identifiers)
 
-    for document, conflation_results in zip(buffer, identifier_results.fetchall()):
-        if conflation_results is not None:
-            identifiers = conflation_results[0].split(",").strip()
-            conflation_type = conflation_results[1]
+    lookup_buffer_index = {document["identifiers"][0]["i"]: index for index, document in enumerate(buffer)}
 
-            if conflation_type == "GeneProtein":
-                document["identifiers"]["c"]["gp"] = identifiers
-            elif conflation_type == "DrugChemical":
-                document["identifiers"]["c"]["dc"] = identifiers
+    for conflation_result in identifier_results.fetchall():
+        if conflation_result is not None:
+            identifiers = conflation_result[0].strip().split(",")
+            conflation_type = conflation_result[1]
+
+            for identifier in identifiers:
+                buffer_index = lookup_buffer_index.get(identifier, None)
+                if buffer_index is not None:
+                    for identifier in buffer[buffer_index]["identifiers"]:
+                        if conflation_type == "GeneProtein":
+                            identifier["c"]["gp"] = identifiers
+                        elif conflation_type == "DrugChemical":
+                            identifier["c"]["dc"] = identifiers
     return buffer

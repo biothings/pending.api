@@ -16,43 +16,16 @@ from biothings.utils.manager import JobManager
 from .parse import DRUG_CHEMICAL_IDENTIFIER_FILES, GENE_PROTEIN_IDENTIFER_FILES
 
 
+from .static import (
+    BASE_URL,
+    CONFLATION_LOOKUP_DATABASE,
+    NODENORM_BIG_FILE_COLLECTION,
+    NODENORM_CONFLATION_COLLECTION,
+    NODENORM_FILE_COLLECTION,
+)
+
+
 logger = config.logger
-
-PRIOR_URL = ["https://stars.renci.org/var/babel_outputs/2025jan23"]
-BASE_URL = "https://stars.renci.org/var/babel_outputs/2025mar31/"
-
-
-NODENORM_FILE_COLLECTION = [
-    "AnatomicalEntity.txt",
-    "BiologicalProcess.txt",
-    "Cell.txt",
-    "CellularComponent.txt",
-    "ChemicalEntity.txt",
-    "ChemicalMixture.txt",
-    "ComplexMolecularMixture.txt",
-    "Disease.txt",
-    "Drug.txt",
-    "GeneFamily.txt",
-    "GrossAnatomicalStructure.txt",
-    "MacromolecularComplex.txt",
-    "MolecularActivity.txt",
-    "OrganismTaxon.txt",
-    "Pathway.txt",
-    "PhenotypicFeature.txt",
-    "Polypeptide.txt",
-    "umls.txt",
-]
-
-NODENORM_CONFLATION_COLLECTION = ["DrugChemical.txt", "GeneProtein.txt"]
-
-
-NODENORM_BIG_FILE_COLLECTION = {
-    "MolecularMixture.txt": 50,
-    "Gene.txt": 75,
-    "Publication.txt": 100,
-    "SmallMolecule.txt": 150,
-    "Protein.txt": 200,
-}
 
 
 file_collections = {
@@ -60,8 +33,6 @@ file_collections = {
     "compendia-large": NODENORM_BIG_FILE_COLLECTION,
     "conflation": NODENORM_CONFLATION_COLLECTION,
 }
-
-CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
 
 
 class NodeNormDumper(LastModifiedHTTPDumper):
@@ -150,7 +121,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Handles downloading of particularly large files. It breaks it into further smaller
         chunks
         """
-        logger.info(f"Downloading (large) file %s -> %s | Partitions %s", remoteurl, localfile, num_partitions)
+        logger.info("Downloading (large) file %s -> %s | Partitions %s", remoteurl, localfile, num_partitions)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
@@ -182,7 +153,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         Leverages multiple threads to download the remote file in multiple chunks
         concurrently and then combines them at the end
         """
-        logger.info(f"Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
+        logger.info("Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
 
         thread_futures = []
@@ -308,9 +279,13 @@ class NodeNormDumper(LastModifiedHTTPDumper):
                 batch = []
                 for line in handle.readlines():
                     identifiers = json.loads(line)
-                    identifiers_repr = ",".join(identifiers)
 
-                    for identifier in identifiers:
+                    # There have been bugs in the past with Babel where duplicate identifiers appear
+                    # on the line. This ensures we have unique identifiers in the original order
+                    cleaned_identifiers = list(dict.fromkeys(identifiers))
+
+                    identifiers_repr = ",".join(cleaned_identifiers)
+                    for identifier in cleaned_identifiers:
                         batch.append(
                             {"conflation": identifier, "identifiers": identifiers_repr, "type": conflation_file.stem}
                         )
