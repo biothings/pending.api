@@ -6,12 +6,13 @@ import uuid
 from typing import Optional
 
 from biothings.web.handlers import BaseAPIHandler
+from biothings.web.services.namespace import BiothingsNamespace
 from tornado.web import HTTPError
 
-from web.handler.nodenorm.normalized_nodes import get_normalized_nodes
+from web.handlers.nodenorm.normalized_nodes import get_normalized_nodes
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass()
 class SetIDResponse:
     curies: list[str]
     conflations: list[str]
@@ -26,7 +27,7 @@ class SetIdentifierHandler(BaseAPIHandler):
     Mirror implementation to the renci implementation found at
     https://nodenormalization-sri.renci.org/docs
 
-    We intend to mirror the /get_set_id endpoint
+    We intend to mirror the /get_setid endpoint
     """
 
     # UUID namespace for SetIDs
@@ -34,20 +35,18 @@ class SetIdentifierHandler(BaseAPIHandler):
 
     name = "setidentifier"
 
-    async def get(self, *args, **kwargs):
-        curies = self.args_json.get("curies", [])
-        conflations = self.args_json.get("conflations", False)
+    async def get(self):
+        curie_group = self.get_arguments("curie")
+        conflations = self.get_arguments("conflation")
 
-        if len(curies) == 0:
+        if len(curie_group) == 0:
             raise HTTPError(
                 detail="Missing curie argument, there must be at least one curie to generate a set identifier",
                 status_code=400,
             )
 
-        set_identifiers = generate_setid(self, curies, conflations)
+        set_identifiers = await generate_setid(self.biothings, curie_group, conflations)
 
-        # If curie contains at least one entry, then the only way normalized_nodes could be blank
-        # would be if an error occurred during processing.
         if not set_identifiers:
             raise HTTPError(detail="Error occurred during processing.", status_code=500)
 
@@ -55,29 +54,27 @@ class SetIdentifierHandler(BaseAPIHandler):
 
     async def post(self):
         curies = self.args_json.get("curies", [])
-        conflations = self.args_json.get("conflations", False)
+        conflations = self.args_json.get("conflations", [])
 
         if len(curies) == 0:
             raise HTTPError(
-                detail="Missing curie argument, there must be at least one curie to generate a set identifier",
+                detail="Missing curies argument, there must be at least one curie to generate a set identifier",
                 status_code=400,
             )
 
-        set_identifiers = generate_setid(self, curies, conflations)
+        set_identifiers = await generate_setid(self.biothings, curies, conflations)
 
-        # If curie contains at least one entry, then the only way normalized_nodes could be blank
-        # would be if an error occurred during processing.
-        if not normalized_nodes:
+        if not set_identifiers:
             raise HTTPError(detail="Error occurred during processing.", status_code=500)
 
         self.finish(set_identifiers)
 
 
-async def generate_setid(handler: BaseAPIHandler, curies: list[str], conflations: list[str]) -> SetIDResponse:
+async def generate_setid(biothings_metadata: BiothingsNamespace, curies: list[str], conflations: list[str]) -> dict:
     """
     Generate a SetID for a set of curies.
 
-    :param handler: Tornado API handler
+    :param biothings_metadata: BiothingsNamepspace object containing configuration information
     :param curies: A list of curies to generate a set ID for.
     :param conflations: A list of conflations to apply. Must be one or both of 'GeneProtein' and 'DrugChemical'.
     :return: A SetIDResponse with the Set ID.
@@ -98,7 +95,7 @@ async def generate_setid(handler: BaseAPIHandler, curies: list[str], conflations
 
     # We use get_normalized_nodes() to normalize all the CURIEs for us.
     normalization_results = await get_normalized_nodes(
-        handler, curies, gene_protein_conflation, drug_chemical_conflation, include_descriptions=False
+        biothings_metadata, curies, gene_protein_conflation, drug_chemical_conflation, include_descriptions=False
     )
 
     # We prepare a set of sorted, deduplicated curies.
@@ -153,6 +150,6 @@ async def generate_setid(handler: BaseAPIHandler, curies: list[str], conflations
     # response.base64zlib = base64.b64encode(compressed_normalized_string).decode('utf-8')
 
     # - UUID v5 identifiers with a custom namespace.
-    response.setid = "uuid:" + str(uuid.uuid5(self.UUID_NAMESPACE_SETID, normalized_string))
+    response.setid = "uuid:" + str(uuid.uuid5(SetIdentifierHandler.UUID_NAMESPACE_SETID, normalized_string))
 
-    return response
+    return dataclasses.asdict(response)
