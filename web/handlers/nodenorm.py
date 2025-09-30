@@ -189,10 +189,21 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
         nodes = await self._lookup_curie_metadata(curies, conflations)
 
+        # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
+        # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
+        # we prefer the prefixes listed there.
+        #
+        # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
+        # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
+        # for the FIRST clique of the conflated cliques with labels.
+        node_identifier_label_mapping = await self._lookup_identifiers_with_labels(nodes)
+
         normal_nodes = {}
         for aggregate_node in nodes:
+            identifiers_with_labels = node_identifier_label_mapping[aggregate_node.curie]
             normal_node = await self.create_normalized_node(
                 aggregate_node,
+                identifiers_with_labels,
                 include_descriptions=include_descriptions,
                 include_individual_types=include_individual_types,
                 conflations=conflations,
@@ -212,6 +223,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
     async def create_normalized_node(
         self,
         aggregate_node: NormalizedNode,
+        identifiers_with_labels: list[str],
         include_descriptions: bool = True,
         include_individual_types: bool = False,
         conflations: dict = None,
@@ -256,40 +268,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
             return None
 
         # OK, now we should have id's in the format [ {"i": "MONDO:12312", "l": "Scrofula"}, {},...]
-
-        # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
-        # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
-        # we prefer the prefixes listed there.
-        #
-        # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
-        # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
-        # for the FIRST clique of the conflated cliques with labels.
-        conflated_identifiers = any(conflations.values())
-        identifiers_with_labels = []
-        if not conflated_identifiers:
-            # No conflation. We just use the identifiers we've been given.
-            identifiers_with_labels = aggregate_node.identifiers
-        else:
-            # We have a conflation going on! To replicate Babel's behavior, we need to run the algorithem
-            # on the list of labels corresponding to the first
-            # So we need to run the algorithm on the first set of identifiers that have any
-            # label whatsoever.
-            curies_already_checked = set()
-            for identifier in aggregate_node.identifiers:
-                curie = identifier.get("i", "")
-                if curie in curies_already_checked:
-                    continue
-
-                _, _, curie_label_lookup = await self._lookup_equivalent_identifiers([curie], {curie: 0})
-                identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
-
-                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
-                if any(map(lambda l: l != "", labels)):
-                    break
-
-                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
-                # we don't make redundant queries to the database.
-                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
 
         # We might get here without any labels, which is fine. At least we tried.
 
@@ -412,108 +390,105 @@ class NormalizedNodesHandler(BaseAPIHandler):
         document, so we can determine which terms were not found via set difference between the
         returned document CURIE identifiers and the user provided set of CURIE identifiers
         """
-        curie_order = {curie: index for index, curie in enumerate(curies)}
-        curies, malformed_curies, identifier_result_lookup = await self._lookup_equivalent_identifiers(
-            curies, curie_order
-        )
+        identifier_result_lookup, malformed_curies = await self._lookup_equivalent_identifiers(curies)
 
         nodes = []
         for input_curie in curies:
-            result = identifier_result_lookup[input_curie]
-            result_source = result.get("_source", {})
-            identifiers = result_source.get("identifiers", [])
-            biolink_type = result_source.get("type", None)
-
-            # Every equivalent identifier here has the same type.
-            for eqid in identifiers:
-                eqid.update({"t": biolink_type})
-
-            try:
-                canonical_identifier = identifiers[0].get("i", None)
-            except IndexError:
-                canonical_identifier = None
-            finally:
-                if canonical_identifier is None:
-                    continue
-            try:
-                information_content = round(float(result_source.get("ic", None)), 1)
-                if information_content == 0.0:
-                    information_content = None
-            except TypeError:
-                information_content = None
-
-            node_types = await self._populate_biolink_type_ancestors(biolink_type, canonical_identifier)
-
-            conflation_identifiers = []
-            conflation_information = identifiers[0].get("c", {})
-            if conflations.get("GeneProtein", False):
-                gene_protein_identifiers = conflation_information.get("gp", None)
-                if gene_protein_identifiers is not None:
-                    conflation_identifiers.extend(gene_protein_identifiers)
-
-            if conflations.get("DrugChemical", False):
-                drug_chemical_identifiers = conflation_information.get("dc", None)
-                if drug_chemical_identifiers is not None:
-                    conflation_identifiers.extend(drug_chemical_identifiers)
-
-            if any(conflations.values()) and len(conflation_identifiers) > 0:
-                conflation_order = {curie: index for index, curie in enumerate(conflation_identifiers)}
-                conflation_curies, _, conflation_result_lookup = await self._lookup_equivalent_identifiers(
-                    conflation_identifiers, conflation_order
-                )
-
-                replacement_identifiers = []
-                replacement_types = []
-                for conflation_curie in conflation_curies:
-                    conflation_result = conflation_result_lookup.get(conflation_curie, {})
-                    conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
-                    conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
-
-                    for conflation_entry in conflation_identifier_lookup:
-                        conflation_entry.update({"t": conflation_biolink_type})
-
-                    conflation_types = await self._populate_biolink_type_ancestors(
-                        conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
-                    )
-
-                    replacement_identifiers += conflation_identifier_lookup
-                    replacement_types += conflation_types
-
-                replacement_types = self.unique_list(replacement_types)
-
-                labels = [identifier.get("l", "") for identifier in replacement_identifiers]
-
+            if input_curie in malformed_curies:
                 node = NormalizedNode(
                     curie=input_curie,
-                    canonical_identifier=canonical_identifier,
-                    information_content=information_content,
-                    identifiers=replacement_identifiers,
-                    labels=labels,
-                    types=replacement_types,
+                    canonical_identifier=None,
+                    information_content=-1.0,
+                    identifiers=[],
+                    labels=[],
+                    types=[],
                 )
                 nodes.append(node)
             else:
-                labels = [identifier.get("l", "") for identifier in identifiers]
-                node = NormalizedNode(
-                    curie=input_curie,
-                    canonical_identifier=canonical_identifier,
-                    information_content=information_content,
-                    identifiers=identifiers,
-                    labels=labels,
-                    types=node_types,
-                )
-                nodes.append(node)
+                result = identifier_result_lookup[input_curie]
+                result_source = result.get("_source", {})
+                identifiers = result_source.get("identifiers", [])
+                biolink_type = result_source.get("type", None)
 
-        for curie in malformed_curies:
-            node = NormalizedNode(
-                curie=curie,
-                canonical_identifier=None,
-                information_content=-1.0,
-                identifiers=[],
-                labels=[],
-                types=[],
-            )
-            nodes.insert(curie_order[curie], node)
+                # Every equivalent identifier here has the same type.
+                for eqid in identifiers:
+                    eqid.update({"t": biolink_type})
+
+                try:
+                    canonical_identifier = identifiers[0].get("i", None)
+                except IndexError:
+                    canonical_identifier = None
+                finally:
+                    if canonical_identifier is None:
+                        continue
+                try:
+                    information_content = round(float(result_source.get("ic", None)), 1)
+                    if information_content == 0.0:
+                        information_content = None
+                except TypeError:
+                    information_content = None
+
+                node_types = await self._populate_biolink_type_ancestors(biolink_type, canonical_identifier)
+
+                conflation_identifiers = []
+                conflation_information = identifiers[0].get("c", {})
+                if conflations.get("GeneProtein", False):
+                    gene_protein_identifiers = conflation_information.get("gp", None)
+                    if gene_protein_identifiers is not None:
+                        conflation_identifiers.extend(gene_protein_identifiers)
+
+                if conflations.get("DrugChemical", False):
+                    drug_chemical_identifiers = conflation_information.get("dc", None)
+                    if drug_chemical_identifiers is not None:
+                        conflation_identifiers.extend(drug_chemical_identifiers)
+
+                if any(conflations.values()) and len(conflation_identifiers) > 0:
+                    conflation_result_lookup, malformed_conflation_curies = await self._lookup_equivalent_identifiers(
+                        conflation_identifiers
+                    )
+
+                    replacement_identifiers = []
+                    replacement_types = []
+                    for conflation_curie in conflation_identifiers:
+                        conflation_result = conflation_result_lookup.get(conflation_curie, {})
+                        conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
+                        conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
+
+                        for conflation_entry in conflation_identifier_lookup:
+                            conflation_entry.update({"t": conflation_biolink_type})
+
+                        conflation_types = await self._populate_biolink_type_ancestors(
+                            conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
+                        )
+
+                        replacement_identifiers += conflation_identifier_lookup
+                        replacement_types += conflation_types
+
+                    replacement_types = self.unique_list(replacement_types)
+
+                    labels = [identifier.get("l", "") for identifier in replacement_identifiers]
+
+                    node = NormalizedNode(
+                        curie=input_curie,
+                        canonical_identifier=canonical_identifier,
+                        information_content=information_content,
+                        identifiers=replacement_identifiers,
+                        labels=labels,
+                        types=replacement_types,
+                    )
+                    nodes.append(node)
+                else:
+                    labels = [identifier.get("l", "") for identifier in identifiers]
+                    node = NormalizedNode(
+                        curie=input_curie,
+                        canonical_identifier=canonical_identifier,
+                        information_content=information_content,
+                        identifiers=identifiers,
+                        labels=labels,
+                        types=node_types,
+                    )
+                    nodes.append(node)
+
         return nodes
 
     async def _populate_biolink_type_ancestors(
@@ -575,7 +550,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
         seen_add = seen.add
         return [x for x in seq if not (x in seen or seen_add(x))]
 
-    async def _lookup_equivalent_identifiers(self, curies: list[str], curie_order: dict) -> tuple[list, list, list]:
+    async def _lookup_equivalent_identifiers(self, curies: list[str]) -> tuple[list, list]:
         if len(curies) == 0:
             return [], [], []
 
@@ -597,7 +572,39 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 identifier_result_lookup[equivalent_identifier] = result
 
         malformed_curies = set(curies) - identifiers_set
-        if malformed_curies:
-            curies = [c for c in curies if c not in malformed_curies]
+        return identifier_result_lookup, malformed_curies
 
-        return curies, malformed_curies, identifier_result_lookup
+    async def _lookup_identifiers_with_labels(self, nodes: list[NormalizedNode]) -> dict:
+        """
+        Used specifically for handling conflations.
+
+        Replicates Babel's behavior
+
+        Runs on the first set of identifiers and greedily returns the first set with labels found
+        """
+        curies = []
+        for node in nodes:
+            curies.extend((identifier["i"] for identifier in node.identifiers))
+
+        curie_label_lookup, _ = await self._lookup_equivalent_identifiers(curies)
+
+        curies_already_checked = set()
+        node_identifier_label_mapping = {}
+        for aggregate_node in nodes:
+            for identifier in aggregate_node.identifiers:
+                curie = identifier.get("i", "")
+                if curie in curies_already_checked:
+                    continue
+
+                identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
+
+                labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
+                if any(map(lambda l: l != "", labels)):
+                    break
+
+                # Since we didn't get any matches here, add it to the list of CURIEs already checked so
+                # we don't make redundant queries to the database.
+                curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
+
+            node_identifier_label_mapping[aggregate_node.curie] = identifiers_with_labels
+        return node_identifier_label_mapping
