@@ -148,7 +148,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
           }
         }
         """
-        normalization_curies = self.args_json.get("curie", [])
+        normalization_curies = self.args_json.get("curies", [])
         if len(normalization_curies) == 0:
             raise HTTPError(
                 detail="Missing curie argument, there must be at least one curie to normalize", status_code=400
