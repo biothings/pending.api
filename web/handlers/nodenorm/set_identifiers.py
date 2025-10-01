@@ -53,16 +53,18 @@ class SetIdentifierHandler(BaseAPIHandler):
         self.finish(set_identifiers)
 
     async def post(self):
-        curies = self.args_json.get("curies", [])
-        conflations = self.args_json.get("conflations", [])
-
-        if len(curies) == 0:
+        curie_arguments = self.args_json
+        if len(curie_arguments) == 0:
             raise HTTPError(
-                detail="Missing curies argument, there must be at least one curie to generate a set identifier",
+                detail="Missing JSON body, there must be at least one curie to generate a set identifier",
                 status_code=400,
             )
 
-        set_identifiers = await generate_setid(self.biothings, curies, conflations)
+        set_identifiers = []
+        for group in curie_arguments:
+            curies = group.get("curies", [])
+            conflations = group.get("conflations", [])
+            set_identifiers.append(await generate_setid(self.biothings, curies, conflations))
 
         if not set_identifiers:
             raise HTTPError(detail="Error occurred during processing.", status_code=500)
