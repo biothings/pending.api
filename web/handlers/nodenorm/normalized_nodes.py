@@ -21,19 +21,6 @@ toolkit = bmt.Toolkit(BIOLINK_MODEL_URL)
 
 
 defaultconfig = {
-    "preferred_name_boost_prefixes": {
-        "biolink:ChemicalEntity": [
-            "DRUGBANK",
-            "DrugCentral",
-            "CHEBI",
-            "MESH",
-            "CHEMBL.COMPOUND",
-            "GTOPDB",
-            "HMDB",
-            "RXCUI",
-            "PUBCHEM.COMPOUND",
-        ]
-    },
     "demote_labels_longer_than": 15,
 }
 
@@ -194,8 +181,7 @@ async def get_normalized_nodes(
     nodes = await _lookup_curie_metadata(biothings_metadata, curies, conflations)
 
     # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
-    # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
-    # we prefer the prefixes listed there.
+    # identifier
     #
     # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
     # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
@@ -280,36 +266,7 @@ async def create_normalized_node(
     #   - identifiers_with_labels is the list of identifiers and labels for the first subclique that has at least
     #     one label.
 
-    # Note that types[canonical_id] goes from most specific to least specific, so we
-    # need to reverse it in order to apply preferred_name_boost_prefixes for the most
-    # specific type.
-    possible_labels = []
-    for bltype in aggregate_node.types[::-1]:
-        if bltype in defaultconfig["preferred_name_boost_prefixes"]:
-            # This is the most specific matching type, so we use this and then break.
-            possible_labels = list(
-                map(
-                    lambda ident: ident.get("l", ""),
-                    _sort_identifiers_with_boosted_prefixes(
-                        identifiers_with_labels, defaultconfig["preferred_name_boost_prefixes"][bltype]
-                    ),
-                )
-            )
-
-            # Add in all the other labels -- we'd still like to consider them, but at a lower priority.
-            for eid in identifiers_with_labels:
-                label = eid.get("l", "")
-                if label not in possible_labels:
-                    possible_labels.append(label)
-
-            # Since this is the most specific matching type, we shouldn't do other (presumably higher-level)
-            # categories: so let's break here.
-            break
-
-    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
-    # Biolink prefix order.
-    if not possible_labels:
-        possible_labels = map(lambda eid: eid.get("l", ""), identifiers_with_labels)
+    possible_labels = map(lambda eid: eid.get("l", ""), identifiers_with_labels)
 
     # Step 2. Filter out any suspicious labels.
     filtered_possible_labels = [
