@@ -1,6 +1,7 @@
 import asyncio
 import concurrent.futures
 import json
+import multiprocessing
 import os
 import sqlite3
 from pathlib import Path
@@ -11,6 +12,8 @@ from urllib.parse import urlparse
 from biothings import config
 from biothings.hub.dataload.dumper import DumperException, LastModifiedHTTPDumper
 from biothings.utils.manager import JobManager
+
+from .parse import DRUG_CHEMICAL_IDENTIFIER_FILES, GENE_PROTEIN_IDENTIFER_FILES
 
 
 from .static import (

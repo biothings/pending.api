@@ -18,7 +18,7 @@ from .api import ApiListHandler
 from .diseases import DiseasesHandler
 from .graph import GraphQueryHandler  # noqa # pylint: disable=unused-import
 from .ngd import SemmedNGDHandler  # noqa # pylint: disable=unused-import
-from .nodenorm import NormalizedNodesHandler  # noqa # pylint: disable=unused-import
+from .nodenorm import NormalizedNodesHandler, SetIdentifierHandler  # noqa # pylint: disable=unused-import
 from .status import StatusDefaultHandler
 from .version import VersionHandler
 

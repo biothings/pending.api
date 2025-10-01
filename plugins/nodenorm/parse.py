@@ -1,3 +1,4 @@
+import itertools
 import json
 import pathlib
 import sqlite3
