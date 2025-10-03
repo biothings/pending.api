@@ -7,7 +7,7 @@ command-line access to start Biothings APIs.
 """
 
 import logging
-import types
+import pathlib
 from pprint import pformat
 
 import tornado.httpserver
@@ -15,6 +15,7 @@ import tornado.ioloop
 import tornado.log
 import tornado.options
 import tornado.web
+from swagger_ui import api_doc
 
 from biothings import __version__
 from biothings.web.settings.configs import ConfigPackage
@@ -40,10 +41,26 @@ class PendingAPILauncher:
         self.settings = self._configure_settings(options, app_settings)
         self.config = load_configuration(options.conf)
         self._configure_logging()
+
         self.application = PendingAPI.get_app(self.config, self.settings, self.handlers)
+        self._configure_swagger(self.application)
 
         if use_curl:
             self.enable_curl_httpclient()
+
+    def _configure_swagger(self, application: tornado.web.Application) -> None:
+        """
+        Specific to nodenorm, creates a swagger UI for the nodenorm
+        endpoint
+
+        openapi file location: /web/handlers/nodenorm/specification/openapi.yaml
+        """
+        web_directory = pathlib.Path(__file__).resolve().absolute().parent
+        specification_directory = web_directory / "handlers" / "nodenorm" / "specification"
+        nodenorm_spec = specification_directory.joinpath("openapi.yaml")
+        api_doc(
+            application, config_path=nodenorm_spec, url_prefix="/nodenorm/api/doc", title="Nodenorm API Documentation"
+        )
 
     def _configure_settings(self, options: tornado.options.OptionParser, app_settings: dict) -> dict:
         """
