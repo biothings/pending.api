@@ -65,10 +65,16 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 detail="Missing curie argument, there must be at least one curie to normalize", status_code=400
             )
 
-        conflate = self.get_argument("conflate", True)
-        drug_chemical_conflate = self.get_argument("drug_chemical_conflate", False)
-        description = self.get_arguments("description", False)
-        individual_types = self.get_arguments("individual_types", False)
+        def parse_boolean(argument: Union[str, bool]) -> bool:
+            if isinstance(argument, bool):
+                return argument
+            elif isinstance(argument, str):
+                return not argument.lower() == "false"
+
+        conflate = parse_boolean(self.get_argument("conflate", True))
+        drug_chemical_conflate = parse_boolean(self.get_argument("drug_chemical_conflate", False))
+        description = parse_boolean(self.get_argument("description", False))
+        individual_types = parse_boolean(self.get_argument("individual_types", False))
 
         normalized_nodes = await get_normalized_nodes(
             self.biothings,
