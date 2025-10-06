@@ -52,10 +52,16 @@ class NormalizedNodesHandler(BaseAPIHandler):
                 detail="Missing curie argument, there must be at least one curie to normalize", status_code=400
             )
 
-        conflate = self.get_argument("conflate", True)
-        drug_chemical_conflate = self.get_argument("drug_chemical_conflate", False)
-        description = self.get_arguments("description", False)
-        individual_types = self.get_arguments("individual_types", False)
+        def parse_boolean(argument: Union[str, bool]) -> bool:
+            if isinstance(argument, bool):
+                return argument
+            elif isinstance(argument, str):
+                return not argument.lower() == "false"
+
+        conflate = parse_boolean(self.get_argument("conflate", True))
+        drug_chemical_conflate = parse_boolean(self.get_argument("drug_chemical_conflate", False))
+        description = parse_boolean(self.get_argument("description", False))
+        individual_types = parse_boolean(self.get_argument("individual_types", False))
 
         normalized_nodes = await get_normalized_nodes(
             self.biothings,
@@ -312,18 +318,18 @@ async def create_normalized_node(
 
     # now need to reformat the identifier keys.  It could be cleaner but we have to worry about if there is a label
     normal_node["equivalent_identifiers"] = []
-    for eqid in aggregate_node.identifiers:
-        eq_item = {"identifier": eqid["i"]}
-        if "l" in eqid:
-            eq_item["label"] = eqid["l"]
+    for identifier in aggregate_node.identifiers:
+        eq_item = {"identifier": identifier["i"]}
+        if "l" in identifier:
+            eq_item["label"] = identifier["l"]
 
         # if descriptions is enabled and exist add them to each eq_id entry
-        if include_descriptions and "d" in eqid and len(eqid["d"]):
-            eq_item["description"] = eqid["d"][0]
+        if include_descriptions and "d" in identifier and len(identifier["d"]) > 0:
+            eq_item["description"] = identifier["d"][0]
 
         # if individual types have been requested, add them too.
-        if include_individual_types and "t" in eqid:
-            eq_item["type"] = eqid["t"][-1]
+        if include_individual_types and "t" in identifier:
+            eq_item["type"] = identifier["t"][-1]
 
         normal_node["equivalent_identifiers"].append(eq_item)
 
@@ -374,7 +380,7 @@ async def _lookup_curie_metadata(
 
             # Every equivalent identifier here has the same type.
             for eqid in identifiers:
-                eqid.update({"t": biolink_type})
+                eqid.update({"t": [biolink_type]})
 
             try:
                 canonical_identifier = identifiers[0].get("i", None)
@@ -417,7 +423,7 @@ async def _lookup_curie_metadata(
                     conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
 
                     for conflation_entry in conflation_identifier_lookup:
-                        conflation_entry.update({"t": conflation_biolink_type})
+                        conflation_entry.update({"t": [conflation_biolink_type]})
 
                     conflation_types = await _populate_biolink_type_ancestors(
                         conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
@@ -518,7 +524,7 @@ async def _lookup_equivalent_identifiers(
     biothings_metadata: BiothingsNamespace, curies: list[str]
 ) -> tuple[list, list]:
     if len(curies) == 0:
-        return [], [], []
+        return [], []
 
     curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
     source_fields = ["identifiers", "type", "ic"]
@@ -558,6 +564,7 @@ async def _lookup_identifiers_with_labels(biothings_metadata: BiothingsNamespace
     curies_already_checked = set()
     node_identifier_label_mapping = {}
     for aggregate_node in nodes:
+        identifiers_with_labels = []
         for identifier in aggregate_node.identifiers:
             curie = identifier.get("i", "")
             if curie in curies_already_checked:
