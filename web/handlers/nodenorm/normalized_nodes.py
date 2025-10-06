@@ -561,7 +561,7 @@ async def _lookup_equivalent_identifiers(
     biothings_metadata: BiothingsNamespace, curies: list[str]
 ) -> tuple[list, list]:
     if len(curies) == 0:
-        return [], [], []
+        return [], []
 
     curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
     source_fields = ["identifiers", "type", "ic"]
@@ -601,6 +601,7 @@ async def _lookup_identifiers_with_labels(biothings_metadata: BiothingsNamespace
     curies_already_checked = set()
     node_identifier_label_mapping = {}
     for aggregate_node in nodes:
+        identifiers_with_labels = []
         for identifier in aggregate_node.identifiers:
             curie = identifier.get("i", "")
             if curie in curies_already_checked:
