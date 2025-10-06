@@ -355,18 +355,18 @@ async def create_normalized_node(
 
     # now need to reformat the identifier keys.  It could be cleaner but we have to worry about if there is a label
     normal_node["equivalent_identifiers"] = []
-    for eqid in aggregate_node.identifiers:
-        eq_item = {"identifier": eqid["i"]}
-        if "l" in eqid:
-            eq_item["label"] = eqid["l"]
+    for identifier in aggregate_node.identifiers:
+        eq_item = {"identifier": identifier["i"]}
+        if "l" in identifier:
+            eq_item["label"] = identifier["l"]
 
         # if descriptions is enabled and exist add them to each eq_id entry
-        if include_descriptions and "d" in eqid and len(eqid["d"]):
-            eq_item["description"] = eqid["d"][0]
+        if include_descriptions and "d" in identifier and len(identifier["d"]) > 0:
+            eq_item["description"] = identifier["d"][0]
 
         # if individual types have been requested, add them too.
-        if include_individual_types and "t" in eqid:
-            eq_item["type"] = eqid["t"][-1]
+        if include_individual_types and "t" in identifier:
+            eq_item["type"] = identifier["t"][-1]
 
         normal_node["equivalent_identifiers"].append(eq_item)
 
@@ -417,7 +417,7 @@ async def _lookup_curie_metadata(
 
             # Every equivalent identifier here has the same type.
             for eqid in identifiers:
-                eqid.update({"t": biolink_type})
+                eqid.update({"t": [biolink_type]})
 
             try:
                 canonical_identifier = identifiers[0].get("i", None)
@@ -460,7 +460,7 @@ async def _lookup_curie_metadata(
                     conflation_identifier_lookup = conflation_result.get("_source", {}).get("identifiers", [])
 
                     for conflation_entry in conflation_identifier_lookup:
-                        conflation_entry.update({"t": conflation_biolink_type})
+                        conflation_entry.update({"t": [conflation_biolink_type]})
 
                     conflation_types = await _populate_biolink_type_ancestors(
                         conflation_biolink_type, conflation_identifier_lookup[0].get("i", None)
