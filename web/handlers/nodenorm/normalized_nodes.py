@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-# version = "4.2.6-rc4"
 BIOLINK_VERSION = os.getenv("BIOLINK_VERSION", "v4.2.2")
 BIOLINK_MODEL_URL = f"https://raw.githubusercontent.com/biolink/biolink-model/{BIOLINK_VERSION}/biolink-model.yaml"
 toolkit = bmt.Toolkit(BIOLINK_MODEL_URL)
