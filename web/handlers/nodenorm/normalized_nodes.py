@@ -4,7 +4,7 @@ import os
 import time
 from typing import Union
 
-import bmt as bmt
+import bmt
 
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.services.namespace import BiothingsNamespace
@@ -15,25 +15,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
+# version = "4.2.6-rc4"
 BIOLINK_VERSION = os.getenv("BIOLINK_VERSION", "v4.2.2")
 BIOLINK_MODEL_URL = f"https://raw.githubusercontent.com/biolink/biolink-model/{BIOLINK_VERSION}/biolink-model.yaml"
 toolkit = bmt.Toolkit(BIOLINK_MODEL_URL)
 
 
 defaultconfig = {
-    "preferred_name_boost_prefixes": {
-        "biolink:ChemicalEntity": [
-            "DRUGBANK",
-            "DrugCentral",
-            "CHEBI",
-            "MESH",
-            "CHEMBL.COMPOUND",
-            "GTOPDB",
-            "HMDB",
-            "RXCUI",
-            "PUBCHEM.COMPOUND",
-        ]
-    },
     "demote_labels_longer_than": 15,
 }
 
@@ -42,9 +30,9 @@ defaultconfig = {
 class NormalizedNode:
     curie: str
     canonical_identifier: str
+    preferred_label: str
     information_content: float
     identifiers: list[str]
-    labels: list[str]
     types: list[str]
 
 
@@ -58,7 +46,7 @@ class NormalizedNodesHandler(BaseAPIHandler):
 
     name = "normalizednodes"
 
-    async def get(self, *args, **kwargs):
+    async def get(self):
         normalized_curies = self.get_arguments("curie")
         if len(normalized_curies) == 0:
             raise HTTPError(
@@ -68,8 +56,9 @@ class NormalizedNodesHandler(BaseAPIHandler):
         def parse_boolean(argument: Union[str, bool]) -> bool:
             if isinstance(argument, bool):
                 return argument
-            elif isinstance(argument, str):
+            if isinstance(argument, str):
                 return not argument.lower() == "false"
+            return False
 
         conflate = parse_boolean(self.get_argument("conflate", True))
         drug_chemical_conflate = parse_boolean(self.get_argument("drug_chemical_conflate", False))
@@ -199,21 +188,10 @@ async def get_normalized_nodes(
 
     nodes = await _lookup_curie_metadata(biothings_metadata, curies, conflations)
 
-    # As per https://github.com/TranslatorSRI/Babel/issues/158, we select the first label from any
-    # identifier _except_ where one of the types is in preferred_name_boost_prefixes, in which case
-    # we prefer the prefixes listed there.
-    #
-    # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
-    # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
-    # for the FIRST clique of the conflated cliques with labels.
-    node_identifier_label_mapping = await _lookup_identifiers_with_labels(biothings_metadata, nodes)
-
     normal_nodes = {}
     for aggregate_node in nodes:
-        identifiers_with_labels = node_identifier_label_mapping[aggregate_node.curie]
         normal_node = await create_normalized_node(
             aggregate_node,
-            identifiers_with_labels,
             include_descriptions=include_descriptions,
             include_individual_types=include_individual_types,
             conflations=conflations,
@@ -221,7 +199,7 @@ async def get_normalized_nodes(
         normal_nodes[aggregate_node.curie] = normal_node
 
     end_time = time.perf_counter_ns()
-    logger.info(
+    logger.debug(
         (
             f"Normalized {len(curies)} nodes in {(end_time - start_time)/1_000_000:.2f} ms with arguments "
             f"(curies={curies}, conflate_gene_protein={conflate_gene_protein}, conflate_chemical_drug={conflate_chemical_drug}, "
@@ -233,7 +211,6 @@ async def get_normalized_nodes(
 
 async def create_normalized_node(
     aggregate_node: NormalizedNode,
-    identifiers_with_labels: list[str],
     include_descriptions: bool = True,
     include_individual_types: bool = False,
     conflations: dict = None,
@@ -277,78 +254,17 @@ async def create_normalized_node(
         )
         return None
 
-    # OK, now we should have id's in the format [ {"i": "MONDO:12312", "l": "Scrofula"}, {},...]
-
-    # We might get here without any labels, which is fine. At least we tried.
-
-    # At this point:
-    #   - eids will be the full list of all identifiers and labels in this clique.
-    #   - identifiers_with_labels is the list of identifiers and labels for the first subclique that has at least
-    #     one label.
-
-    # Note that types[canonical_id] goes from most specific to least specific, so we
-    # need to reverse it in order to apply preferred_name_boost_prefixes for the most
-    # specific type.
-    possible_labels = []
-    for bltype in aggregate_node.types[::-1]:
-        if bltype in defaultconfig["preferred_name_boost_prefixes"]:
-            # This is the most specific matching type, so we use this and then break.
-            possible_labels = list(
-                map(
-                    lambda ident: ident.get("l", ""),
-                    _sort_identifiers_with_boosted_prefixes(
-                        identifiers_with_labels, defaultconfig["preferred_name_boost_prefixes"][bltype]
-                    ),
-                )
-            )
-
-            # Add in all the other labels -- we'd still like to consider them, but at a lower priority.
-            for eid in identifiers_with_labels:
-                label = eid.get("l", "")
-                if label not in possible_labels:
-                    possible_labels.append(label)
-
-            # Since this is the most specific matching type, we shouldn't do other (presumably higher-level)
-            # categories: so let's break here.
-            break
-
-    # Step 1.2. If we didn't have a preferred_name_boost_prefixes, just use the identifiers in their
-    # Biolink prefix order.
-    if not possible_labels:
-        possible_labels = map(lambda eid: eid.get("l", ""), identifiers_with_labels)
-
-    # Step 2. Filter out any suspicious labels.
-    filtered_possible_labels = [
-        l
-        for l in possible_labels
-        if l
-        and not l.startswith(
-            "CHEMBL"
-        )  # Ignore blank or empty names.  # Some CHEMBL names are just the identifier again.
-    ]
-
-    # Step 3. Filter out labels longer than defaultconfig['demote_labels_longer_than'], but only if there is at
-    # least one label shorter than this limit.
-    labels_shorter_than_limit = [
-        l for l in filtered_possible_labels if l and len(l) <= defaultconfig["demote_labels_longer_than"]
-    ]
-    if labels_shorter_than_limit:
-        filtered_possible_labels = labels_shorter_than_limit
-
-    # Note that the id will be from the equivalent ids, not the canonical_id.  This is to handle conflation
-    if len(filtered_possible_labels) > 0:
-        normal_node = {"id": {"identifier": aggregate_node.identifiers[0]["i"], "label": filtered_possible_labels[0]}}
+    if aggregate_node.preferred_label is not None and aggregate_node.preferred_label != "":
+        normal_node = {
+            "id": {"identifier": aggregate_node.identifiers[0]["i"], "label": aggregate_node.preferred_label}
+        }
     else:
-        # Sometimes, nothing has a label :(
         if aggregate_node.identifiers is not None and len(aggregate_node.identifiers) > 0:
             normal_node = {"id": {"identifier": aggregate_node.identifiers[0]["i"]}}
         else:
             normal_node = {"id": {"identifier": aggregate_node.canonical_identifier}}
 
-    # Now that we've determined a label for this clique, we should never use identifiers_with_labels, possible_labels,
-    # or filtered_possible_labels after this point.
-
-    # if descriptions are enabled look for the first available description and use that
+    # if descriptions are enabled, look for the first available description and use that
     if include_descriptions:
         descriptions = list(
             map(
@@ -409,9 +325,9 @@ async def _lookup_curie_metadata(
             node = NormalizedNode(
                 curie=input_curie,
                 canonical_identifier=None,
+                preferred_label=None,
                 information_content=-1.0,
                 identifiers=[],
-                labels=[],
                 types=[],
             )
             nodes.append(node)
@@ -420,6 +336,7 @@ async def _lookup_curie_metadata(
             result_source = result.get("_source", {})
             identifiers = result_source.get("identifiers", [])
             biolink_type = result_source.get("type", None)
+            preferred_label = result_source.get("preferred_name", None)
 
             # Every equivalent identifier here has the same type.
             for eqid in identifiers:
@@ -460,6 +377,7 @@ async def _lookup_curie_metadata(
 
                 replacement_identifiers = []
                 replacement_types = []
+                conflation_label_discovered = False
                 for conflation_curie in conflation_identifiers:
                     conflation_result = conflation_result_lookup.get(conflation_curie, {})
                     conflation_biolink_type = conflation_result.get("_source", {}).get("type", [])
@@ -475,6 +393,11 @@ async def _lookup_curie_metadata(
                     replacement_identifiers += conflation_identifier_lookup
                     replacement_types += conflation_types
 
+                    conflation_preferred_label = conflation_result.get("_source", {}).get("preferred_name", None)
+                    if conflation_preferred_label is not None and not conflation_label_discovered:
+                        preferred_label = conflation_preferred_label
+                        conflation_label_discovered = True
+
                 replacement_types = unique_list(replacement_types)
 
                 labels = [identifier.get("l", "") for identifier in replacement_identifiers]
@@ -482,9 +405,9 @@ async def _lookup_curie_metadata(
                 node = NormalizedNode(
                     curie=input_curie,
                     canonical_identifier=canonical_identifier,
+                    preferred_label=preferred_label,
                     information_content=information_content,
                     identifiers=replacement_identifiers,
-                    labels=labels,
                     types=replacement_types,
                 )
                 nodes.append(node)
@@ -493,13 +416,12 @@ async def _lookup_curie_metadata(
                 node = NormalizedNode(
                     curie=input_curie,
                     canonical_identifier=canonical_identifier,
+                    preferred_label=preferred_label,
                     information_content=information_content,
                     identifiers=identifiers,
-                    labels=labels,
                     types=node_types,
                 )
                 nodes.append(node)
-
     return nodes
 
 
@@ -530,33 +452,6 @@ async def _populate_biolink_type_ancestors(biolink_type: Union[str, list[str]], 
     return biolink_type_tree
 
 
-def _sort_identifiers_with_boosted_prefixes(identifiers: list[str], prefixes: list[str]):
-    """
-    Given a list of identifiers (with `identifier` and `label` keys), sort them using
-    the following rules:
-    - Any identifier that has a prefix in prefixes is sorted based on its order in prefixes.
-    - Any identifier that does not have a prefix in prefixes is left in place.
-
-    Copied from https://github.com/TranslatorSRI/Babel/blob/0c3f3aed1bb1647f1ca101ba905dc241797fdfc9/src/babel_utils.py#L315-L333
-
-    :param identifiers: A list of identifiers to sort. This is a list of dictionaries
-        containing `identifier` and `label` keys, and possible others that we ignore.
-    :param prefixes: A list of prefixes, in the order in which they should be boosted.
-        We assume that CURIEs match these prefixes if they are in the form `{prefix}:...`.
-    :return: The list of identifiers sorted as described above.
-    """
-
-    # Thanks to JetBrains AI.
-    return sorted(
-        identifiers,
-        key=lambda identifier: (
-            prefixes.index(identifier["i"].split(":", 1)[0])
-            if identifier["i"].split(":", 1)[0] in prefixes
-            else len(prefixes)
-        ),
-    )
-
-
 def unique_list(seq) -> list:
     seen = set()
     seen_add = seen.add
@@ -570,7 +465,7 @@ async def _lookup_equivalent_identifiers(
         return [], []
 
     curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
-    source_fields = ["identifiers", "type", "ic"]
+    source_fields = ["identifiers", "type", "ic", "preferred_name"]
     index = biothings_metadata.elasticsearch.metadata.indices["node"]
     term_search_result = await biothings_metadata.elasticsearch.async_client.search(
         query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
@@ -588,40 +483,3 @@ async def _lookup_equivalent_identifiers(
 
     malformed_curies = set(curies) - identifiers_set
     return identifier_result_lookup, malformed_curies
-
-
-async def _lookup_identifiers_with_labels(biothings_metadata: BiothingsNamespace, nodes: list[NormalizedNode]) -> dict:
-    """
-    Used specifically for handling conflations.
-
-    Replicates Babel's behavior
-
-    Runs on the first set of identifiers and greedily returns the first set with labels found
-    """
-    curies = []
-    for node in nodes:
-        curies.extend((identifier["i"] for identifier in node.identifiers))
-
-    curie_label_lookup, _ = await _lookup_equivalent_identifiers(biothings_metadata, curies)
-
-    curies_already_checked = set()
-    node_identifier_label_mapping = {}
-    for aggregate_node in nodes:
-        identifiers_with_labels = []
-        for identifier in aggregate_node.identifiers:
-            curie = identifier.get("i", "")
-            if curie in curies_already_checked:
-                continue
-
-            identifiers_with_labels = curie_label_lookup[curie].get("_source", {}).get("identifiers", [])
-
-            labels = map(lambda ident: ident.get("l", ""), identifiers_with_labels)
-            if any(map(lambda l: l != "", labels)):
-                break
-
-            # Since we didn't get any matches here, add it to the list of CURIEs already checked so
-            # we don't make redundant queries to the database.
-            curies_already_checked.update(set(map(lambda x: x.get("i", ""), identifiers_with_labels)))
-
-        node_identifier_label_mapping[aggregate_node.curie] = identifiers_with_labels
-    return node_identifier_label_mapping
