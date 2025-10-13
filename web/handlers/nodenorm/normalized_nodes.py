@@ -165,7 +165,6 @@ class NormalizedNodesHandler(BaseAPIHandler):
         description = self.args_json.get("description", False)
         individual_types = self.args_json.get("individual_types", False)
 
-        breakpoint()
         normalized_nodes = await get_normalized_nodes(
             self.biothings,
             normalization_curies,
@@ -207,7 +206,6 @@ async def get_normalized_nodes(
     # This should perfectly replicate NameRes labels for non-conflated cliques, but it WON'T perfectly
     # match conflated cliques. To do that, we need to run the preferred label algorithm on ONLY the labels
     # for the FIRST clique of the conflated cliques with labels.
-    breakpoint()
     node_identifier_label_mapping = await _lookup_identifiers_with_labels(biothings_metadata, nodes)
 
     normal_nodes = {}
@@ -600,7 +598,6 @@ async def _lookup_identifiers_with_labels(biothings_metadata: BiothingsNamespace
 
     Runs on the first set of identifiers and greedily returns the first set with labels found
     """
-    breakpoint()
     curies = []
     for node in nodes:
         curies.extend((identifier["i"] for identifier in node.identifiers))
