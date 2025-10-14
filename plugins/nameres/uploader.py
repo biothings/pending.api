@@ -13,7 +13,7 @@ biothings.config_for_app(config)
 
 
 class NameResUploader(ParallelizedSourceUploader):
-    name = "nodenorm"
+    name = "nameres"
     storage_class = MergerStorage
     __metadata__ = {"src_meta": {"url": BASE_URL}}
 
