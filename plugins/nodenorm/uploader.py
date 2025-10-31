@@ -7,11 +7,8 @@ from pathlib import Path
 from typing import Union
 
 
-import biothings
 from biothings import config
 from biothings.hub.dataload.uploader import BaseSourceUploader
-from biothings.utils.dataload import merge_struct
-from biothings.utils.hub_db import Collection
 from biothings.utils.manager import JobManager
 
 from .static import (
@@ -23,7 +20,7 @@ from .static import (
     NODENORM_FILE_COLLECTION,
     NODENORM_UPLOAD_CHUNKS,
 )
-from .worker import subset_upload_worker
+from .worker import subset_upload_worker, create_conflict_table
 
 
 logger = config.logger
@@ -47,6 +44,8 @@ class NodeNormUploader(BaseSourceUploader):
         """
         self.unprepare()
 
+        create_identifiers_table(self.data_folder)
+
         with concurrent.futures.ProcessPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             process_futures = []
             for task in self._build_offset_tasks():
@@ -55,8 +54,26 @@ class NodeNormUploader(BaseSourceUploader):
 
             concurrent.futures.wait(process_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
 
+        total_document_count = 0
+        for future in process_futures:
+            total_document_count += future.result()
+        logger.info("total uploaded documents %s across %s tasks", total_document_count, len(process_futures))
+
         self.switch_collection()
         self.clean_archived_collections()
+
+    async def load(
+        self,
+        steps=("data", "post", "master", "clean"),
+        force=False,
+        batch_size=10000,
+        job_manager=None,
+        **kwargs,
+    ):
+        # force new arguments
+        steps = ("data", "master", "clean")
+        batch_size = 5000
+        await super().load(steps, force, batch_size, job_manager, **kwargs)
 
     @classmethod
     def get_mapping(cls) -> dict:
@@ -85,10 +102,6 @@ class NodeNormUploader(BaseSourceUploader):
             "all": {"type": "text"},
         }
         return mapping
-
-    def post_update_data(self, steps, force, batch_size, job_manager):
-        # TODO
-        pass
 
     def _build_offset_tasks(self):
         """
@@ -119,11 +132,6 @@ class NodeNormUploader(BaseSourceUploader):
                     "offset_start": offset_start,
                     "offset_end": offset_end,
                     "collection_name": self.temp_collection_name,
-                    "collection_connection_options": (
-                        config.DATA_SRC_DATABASE,
-                        self.db_conn_info[0],
-                        self.db_conn_info[1],
-                    ),
                     "conflation_database": conflation_database,
                 }
                 argument_collection.append(arguments)
@@ -159,14 +167,24 @@ class NodeNormUploader(BaseSourceUploader):
         file = Path(file).absolute().resolve()
         file_size_bytes = file.stat().st_size
         file_index = file.with_suffix(".index")
+
+        logger.debug("Calculating SHA256 hashsum for file: %s", file)
+        file_hash = cls.sha256sum(file)
+
         if file_index.exists():
-            # previous_hash = cls.sha256sum(file)
             with open(file_index, "r", encoding="utf-8") as index_handle:
                 previous_index = json.load(index_handle)
+
+            if previous_index["hash"] == file_hash:
                 return previous_index["index"]
 
-            # if previous_index["hash"] == previous_hash:
-            #     return previous_index["index"]
+            logger.debug(
+                "Different hash found for file %s [%s, %s] [previous, current]. "
+                "Updating file offsets with the new file",
+                file,
+                previous_index["hash"],
+                file_hash,
+            )
 
         partitions = [0]
         marker = file_size_bytes / num_partitions
@@ -180,7 +198,7 @@ class NodeNormUploader(BaseSourceUploader):
                     progress_bytes += len(line)
             partitions.append(handle.tell())
         with open(file_index, "w", encoding="utf-8") as index_handle:
-            index_handle.write(json.dumps({"index": partitions, "hash": cls.sha256sum(file)}))
+            index_handle.write(json.dumps({"index": partitions, "hash": file_hash}))
         return partitions
 
     @classmethod
