@@ -20,7 +20,7 @@ from .static import (
     NODENORM_FILE_COLLECTION,
     NODENORM_UPLOAD_CHUNKS,
 )
-from .worker import subset_upload_worker, create_conflict_table
+from .worker import subset_upload_worker, create_identifiers_table
 
 
 logger = config.logger
