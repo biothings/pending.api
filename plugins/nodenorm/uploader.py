@@ -3,6 +3,7 @@ import hashlib
 import itertools
 import json
 import os
+import sqlite3
 from pathlib import Path
 from typing import Union
 
@@ -16,11 +17,16 @@ from .static import (
     CONFLATION_LOOKUP_DATABASE,
     DRUG_CHEMICAL_IDENTIFIER_FILES,
     GENE_PROTEIN_IDENTIFER_FILES,
+    IDENTIFIER_LOOKUP_DATABASE,
     NODENORM_BIG_FILE_COLLECTION,
     NODENORM_FILE_COLLECTION,
     NODENORM_UPLOAD_CHUNKS,
 )
-from .worker import subset_upload_worker, create_identifiers_table
+from .worker import (
+    create_identifiers_table,
+    subset_upload_worker,
+    update_identifier_collection,
+)
 
 
 logger = config.logger
@@ -48,16 +54,27 @@ class NodeNormUploader(BaseSourceUploader):
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             process_futures = []
-            for task in self._build_offset_tasks():
+            for index, task in enumerate(self._build_offset_tasks()):
+                # task["iteration_number"] = index
                 future = executor.submit(subset_upload_worker, **task)
                 process_futures.append(future)
 
-            concurrent.futures.wait(process_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
-
         total_document_count = 0
-        for future in process_futures:
-            total_document_count += future.result()
-        logger.info("total uploaded documents %s across %s tasks", total_document_count, len(process_futures))
+        for index, future in enumerate(concurrent.futures.as_completed(process_futures)):
+            try:
+                identifiers = future.result()
+            except Exception as gen_exc:
+                logger.exception(gen_exc)
+                raise gen_exc
+            else:
+                update_identifier_collection(self.data_directory, identifiers)
+                total_document_count += len(identifiers)
+                logger.debug(
+                    "Task %s completed | Update %s identifiers | Total identifiers %s",
+                    index,
+                    len(identifiers),
+                    total_document_count,
+                )
 
         self.switch_collection()
         self.clean_archived_collections()
@@ -71,9 +88,19 @@ class NodeNormUploader(BaseSourceUploader):
         **kwargs,
     ):
         # force new arguments
-        steps = ("data", "master", "clean")
+        steps = ("data", "post", "master", "clean")
         batch_size = 5000
         await super().load(steps, force, batch_size, job_manager, **kwargs)
+
+    def post_update_data(self, steps, force, batch_size, job_manager, **kwargs):
+        identifier_database = Path(self.data_directory).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
+        identifier_connection = sqlite3.connect(str(identifier_database))
+        cursor = identifier_connection.cursor()
+
+        identifier_table = "SELECT identifier FROM identifiers WHERE count > 1;"
+        results = cursor.execute(identifier_table)
+        breakpoint()
+        identifier_connection.close()
 
     @classmethod
     def get_mapping(cls) -> dict:

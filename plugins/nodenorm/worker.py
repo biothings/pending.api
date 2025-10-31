@@ -8,7 +8,7 @@ from pymongo.errors import BulkWriteError
 
 from biothings import config
 from biothings.utils.dataload import merge_struct
-from biothings.utils.serializer import json_loads, json_dumps
+from biothings.utils.serializer import json_loads
 from biothings.utils.hub_db import get_src_db
 
 from .static import IDENTIFIER_LOOKUP_DATABASE
@@ -24,7 +24,7 @@ def subset_upload_worker(
     offset_end: int,
     collection_name: str,
     conflation_database: str = None,
-) -> int:
+) -> list[str]:
     """
     Internal function for handling the multipart uploading of the file in partitions
 
@@ -46,7 +46,6 @@ def subset_upload_worker(
     upload_database = get_src_db()
     collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
 
-    document_count = 0
     with open(input_file, encoding="utf-8") as file_handle:
         buffer = []
         identifiers = []
@@ -71,21 +70,17 @@ def subset_upload_worker(
                 identifier["c"] = {"gp": None, "dc": None}
 
             if len(buffer) >= buffer_size:
-                document_count += len(buffer)
                 if conflation_connection is not None:
                     buffer = _update_buffer_with_conflations(buffer, canonical_identifiers, conflation_connection)
                 _upload_buffer(collection, buffer, input_file, file_handle.tell() / offset_end)
-                _update_identifier_collection(input_file, identifiers)
                 buffer = []
                 canonical_identifiers = []
 
         if len(buffer) > 0:
-            document_count += len(buffer)
             if conflation_connection is not None:
                 buffer = _update_buffer_with_conflations(buffer, canonical_identifiers, conflation_connection)
             _upload_buffer(collection, buffer, input_file, file_handle.tell() / offset_end)
-            _update_identifier_collection(input_file, identifiers)
-    return document_count
+    return identifiers
 
 
 def _update_buffer_with_conflations(
@@ -181,36 +176,30 @@ def create_identifiers_table(data_directory: Union[str, Path]) -> None:
     cursor.execute(identifier_existence_check)
 
     identifier_table = (
-        "CREATE TABLE IF NOT EXISTS identifiers"
-        "("
-        "identifier text PRIMARY KEY NOT NULL, "
-        "count INT DEFAULT 1,"
-        "origin_file text NOT NULL"
-        ");"
+        "CREATE TABLE IF NOT EXISTS identifiers" "(" "identifier text PRIMARY KEY NOT NULL, " "count INT DEFAULT 1" ");"
     )
     cursor.execute(identifier_table)
     identifier_connection.commit()
     identifier_connection.close()
 
 
-def _update_identifier_collection(input_file: Union[str, Path], identifiers: list[str]):
+def update_identifier_collection(data_directory: Union[str, Path], identifiers: list[str]):
     """
     Temporarily stopgap to identify our CURIE duplication issue
 
     Stores all identifiers in a sqlite3 database for post-update fixing
     """
-    data_directory = Path(input_file).parent
     identifier_database = data_directory.joinpath(IDENTIFIER_LOOKUP_DATABASE)
     identifier_connection = sqlite3.connect(str(identifier_database))
     cursor = identifier_connection.cursor()
 
     upsert_statement = (
-        "INSERT INTO identifiers(identifier, origin_file) "
-        "VALUES(:identifier, :origin_file) "
+        "INSERT INTO identifiers(identifier) "
+        "VALUES(:identifier) "
         "ON CONFLICT(identifier) "
         "DO UPDATE SET count=count+1;"
     )
-    identifier_information = [{"identifier": identifier, "origin_file": input_file.name} for identifier in identifiers]
+    identifier_information = [{"identifier": identifier} for identifier in identifiers]
 
     cursor.executemany(upsert_statement, identifier_information)
     identifier_connection.commit()
