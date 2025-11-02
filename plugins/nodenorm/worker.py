@@ -1,5 +1,8 @@
+import copy
+import itertools
 import sqlite3
 import time
+from collections import defaultdict
 from pathlib import Path
 from typing import Union
 
@@ -168,8 +171,8 @@ def _handle_bulk_write_error(
     collection.bulk_write(bulk, ordered=False)
 
 
-def create_identifiers_table(data_directory: Union[str, Path]) -> None:
-    identifier_database = Path(data_directory).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
+def create_identifiers_table(data_folder: Union[str, Path]) -> None:
+    identifier_database = Path(data_folder).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
     identifier_connection = sqlite3.connect(str(identifier_database))
     cursor = identifier_connection.cursor()
     identifier_existence_check = "DROP TABLE IF EXISTS identifiers"
@@ -183,13 +186,13 @@ def create_identifiers_table(data_directory: Union[str, Path]) -> None:
     identifier_connection.close()
 
 
-def update_identifier_collection(data_directory: Union[str, Path], identifiers: list[str]):
+def update_identifier_collection(data_folder: Union[str, Path], identifiers: list[str]):
     """
     Temporarily stopgap to identify our CURIE duplication issue
 
     Stores all identifiers in a sqlite3 database for post-update fixing
     """
-    identifier_database = data_directory.joinpath(IDENTIFIER_LOOKUP_DATABASE)
+    identifier_database = Path(data_folder).joinpath(IDENTIFIER_LOOKUP_DATABASE)
     identifier_connection = sqlite3.connect(str(identifier_database))
     cursor = identifier_connection.cursor()
 
@@ -203,4 +206,84 @@ def update_identifier_collection(data_directory: Union[str, Path], identifiers: 
 
     cursor.executemany(upsert_statement, identifier_information)
     identifier_connection.commit()
+    identifier_connection.close()
+
+
+def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: str):
+    """
+    Handle the CURIE duplication directly in the mongodb database
+    """
+    logger.info("Handling CURIE duplication issue")
+
+    upload_database = get_src_db()
+    collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
+
+    identifier_database = Path(data_folder).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
+    identifier_connection = sqlite3.connect(str(identifier_database))
+    cursor = identifier_connection.cursor()
+
+    identifier_table = "SELECT identifier FROM identifiers WHERE count > 1;"
+    results = cursor.execute(identifier_table)
+
+    for result in results.fetchall():
+        identifier = result[0]
+
+        cursor = collection.find({"identifiers.i": identifier})
+        documents = list(cursor)
+
+        # Handle case where the identifier.i is duplicated within the same document
+        if len(documents) == 1:
+            identifier_combinations = tuple(itertools.combinations(documents[0]["identifiers"], 2))
+
+            comparison_matrix = defaultdict(list)
+            for index, identifier in enumerate(documents[0]["identifiers"]):
+                comparison_filter = [identifier in entry for entry in identifier_combinations]
+                comparison_matrix[index] = tuple(itertools.compress(identifier_combinations, comparison_filter))
+
+            removal_index = []
+            for index, comparisons in comparison_matrix.items():
+                removal_index.append(
+                    all(identifier_group[0] == identifier_group[1] for identifier_group in comparisons)
+                )
+
+            # Skipping document as we likely already merged this earlier with duplicate _id merging
+            if not any(removal_index):
+                logger.debug(
+                    "Ignore 1 document due to initial upload BulkWriteError caught duplicate _id: %s", documents[0]
+                )
+            elif all(removal_index):
+                original_document = copy.deepcopy(documents[0])
+                documents[0]["identifiers"] = [documents[0]["identifiers"][0]]
+                collection.replace_one(original_document, documents[0])
+                logger.debug(
+                    "Replace 1 document to trim all identifiers except the first due to them all being identical: %s",
+                    documents[0],
+                )
+            else:
+                original_document = copy.deepcopy(documents[0])
+                documents[0]["identifiers"] = list(itertools.compress(documents[0]["identifiers"], removal_index))
+                collection.replace_one(original_document, documents[0])
+                logger.debug("Replace 1 document to trim some duplicate identifiers: %s", documents[0])
+
+        # Handle case where the identifier.i is spread across 2 documents
+        elif len(documents) == 2:
+            if len(documents[0]["identifiers"]) > len(documents[1]["identifiers"]):
+                subset_check = []
+                for subset_identifier in documents[1]["identifiers"]:
+                    subset_check.append(subset_identifier in documents[0]["identifiers"])
+
+                if all(subset_check):
+                    collection.delete_one(documents[1])
+                    logger.debug("Delete 1 document: %s", documents[1])
+            else:
+                subset_check = []
+                for subset_identifier in documents[0]["identifiers"]:
+                    subset_check.append(subset_identifier in documents[1]["identifiers"])
+
+                if all(subset_check):
+                    collection.delete_one(documents[0])
+                    logger.debug("Delete 1 document: %s", documents[0])
+        else:
+            breakpoint()
+            pass
     identifier_connection.close()
