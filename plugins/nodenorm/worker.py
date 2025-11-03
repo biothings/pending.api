@@ -443,8 +443,30 @@ def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: st
 
 def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection_name: str):
 
+    num_retry = 10
+    counter = 0
+    collection = None
+
+    # Due to potential thread starvation from the job-manager heartbeat (which blocks for reasons
+    # I'm not quite sure of) we need a potential retry mechanism in case we happen to get starved
+    # of resources before we can legitmately connect
     upload_database = get_src_db()
-    collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
+    while collection is None:
+        try:
+            collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
+        except pymongo.errors.ServerSelectionTimeoutError as mongo_timeout_error:
+            counter += 1
+            logger.exception(mongo_timeout_error)
+
+            if counter >= num_retry:
+                raise mongo_timeout_error
+
+            logger.info(
+                "Unable to connect to [%s]@<%s>. Re-attempting connection. %d attempts left",
+                upload_database,
+                collection_name,
+                num_retry - counter,
+            )
 
     buffer = []
     for result in curies:
