@@ -1,3 +1,4 @@
+import copy
 import functools
 
 from biothings import config
@@ -22,10 +23,12 @@ class NodeNormUploader(BaseSourceUploader):
         pinfo = self.get_pinfo()
         pinfo["step"] = "update_data"
         got_error = False
+        data_folder = copy.deepcopy(self.data_folder)
+        temp_collection_name = copy.deepcopy(self.temp_collection_name)
         self.unprepare()
 
         job = await job_manager.defer_to_process(
-            pinfo, functools.partial(upload_process, self.data_folder, self.temp_collection_name)
+            pinfo, functools.partial(upload_process, data_folder, temp_collection_name)
         )
 
         def uploaded(f):
