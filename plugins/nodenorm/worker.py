@@ -31,7 +31,7 @@ from .static import (
 logger = config.logger
 
 
-def upload_process(data_folder: Union[str, Path], collection_name: str):
+def upload_process(data_folder: Union[str, Path], collection_name: str) -> int:
     create_identifiers_table(data_folder)
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
@@ -61,6 +61,7 @@ def upload_process(data_folder: Union[str, Path], collection_name: str):
     create_mongo_identifiers_index(collection_name)
     create_identifiers_index(data_folder)
     cleanup_curie_duplication(data_folder, collection_name)
+    return int(total_document_count)
 
 
 def _build_offset_tasks(data_folder: Union[str, Path], collection_name: str):
@@ -430,7 +431,6 @@ def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: st
                 task_id, num_corrections = future.result()
             except Exception as gen_exc:
                 logger.exception(gen_exc)
-                raise gen_exc
             else:
                 total_correction_count += num_corrections
                 logger.debug(
