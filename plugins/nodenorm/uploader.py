@@ -23,7 +23,9 @@ from .static import (
 )
 from .worker import (
     cleanup_curie_duplication,
+    create_identifiers_index,
     create_identifiers_table,
+    create_mongo_identifiers_index,
     subset_upload_worker,
     update_identifier_collection,
 )
@@ -55,7 +57,6 @@ class NodeNormUploader(BaseSourceUploader):
         with concurrent.futures.ProcessPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             process_futures = []
             for index, task in enumerate(self._build_offset_tasks()):
-                # task["iteration_number"] = index
                 future = executor.submit(subset_upload_worker, **task)
                 process_futures.append(future)
 
@@ -75,7 +76,11 @@ class NodeNormUploader(BaseSourceUploader):
                         len(identifiers),
                         total_document_count,
                     )
-            cleanup_curie_duplication(self.data_folder, self.temp_collection_name)
+                    del identifiers
+
+        create_mongo_identifiers_index(self.temp_collection_name)
+        create_identifiers_index(self.data_folder)
+        cleanup_curie_duplication(self.data_folder, self.temp_collection_name)
 
         self.switch_collection()
         self.clean_archived_collections()

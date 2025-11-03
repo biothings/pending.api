@@ -1,5 +1,7 @@
+import concurrent.futures
 import copy
 import itertools
+import os
 import sqlite3
 import time
 from collections import defaultdict
@@ -13,6 +15,7 @@ from biothings import config
 from biothings.utils.dataload import merge_struct
 from biothings.utils.serializer import json_loads
 from biothings.utils.hub_db import get_src_db
+from biothings.utils.common import iter_n
 
 from .static import IDENTIFIER_LOOKUP_DATABASE
 
@@ -172,6 +175,7 @@ def _handle_bulk_write_error(
 
 
 def create_identifiers_table(data_folder: Union[str, Path]) -> None:
+    logger.debug("Creating sqlite3 identifiers database")
     identifier_database = Path(data_folder).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
     identifier_connection = sqlite3.connect(str(identifier_database))
     cursor = identifier_connection.cursor()
@@ -179,11 +183,30 @@ def create_identifiers_table(data_folder: Union[str, Path]) -> None:
     cursor.execute(identifier_existence_check)
 
     identifier_table = (
-        "CREATE TABLE IF NOT EXISTS identifiers" "(" "identifier text PRIMARY KEY NOT NULL, " "count INT DEFAULT 1" ");"
+        "CREATE TABLE IF NOT EXISTS identifiers(identifier text PRIMARY KEY NOT NULL, count INT DEFAULT 1);"
     )
     cursor.execute(identifier_table)
     identifier_connection.commit()
     identifier_connection.close()
+
+
+def create_identifiers_index(data_folder: Union[str, Path]) -> None:
+    logger.debug("Creating sqlite3 identifiers database index")
+    identifier_database = Path(data_folder).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
+    identifier_connection = sqlite3.connect(str(identifier_database))
+    cursor = identifier_connection.cursor()
+
+    identifier_index = "CREATE INDEX IF NOT EXISTS idx_identifiers ON identifiers (identifier, count);"
+    cursor.execute(identifier_index)
+    identifier_connection.commit()
+    identifier_connection.close()
+
+
+def create_mongo_identifiers_index(collection_name: str) -> None:
+    logger.debug("Creating mongodb identifiers.i database index")
+    upload_database = get_src_db()
+    collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
+    collection.create_index("identifiers.i")
 
 
 def update_identifier_collection(data_folder: Union[str, Path], identifiers: list[str]):
@@ -215,17 +238,46 @@ def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: st
     """
     logger.info("Handling CURIE duplication issue")
 
-    upload_database = get_src_db()
-    collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
-
     identifier_database = Path(data_folder).resolve().absolute().joinpath(IDENTIFIER_LOOKUP_DATABASE)
     identifier_connection = sqlite3.connect(str(identifier_database))
     cursor = identifier_connection.cursor()
 
     identifier_table = "SELECT identifier FROM identifiers WHERE count > 1;"
     results = cursor.execute(identifier_table)
+    duplicate_curies = tuple(results.fetchall())
+    identifier_connection.close()
 
-    for result in results.fetchall():
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
+        process_futures = []
+        for index, curie_batch in enumerate(iter_n(duplicate_curies, 1000)):
+            arguments = {"task_id": index, "curies": curie_batch, "collection_name": collection_name}
+            future = executor.submit(_curie_duplication_batch_handler, **arguments)
+            process_futures.append(future)
+
+        total_correction_count = 0
+        for future in concurrent.futures.as_completed(process_futures):
+            try:
+                task_id, num_corrections = future.result()
+            except Exception as gen_exc:
+                logger.exception(gen_exc)
+                raise gen_exc
+            else:
+                total_correction_count += num_corrections
+                logger.debug(
+                    "Task %s completed | Corrected %s documents | Total corrections %s",
+                    task_id,
+                    num_corrections,
+                    total_correction_count,
+                )
+
+
+def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection_name: str):
+
+    upload_database = get_src_db()
+    collection = pymongo.collection.Collection(database=upload_database, name=collection_name)
+
+    buffer = []
+    for result in curies:
         identifier = result[0]
 
         cursor = collection.find({"identifiers.i": identifier})
@@ -249,21 +301,27 @@ def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: st
             # Skipping document as we likely already merged this earlier with duplicate _id merging
             if not any(removal_index):
                 logger.debug(
-                    "Ignore 1 document due to initial upload BulkWriteError caught duplicate _id: %s", documents[0]
+                    "[Task %d] Ignore 1 document due to initial upload BulkWriteError caught duplicate _id: %s",
+                    task_id,
+                    documents[0],
                 )
             elif all(removal_index):
                 original_document = copy.deepcopy(documents[0])
                 documents[0]["identifiers"] = [documents[0]["identifiers"][0]]
-                collection.replace_one(original_document, documents[0])
+
+                buffer.append(pymongo.ReplaceOne(original_document, documents[0]))
                 logger.debug(
-                    "Replace 1 document to trim all identifiers except the first due to them all being identical: %s",
+                    "[Task %d] Replace 1 document to trim all identifiers except the first due to them all being identical: %s",
+                    task_id,
                     documents[0],
                 )
             else:
                 original_document = copy.deepcopy(documents[0])
                 documents[0]["identifiers"] = list(itertools.compress(documents[0]["identifiers"], removal_index))
-                collection.replace_one(original_document, documents[0])
-                logger.debug("Replace 1 document to trim some duplicate identifiers: %s", documents[0])
+                buffer.append(pymongo.ReplaceOne(original_document, documents[0]))
+                logger.debug(
+                    "[Task %d] Replace 1 document to trim some duplicate identifiers: %s", task_id, documents[0]
+                )
 
         # Handle case where the identifier.i is spread across 2 documents
         elif len(documents) == 2:
@@ -273,17 +331,25 @@ def cleanup_curie_duplication(data_folder: Union[str, Path], collection_name: st
                     subset_check.append(subset_identifier in documents[0]["identifiers"])
 
                 if all(subset_check):
-                    collection.delete_one(documents[1])
-                    logger.debug("Delete 1 document: %s", documents[1])
+                    buffer.append(pymongo.DeleteOne(documents[1]))
+                    logger.debug("[Task %d] Delete 1 document: %s", task_id, documents[1])
+                else:
+                    logger.debug("[Task %d] Unable to resolve conflict | %s", task_id, identifier)
             else:
                 subset_check = []
                 for subset_identifier in documents[0]["identifiers"]:
                     subset_check.append(subset_identifier in documents[1]["identifiers"])
 
                 if all(subset_check):
-                    collection.delete_one(documents[0])
-                    logger.debug("Delete 1 document: %s", documents[0])
-        else:
-            breakpoint()
-            pass
-    identifier_connection.close()
+                    buffer.append(pymongo.DeleteOne(documents[0]))
+                    logger.debug("[Task %d] Delete 1 document: %s", task_id, documents[0])
+                else:
+                    logger.debug("[Task %d] Unable to resolve conflict | %s", task_id, identifier)
+
+    if buffer is not None and len(buffer) > 0:
+        logger.debug("[Task %d] Bulk writing %s changes to collection", task_id, len(buffer))
+        collection.bulk_write(buffer)
+        return task_id, len(buffer)
+    else:
+        logger.debug("[Task %d] Bulk writing found no changes to collection to apply", task_id)
+        return task_id, 0
