@@ -589,7 +589,7 @@ def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection
 
             operation = _evaluate_document_subset(more_identifiers_doc, less_identifiers_doc)
             if operation is None:
-                operation = _evaluate_document_subset(more_identifiers_doc, less_identifiers_doc)
+                operation = _evaluate_document_intersection(more_identifiers_doc, less_identifiers_doc)
 
             if operation is None:
                 logger.critical(
