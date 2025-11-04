@@ -477,6 +477,11 @@ def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection
 
         # Handle case where the identifier.i is duplicated within the same document
         if len(documents) == 1:
+
+            # We need to generate every comparison within the same document. itertools.combinations
+            # produces every combination, but we need to store it on a per identifier level so we
+            # can determine if any of the identifiers match any of the others. This is the goal
+            # behind the comparison matrix we build to make every inner comparison possible
             identifier_combinations = tuple(itertools.combinations(documents[0]["identifiers"], 2))
 
             comparison_matrix = defaultdict(list)
@@ -487,17 +492,17 @@ def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection
             removal_index = []
             for index, comparisons in comparison_matrix.items():
                 removal_index.append(
-                    all(identifier_group[0] == identifier_group[1] for identifier_group in comparisons)
+                    not all(identifier_group[0] == identifier_group[1] for identifier_group in comparisons)
                 )
 
             # Skipping document as we likely already merged this earlier with duplicate _id merging
-            if not any(removal_index):
+            if all(removal_index) or (not any(removal_index) and len(removal_index) == 1):
                 logger.debug(
-                    "[Task %d] Ignore 1 document due to initial upload BulkWriteError caught duplicate _id: %s",
+                    "[Task %d] Ignore 1 document due to initial upload BulkWriteError caught duplicate _id. Likely identical documents merged on the type field: %s",
                     task_id,
                     documents[0],
                 )
-            elif all(removal_index):
+            elif not any(removal_index) and len(removal_index) > 1:
                 original_document = copy.deepcopy(documents[0])
                 documents[0]["identifiers"] = [documents[0]["identifiers"][0]]
 
@@ -517,26 +522,82 @@ def _curie_duplication_batch_handler(task_id: int, curies: list[str], collection
 
         # Handle case where the identifier.i is spread across 2 documents
         elif len(documents) == 2:
+
+            def _evaluate_document_subset(more_identifiers_doc: dict, less_identifiers_doc: dict) -> pymongo.DeleteOne:
+                """
+                If it passes the subset check, then we can safely delete the document while keeping
+                the other document. It must be a complete subset, otherwise we have to perform
+                additional analysis to determine where the interesection exists between the two
+                documents
+                """
+                subset_check = []
+                for subset_identifier in less_identifiers_doc["identifiers"]:
+                    subset_check.append(subset_identifier in more_identifiers_doc["identifiers"])
+
+                operation = None
+                if all(subset_check):
+                    operation = pymongo.DeleteOne(less_identifiers_doc)
+                    logger.debug("[Task %d] Delete 1 document: %s", task_id, less_identifiers_doc)
+                return operation
+
+            def _evaluate_document_intersection(more_identifiers_doc: dict, less_identifiers_doc: dict):
+                """
+                One crucial assumption here is that at least one of these documents is has a type of
+                biolink:Protein.
+
+                If the type biolink:Protein isn't found then we cannot make any assumptions about
+                how to handle the intersection between the two documents
+                """
+                operation = None
+                if (
+                    more_identifiers_doc["type"] == "biolink:Protein"
+                    or less_identifiers_doc["type"] == "biolink:Protein"
+                ):
+                    if more_identifiers_doc["type"] == "biolink:Protein":
+                        main_document = more_identifiers_doc
+                        side_document = less_identifiers_doc
+                    else:
+                        main_document = less_identifiers_doc
+                        side_document = more_identifiers_doc
+
+                    subset_mask = []
+                    for subset_identifier in side_document["identifiers"]:
+                        subset_mask.append(subset_identifier not in main_document["identifiers"])
+
+                    if any(subset_mask):
+                        original_document = copy.deepcopy(side_document)
+                        side_document["identifiers"] = list(
+                            itertools.compress(side_document["identifiers"], subset_mask)
+                        )
+                        operation = pymongo.ReplaceOne(original_document, side_document)
+                        logger.debug(
+                            "[Task %d] Replace 1 document to trim the intersection of identifiers with another document: %s",
+                            task_id,
+                            side_document,
+                        )
+                return operation
+
+            operation = None
+            more_identifiers_doc = None
+            less_identifiers_doc = None
             if len(documents[0]["identifiers"]) > len(documents[1]["identifiers"]):
-                subset_check = []
-                for subset_identifier in documents[1]["identifiers"]:
-                    subset_check.append(subset_identifier in documents[0]["identifiers"])
-
-                if all(subset_check):
-                    buffer.append(pymongo.DeleteOne(documents[1]))
-                    logger.debug("[Task %d] Delete 1 document: %s", task_id, documents[1])
-                else:
-                    logger.debug("[Task %d] Unable to resolve conflict | %s", task_id, identifier)
+                more_identifiers_doc = documents[0]
+                less_identifiers_doc = documents[1]
             else:
-                subset_check = []
-                for subset_identifier in documents[0]["identifiers"]:
-                    subset_check.append(subset_identifier in documents[1]["identifiers"])
+                more_identifiers_doc = documents[1]
+                less_identifiers_doc = documents[0]
 
-                if all(subset_check):
-                    buffer.append(pymongo.DeleteOne(documents[0]))
-                    logger.debug("[Task %d] Delete 1 document: %s", task_id, documents[0])
-                else:
-                    logger.debug("[Task %d] Unable to resolve conflict | %s", task_id, identifier)
+            operation = _evaluate_document_subset(more_identifiers_doc, less_identifiers_doc)
+            if operation is None:
+                operation = _evaluate_document_subset(more_identifiers_doc, less_identifiers_doc)
+
+            if operation is None:
+                logger.critical(
+                    "[Task %d] Unable to evaluate identifer %s subset or intersection between documents",
+                    task_id,
+                    identifier,
+                )
+            buffer.append(operation)
 
     if buffer is not None and len(buffer) > 0:
         logger.debug("[Task %d] Bulk writing %s changes to collection", task_id, len(buffer))
