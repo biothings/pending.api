@@ -1,30 +1,60 @@
-import pathlib
-from typing import Union
+import copy
+import functools
 
 import biothings, config
-from biothings.hub.dataload.uploader import ParallelizedSourceUploader
-from biothings.utils.storage import MergerStorage
+from biothings.hub.dataload.uploader import BaseSourceUploader
 
-from .parse import load_data_file
-from .static import SYNONYM_FILE_COLLECTION, SYNONYM_BIG_FILE_COLLECTION, BASE_URL
-
-
-biothings.config_for_app(config)
+from .static import BASE_URL
+from .worker import upload_process
 
 
-class NameResUploader(ParallelizedSourceUploader):
+logger = config.logger
+
+
+class NameResUploader(BaseSourceUploader):
     name = "nameres"
-    storage_class = MergerStorage
     __metadata__ = {"src_meta": {"url": BASE_URL}}
 
-    def jobs(self) -> list[tuple]:
-        file_names = [*SYNONYM_FILE_COLLECTION, *SYNONYM_BIG_FILE_COLLECTION.keys()]
-        files = [pathlib.Path(self.data_folder).joinpath(file) for file in file_names]
-        return [(f,) for f in files]
+    async def update_data(self, batch_size: int, job_manager: JobManager = None):
+        """
+        Primary mover for uploading the data to our backend
+        """
+        pinfo = self.get_pinfo()
+        pinfo["step"] = "update_data"
+        got_error = False
+        data_folder = copy.deepcopy(self.data_folder)
+        temp_collection_name = copy.deepcopy(self.temp_collection_name)
+        self.unprepare()
 
-    def load_data(self, data_path: Union[str, pathlib.Path]):
-        self.logger.info("Processing data from %s", data_path)
-        return load_data_file(data_path)
+        job = await job_manager.defer_to_process(
+            pinfo, functools.partial(upload_process, data_folder, temp_collection_name)
+        )
+
+        def uploaded(f):
+            nonlocal got_error
+            if not isinstance(f.result(), int):
+                got_error = Exception(f"upload error (should have a int as returned value got {repr(f.result())}")
+
+        job.add_done_callback(uploaded)
+        await job
+        if got_error:
+            raise got_error
+
+        self.switch_collection()
+        self.clean_archived_collections()
+
+    async def load(
+        self,
+        steps=("data", "post", "master", "clean"),
+        force=False,
+        batch_size=10000,
+        job_manager=None,
+        **kwargs,
+    ):
+        # force new arguments
+        steps = ("data", "master", "clean")
+        batch_size = 5000
+        await super().load(steps, force, batch_size, job_manager, **kwargs)
 
     @classmethod
     def get_mapping(cls) -> dict:

@@ -1,10 +1,8 @@
 import asyncio
 import concurrent.futures
 import gzip
-import json
 import os
 import shutil
-import sqlite3
 from functools import partial
 from pathlib import Path
 from typing import override, Union
@@ -113,7 +111,7 @@ class NameResDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
@@ -145,7 +143,7 @@ class NameResDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, 10)
 
             for index, chunk_start in enumerate(chunks):
@@ -230,7 +228,7 @@ class NameResDumper(LastModifiedHTTPDumper):
 
         thread_futures = []
         data_directory = Path(self.current_data_folder).resolve().absolute()
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             for archive_file in data_directory.glob("**/*.gz"):
                 arguments = {"archive_file": archive_file}
                 future = executor.submit(decompress_file, **arguments)
