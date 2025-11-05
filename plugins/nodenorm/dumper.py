@@ -121,7 +121,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
@@ -153,7 +153,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, 10)
 
             for index, chunk_start in enumerate(chunks):
