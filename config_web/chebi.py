@@ -9,6 +9,7 @@ ES_DOC_TYPE = "chemical"
 
 API_PREFIX = "chebi"
 API_VERSION = ""
+SMARTAPI_ID = "edcbbf0d48afebd0d25e2d66d6596a2a"
 
 _extra_kwargs = {"ignore_obsolete": {"type": bool, "default": True}}
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)
