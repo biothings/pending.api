@@ -3,7 +3,7 @@
     "requires": "biothings_client",
     "__metadata__" : {
         "license_url" : "https://www.ebi.ac.uk/about/terms-of-use",
-        "licence" : "EBI terms of use",
+        "license" : "EBI terms of use",
         "url" : "https://www.ebi.ac.uk/gwas/"
     },
     "dumper" : {

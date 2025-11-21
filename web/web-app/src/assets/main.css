@@ -1,0 +1,111 @@
+@import url('app.css');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-main-light: #501cbe;
+  --color-main-medium: #7209b7;
+  --color-main-dark: #1d2050;
+  --color-main-accent: #fbff12;
+  --color-main-muted: #f7f5ef;
+}
+
+/* CodeMirror */
+#CM .cm-editor {
+  height: 500px;
+  max-height: 1000px;
+  overflow-y: scroll;
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+.cm-editor .ͼe {
+  @apply dark:text-main-accent;
+}
+
+.ͼ2 .cm-gutters {
+  @apply dark:bg-main-dark;
+}
+
+/* CodeMirror */
+#CMPOST .cm-editor {
+  height: 200px;
+  max-height: 1000px;
+  overflow-y: scroll;
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+#pending-api-table tr:nth-child(even) {
+  @apply bg-gray-200 dark:bg-gray-700;
+}
+
+.fa-external-link-square-alt {
+  @apply text-blue-300 dark:text-blue-400;
+}
+
+#pending-api-table tr a {
+  @apply dark:text-white;
+}
+
+.badge-active {
+  @apply bg-purple-500 dark:bg-main-accent dark:text-black;
+}
+
+.smartapi-box {
+  border-radius: 10px;
+  @apply bg-blue-100 dark:bg-gray-900;
+}
+
+.main-btn {
+  @apply bg-main-medium dark:bg-main-accent text-white dark:text-black hover:bg-main-light hover:text-white dark:hover:bg-yellow-100 dark:hover:text-black;
+}
+
+.card {
+  @apply bg-gray-500 dark:bg-main-medium;
+}
+
+.text-warning {
+  @apply text-main-accent;
+}
+
+.active-bg {
+  @apply bg-main-light;
+}
+
+.text-mute {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+/* Code Editor */
+
+.syntax {
+  @apply text-blue-700 dark:text-cyan-300;
+}
+
+.string {
+  @apply text-green-700 dark:text-lime-400;
+}
+
+.number {
+  @apply text-purple-700 dark:text-purple-400;
+}
+
+.boolean {
+  @apply text-purple-700 dark:text-fuchsia-400;
+}
+
+.disclosure {
+  font-weight: bold;
+}
+
+.keyword {
+  color: red;
+}
+
+.object.syntax {
+  @apply text-green-700 dark:text-yellow-200;
+}
+
+.array.syntax {
+  @apply text-blue-700 dark:text-blue-300;
+}

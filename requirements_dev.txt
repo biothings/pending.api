@@ -1,6 +1,13 @@
 biothings[web_extra]==0.12.5
-Jinja2>=2.9.6
 GitPython>=3.1.43
 
-# for annotator handler
+# annotator handler
 biothings_client>=0.3.0
+
+# nodenorm web handler
+bmt>=1.4.5
+swagger-ui-py>=25.7.0
+
+# testing
+docker
+jsonlines
