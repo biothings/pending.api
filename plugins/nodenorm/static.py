@@ -3,6 +3,7 @@ Static defintions for urls and file locations
 """
 
 CONFLATION_LOOKUP_DATABASE = "conflation.sqlite3"
+IDENTIFIER_LOOKUP_DATABASE = "identifier.sqlite3"
 PRIOR_URL = [
     "https://stars.renci.org/var/babel_outputs/2025mar31/",
     "https://stars.renci.org/var/babel_outputs/2025jan23",
@@ -53,3 +54,30 @@ DRUG_CHEMICAL_IDENTIFIER_FILES = [
 
 
 GENE_PROTEIN_IDENTIFER_FILES = ["Protein.txt", "Gene.txt"]
+
+
+NODENORM_UPLOAD_CHUNKS = {
+    "AnatomicalEntity.txt": 1,
+    "BiologicalProcess.txt": 1,
+    "Cell.txt": 1,
+    "CellularComponent.txt": 1,
+    "ChemicalEntity.txt": 10,
+    "ChemicalMixture.txt": 1,
+    "ComplexMolecularMixture.txt": 1,
+    "Disease.txt": 10,
+    "Drug.txt": 10,
+    "Gene.txt": 30,
+    "GeneFamily.txt": 1,
+    "GrossAnatomicalStructure.txt": 1,
+    "MacromolecularComplex.txt": 1,
+    "MolecularActivity.txt": 10,
+    "MolecularMixture.txt": 30,
+    "OrganismTaxon.txt": 10,
+    "Pathway.txt": 1,
+    "PhenotypicFeature.txt": 10,
+    "Polypeptide.txt": 1,
+    "Protein.txt": 50,
+    "Publication.txt": 30,
+    "SmallMolecule.txt": 40,
+    "umls.txt": 10,
+}

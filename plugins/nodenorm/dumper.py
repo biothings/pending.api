@@ -1,7 +1,6 @@
 import asyncio
 import concurrent.futures
 import json
-import multiprocessing
 import os
 import sqlite3
 from pathlib import Path
@@ -12,9 +11,6 @@ from urllib.parse import urlparse
 from biothings import config
 from biothings.hub.dataload.dumper import DumperException, LastModifiedHTTPDumper
 from biothings.utils.manager import JobManager
-
-from .parse import DRUG_CHEMICAL_IDENTIFIER_FILES, GENE_PROTEIN_IDENTIFER_FILES
-
 
 from .static import (
     BASE_URL,
@@ -125,7 +121,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
@@ -157,7 +153,7 @@ class NodeNormDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1 * os.cpu_count()) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, 10)
 
             for index, chunk_start in enumerate(chunks):
