@@ -9,6 +9,7 @@ ES_DOC_TYPE = "disease"
 
 API_PREFIX = "doid"
 API_VERSION = ""
+SMARTAPI_ID = "2eeb2af59e4ff440eeef886bef927300"
 
 _extra_kwargs = {"ignore_obsolete": {"type": bool, "default": True}}
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)

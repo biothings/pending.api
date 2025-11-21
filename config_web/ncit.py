@@ -9,6 +9,7 @@ ES_DOC_TYPE = "node"
 
 API_PREFIX = "ncit"
 API_VERSION = ""
+SMARTAPI_ID = "2dbecfc2745aabae1096bffae5a436d7"
 
 _extra_kwargs = {"ignore_obsolete": {"type": bool, "default": True}}
 QUERY_KWARGS = copy.deepcopy(QUERY_KWARGS)
