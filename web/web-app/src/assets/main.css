@@ -11,6 +11,30 @@
   --color-main-muted: #f7f5ef;
 }
 
+/* CodeMirror */
+#CM .cm-editor {
+  height: 500px;
+  max-height: 1000px;
+  overflow-y: scroll;
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+.cm-editor .ͼe {
+  @apply dark:text-main-accent;
+}
+
+.ͼ2 .cm-gutters {
+  @apply dark:bg-main-dark;
+}
+
+/* CodeMirror */
+#CMPOST .cm-editor {
+  height: 200px;
+  max-height: 1000px;
+  overflow-y: scroll;
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
 #pending-api-table tr:nth-child(even) {
   @apply bg-gray-200 dark:bg-gray-700;
 }
@@ -30,6 +54,10 @@
 .smartapi-box {
   border-radius: 10px;
   @apply bg-blue-100 dark:bg-gray-900;
+}
+
+.main-btn {
+  @apply bg-main-medium dark:bg-main-accent text-white dark:text-black hover:bg-main-light hover:text-white dark:hover:bg-yellow-100 dark:hover:text-black;
 }
 
 .card {

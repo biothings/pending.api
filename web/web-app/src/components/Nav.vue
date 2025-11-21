@@ -33,6 +33,7 @@ function handleSubmit() {
 function handleClick(api) {
   localQuery.value = ''
   store.setQuery(api)
+  store.setCurrentAPI(api)
   router.push('/' + api)
 }
 </script>
@@ -51,7 +52,7 @@ function handleClick(api) {
     </template>
     <template v-else>
       <RouterLink class="navbar-brand" to="/"
-        ><img class="w-[50px]" alt="Translator" src="@/assets/img/tr.jpg"
+        ><img class="w-[50px] rounded" alt="Translator" src="@/assets/img/tr.jpg"
       /></RouterLink>
     </template>
     <div class="ml-auto">

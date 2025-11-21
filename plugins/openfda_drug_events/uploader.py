@@ -58,7 +58,7 @@ class OpenFDADrugUploader(biothings.hub.dataload.uploader.BaseSourceUploader):
     __metadata__ = {
         "src_meta": {
             "license_url": "https://open.fda.gov/license/",
-            "licence": "CC0 1.0",
+            "license": "CC0 1.0",
             "url": "https://open.fda.gov/",
         }
     }

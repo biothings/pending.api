@@ -1,4 +1,4 @@
-# import os
+from biothings.web.settings.default import APP_LIST
 
 from . import agr
 from . import annotator_extra
@@ -86,6 +86,11 @@ from . import ttd  # use plugin "BioThings_TTD_Dataplugin"
 from . import uberon
 from . import umlschem
 from . import upheno_ontology
+
+
+APP_LIST += [
+    (r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")
+]
 
 # Default Opentelemetry Settings
 OPENTELEMETRY_ENABLED = "False"

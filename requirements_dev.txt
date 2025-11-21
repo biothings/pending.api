@@ -1,2 +1,10 @@
 biothings[web_extra]==0.12.5
 GitPython>=3.1.43
+
+# nodenorm web handler
+bmt>=1.4.5
+swagger-ui-py>=25.7.0
+
+# testing
+docker
+jsonlines
