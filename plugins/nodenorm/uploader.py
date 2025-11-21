@@ -1,38 +1,67 @@
-import pathlib
+import copy
+import functools
 
-import biothings, config
-from biothings.hub.dataload.uploader import ParallelizedSourceUploader
-from biothings.utils.storage import MergerStorage
+from biothings import config
+from biothings.hub.dataload.uploader import BaseSourceUploader
+from biothings.utils.manager import JobManager
 
-from .parse import load_data_file
-
-
-biothings.config_for_app(config)
+from .static import BASE_URL
+from .worker import upload_process
 
 
-class NodeNormUploader(ParallelizedSourceUploader):
+logger = config.logger
+
+
+class NodeNormUploader(BaseSourceUploader):
     name = "nodenorm"
-    storage_class = MergerStorage
-    __metadata__ = {
-        "src_meta": {
-            "url": "https://stars.renci.org/var/babel_outputs/2025jan23/compendia",
-        }
-    }
+    __metadata__ = {"src_meta": {"url": BASE_URL}}
 
-    def jobs(self):
-        data_path = pathlib.Path(self.data_folder).glob("**/*")
-        files = [file for file in data_path if file.is_file()]
-        return [(f,) for f in files]
+    async def update_data(self, batch_size: int, job_manager: JobManager = None):
+        """
+        Primary mover for uploading the data to our backend
+        """
+        pinfo = self.get_pinfo()
+        pinfo["step"] = "update_data"
+        got_error = False
+        data_folder = copy.deepcopy(self.data_folder)
+        temp_collection_name = copy.deepcopy(self.temp_collection_name)
+        self.unprepare()
 
-    def load_data(self, data_path):
-        self.logger.info("Processing data from %s", data_path)
-        return load_data_file(data_path)
+        job = await job_manager.defer_to_process(
+            pinfo, functools.partial(upload_process, data_folder, temp_collection_name)
+        )
+
+        def uploaded(f):
+            nonlocal got_error
+            if not isinstance(f.result(), int):
+                got_error = Exception(f"upload error (should have a int as returned value got {repr(f.result())}")
+
+        job.add_done_callback(uploaded)
+        await job
+        if got_error:
+            raise got_error
+
+        self.switch_collection()
+        self.clean_archived_collections()
+
+    async def load(
+        self,
+        steps=("data", "post", "master", "clean"),
+        force=False,
+        batch_size=10000,
+        job_manager=None,
+        **kwargs,
+    ):
+        # force new arguments
+        steps = ("data", "master", "clean")
+        batch_size = 5000
+        await super().load(steps, force, batch_size, job_manager, **kwargs)
 
     @classmethod
     def get_mapping(cls) -> dict:
         mapping = {
             "type": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
-            "ic": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+            "ic": {"type": "float"},
             "identifiers": {
                 "properties": {
                     "i": {
@@ -46,11 +75,12 @@ class NodeNormUploader(ParallelizedSourceUploader):
                         "copy_to": "all",  # default field
                     },
                     "d": {"type": "text"},
-                    "t": {"type": "text"},
+                    "t": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
+                    "c": {"properties": {"gp": {"type": "keyword"}, "cd": {"type": "keyword"}}},
                 }
             },
             "preferred_name": {"type": "text"},
-            "taxa": {"type": "text"},
+            "taxa": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
             "all": {"type": "text"},
         }
         return mapping

@@ -4,3 +4,4 @@ ES_DOC_TYPE = "gene"
 
 API_PREFIX = "go"
 API_VERSION = ""
+SMARTAPI_ID = "8e19120d9fc5dcc5495ba582d052dc76"

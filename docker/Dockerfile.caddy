@@ -1,0 +1,26 @@
+# Dockerfile.caddy
+FROM node:18 as builder
+
+ARG PENDING_REPO=https://github.com/biothings/pending.api.git
+ARG PENDING_BRANCH=master
+
+# Clone repo and build frontend
+WORKDIR /app
+RUN git clone -b ${PENDING_BRANCH} --recursive ${PENDING_REPO} pending.api
+WORKDIR /app/pending.api/web/web-app
+RUN npm install && npm run build
+
+FROM caddy:2-alpine
+
+# Create directory for static files
+RUN mkdir -p /srv/app/static
+
+# Copy built files from builder
+COPY --from=builder /app/pending.api/web/web-app/dist /srv/app/static
+
+# Copy Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
+
+EXPOSE 9000
+
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
