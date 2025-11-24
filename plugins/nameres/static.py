@@ -3,7 +3,7 @@ Static defintions for urls and file locations
 """
 
 PRIOR_URL = []
-BASE_URL = "https://stars.renci.org/var/babel_outputs/2025sep1/synonyms/"
+BASE_URL = "https://stars.renci.org/var/babel_outputs/2025sep1/"
 
 
 SYNONYM_FILE_COLLECTION = [
