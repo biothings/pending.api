@@ -112,7 +112,7 @@ def generate_file_offsets(file: Union[str, Path], num_partitions: int = None):
 
         if file_index.exists():
             with open(file_index, "r", encoding="utf-8") as index_handle:
-                previous_index = json_loads(index_handle)
+                previous_index = json_loads(index_handle.read())
 
             if previous_index["hash"] == file_hash:
                 return previous_index["index"]
