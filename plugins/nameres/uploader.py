@@ -1,8 +1,9 @@
 import copy
 import functools
 
-import biothings, config
+from biothings import config
 from biothings.hub.dataload.uploader import BaseSourceUploader
+from biothings.utils.manager import JobManager
 
 from .static import BASE_URL
 from .worker import upload_process
