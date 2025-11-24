@@ -66,7 +66,7 @@ class NameResDumper(LastModifiedHTTPDumper):
 
     @override
     async def do_dump(self, job_manager: JobManager = None):
-        await self._handle_normal_size_files(job_manager)
+        # await self._handle_normal_size_files(job_manager)
         await self._handle_large_size_files(job_manager)
         self.logger.info("%s successfully downloaded", self.SRC_NAME)
 
@@ -111,7 +111,8 @@ class NameResDumper(LastModifiedHTTPDumper):
         self.prepare_local_folders(localfile)
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        workers = min(os.cpu_count(), num_partitions)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
@@ -123,6 +124,7 @@ class NameResDumper(LastModifiedHTTPDumper):
                 thread_futures.append(future)
 
             concurrent.futures.wait(thread_futures, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
+
             with open(localfile, "wb") as combined_output:
                 for index in range(len(chunks)):
                     chunk_path = f"{localfile}.part{index}"
@@ -141,10 +143,12 @@ class NameResDumper(LastModifiedHTTPDumper):
         """
         logger.info("Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
+        num_partitions = 10
 
         thread_futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            chunks, chunk_size = self.get_range_chunks(remoteurl, 10)
+        workers = min(os.cpu_count(), num_partitions)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            chunks, chunk_size = self.get_range_chunks(remoteurl, num_partitions)
 
             for index, chunk_start in enumerate(chunks):
                 chunk_end = chunk_start + (chunk_size - 1)
