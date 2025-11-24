@@ -143,7 +143,7 @@ class NameResDumper(LastModifiedHTTPDumper):
         """
         logger.info("Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
-        num_partitions = 10
+        num_partitions = 2
 
         thread_futures = []
         workers = min(os.cpu_count(), num_partitions)
