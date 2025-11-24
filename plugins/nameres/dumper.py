@@ -66,7 +66,7 @@ class NameResDumper(LastModifiedHTTPDumper):
 
     @override
     async def do_dump(self, job_manager: JobManager = None):
-        # await self._handle_normal_size_files(job_manager)
+        await self._handle_normal_size_files(job_manager)
         await self._handle_large_size_files(job_manager)
         self.logger.info("%s successfully downloaded", self.SRC_NAME)
 
