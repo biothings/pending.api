@@ -218,14 +218,14 @@ def subset_upload_worker(
             buffer.append(doc)
 
             if len(buffer) >= buffer_size:
-                total_upload += len(buffer_size)
+                total_upload += len(buffer)
                 _upload_buffer(collection, buffer, input_file, file_handle.tell() / offset_end)
                 buffer = []
 
             line = file_handle.readline()
 
         if len(buffer) > 0:
-            total_upload += len(buffer_size)
+            total_upload += len(buffer)
             _upload_buffer(collection, buffer, input_file, file_handle.tell() / offset_end)
             buffer = []
 
