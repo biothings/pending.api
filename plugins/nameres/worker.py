@@ -57,27 +57,30 @@ def _build_offset_tasks(data_folder: Union[str, Path], collection_name: str):
         logger.info("Analyzing offsets for %s | number of partitions %s", input_file, num_partitions)
         offsets = generate_file_offsets(input_file, num_partitions)
 
-        argument_collection = []
-        for offset_range in window(offsets, 2):
-            offset_start = offset_range[0]
-            offset_end = offset_range[1]
+        if offsets is not None:
+            argument_collection = []
+            for offset_range in window(offsets, 2):
+                offset_start = offset_range[0]
+                offset_end = offset_range[1]
 
-            arguments = {
-                "input_file": input_file,
-                "buffer_size": 5000,
-                "offset_start": offset_start,
-                "offset_end": offset_end,
-                "collection_name": collection_name,
-            }
-            argument_collection.append(arguments)
-        return argument_collection
+                arguments = {
+                    "input_file": input_file,
+                    "buffer_size": 5000,
+                    "offset_start": offset_start,
+                    "offset_end": offset_end,
+                    "collection_name": collection_name,
+                }
+                argument_collection.append(arguments)
+            return argument_collection
+
+        logger.debug("File %s is empty. No partitions to generate", input_file)
+        return []
 
     thread_futures = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for filename, num_partitions in NAMERES_UPLOAD_CHUNKS.items():
             filepath = Path(data_folder).joinpath(filename).resolve().absolute()
             arguments = {"input_file": filepath, "num_partitions": num_partitions}
-            _populate_upload_arguments(**arguments)
             future = executor.submit(_populate_upload_arguments, **arguments)
             thread_futures.append(future)
 
@@ -103,37 +106,39 @@ def generate_file_offsets(file: Union[str, Path], num_partitions: int = None):
     file_size_bytes = file.stat().st_size
     file_index = file.with_suffix(".index")
 
-    logger.debug("Calculating SHA256 hashsum for file: %s", file)
-    file_hash = sha256sum(file)
+    if file_size_bytes > 0:
+        logger.debug("Calculating SHA256 hashsum for file: %s", file)
+        file_hash = sha256sum(file)
 
-    if file_index.exists():
-        with open(file_index, "r", encoding="utf-8") as index_handle:
-            previous_index = json_loads(index_handle)
+        if file_index.exists():
+            with open(file_index, "r", encoding="utf-8") as index_handle:
+                previous_index = json_loads(index_handle)
 
-        if previous_index["hash"] == file_hash:
-            return previous_index["index"]
+            if previous_index["hash"] == file_hash:
+                return previous_index["index"]
 
-        logger.debug(
-            "Different hash found for file %s [%s, %s] [previous, current]. " "Updating file offsets with the new file",
-            file,
-            previous_index["hash"],
-            file_hash,
-        )
+            logger.debug(
+                "Different hash found for file %s [%s, %s] [previous, current]. "
+                "Updating file offsets with the new file",
+                file,
+                previous_index["hash"],
+                file_hash,
+            )
 
-    partitions = [0]
-    marker = file_size_bytes / num_partitions
-    progress_bytes = 0
-    with open(file, "rb") as handle:
-        while line := handle.readline():
-            if progress_bytes >= marker:
-                partitions.append(handle.tell())
-                progress_bytes = 0
-            else:
-                progress_bytes += len(line)
-        partitions.append(handle.tell())
-    with open(file_index, "w", encoding="utf-8") as index_handle:
-        index_handle.write(json_dumps({"index": partitions, "hash": file_hash}))
-    return partitions
+        partitions = [0]
+        marker = file_size_bytes / num_partitions
+        progress_bytes = 0
+        with open(file, "rb") as handle:
+            while line := handle.readline():
+                if progress_bytes >= marker:
+                    partitions.append(handle.tell())
+                    progress_bytes = 0
+                else:
+                    progress_bytes += len(line)
+            partitions.append(handle.tell())
+        with open(file_index, "w", encoding="utf-8") as index_handle:
+            index_handle.write(json_dumps({"index": partitions, "hash": file_hash}))
+        return partitions
 
 
 def sha256sum(file: Union[str, Path], buffer_size: int = None):
