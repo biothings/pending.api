@@ -331,6 +331,7 @@ async def _lookup_curie_metadata(
                 information_content=-1.0,
                 identifiers=[],
                 types=[],
+                taxa=[],
             )
             nodes.append(node)
         else:
