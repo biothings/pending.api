@@ -33,6 +33,7 @@ class NormalizedNode:
     information_content: float
     identifiers: list[str]
     types: list[str]
+    taxa: list[str]
 
 
 class NormalizedNodesHandler(BaseAPIHandler):
@@ -297,6 +298,8 @@ async def create_normalized_node(
     if aggregate_node.information_content is not None:
         normal_node["information_content"] = aggregate_node.information_content
 
+    normal_node["taxa"] = aggregate_node.taxa
+
     return normal_node
 
 
@@ -336,6 +339,7 @@ async def _lookup_curie_metadata(
             identifiers = result_source.get("identifiers", [])
             biolink_type = result_source.get("type", None)
             preferred_label = result_source.get("preferred_name", None)
+            taxa = result_source.get("taxa", [])
 
             # Every equivalent identifier here has the same type.
             for eqid in identifiers:
@@ -408,6 +412,7 @@ async def _lookup_curie_metadata(
                     information_content=information_content,
                     identifiers=replacement_identifiers,
                     types=replacement_types,
+                    taxa=taxa,
                 )
                 nodes.append(node)
             else:
@@ -419,6 +424,7 @@ async def _lookup_curie_metadata(
                     information_content=information_content,
                     identifiers=identifiers,
                     types=node_types,
+                    taxa=taxa,
                 )
                 nodes.append(node)
     return nodes
@@ -464,7 +470,7 @@ async def _lookup_equivalent_identifiers(
         return [], []
 
     curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
-    source_fields = ["identifiers", "type", "ic", "preferred_name"]
+    source_fields = ["identifiers", "type", "ic", "preferred_name", "taxa"]
     index = biothings_metadata.elasticsearch.metadata.indices["node"]
     term_search_result = await biothings_metadata.elasticsearch.async_client.search(
         query=curie_terms_query, index=index, size=len(curies), source_includes=source_fields
