@@ -295,6 +295,25 @@
       }
     }
   },
+  "/get_semantic_types": {
+    "get": {
+      "summary": "Return a list of BioLink semantic types for which normalization has been attempted.",
+      "description": "Returns a distinct set of the semantic types discovered in the compendium data.",
+      "operationId": "get_semantic_types_handler_get_semantic_types_get",
+      "responses": {
+        "200": {
+          "description": "Successful Response",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SemanticTypes"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "AboveOrBelowEnum": {
