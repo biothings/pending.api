@@ -1,28 +1,16 @@
 import dataclasses
 import logging
-import os
 import time
 from typing import Union
-
-import bmt
 
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.services.namespace import BiothingsNamespace
 from tornado.web import HTTPError
 
+from web.handlers.nodenorm.biolink import toolkit
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-
-BIOLINK_VERSION = os.getenv("BIOLINK_VERSION", "v4.2.2")
-BIOLINK_MODEL_URL = f"https://raw.githubusercontent.com/biolink/biolink-model/{BIOLINK_VERSION}/biolink-model.yaml"
-toolkit = bmt.Toolkit(BIOLINK_MODEL_URL)
-
-
-defaultconfig = {
-    "demote_labels_longer_than": 15,
-}
 
 
 @dataclasses.dataclass(frozen=True)

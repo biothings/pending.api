@@ -1,7 +1,7 @@
 from biothings.web.handlers import BaseAPIHandler
 from tornado.web import HTTPError
 
-from web.handlers.nodenorm.biolink import load_biolink_model_toolkit
+from web.handlers.nodenorm.biolink import toolkit
 
 
 class SemanticTypeHandler(BaseAPIHandler):
@@ -29,7 +29,6 @@ class SemanticTypeHandler(BaseAPIHandler):
             raise network_error from gen_exc
 
         semantic_types = set()
-        toolkit = load_biolink_model_toolkit()
         for bucket in type_aggregation_result.body["aggregations"]["unique_types"]["buckets"]:
             biolink_type = bucket["key"]
             semantic_types.add(biolink_type)
