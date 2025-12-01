@@ -1,9 +1,6 @@
-import sys
-import types
 from urllib.parse import urlparse
 
 from biothings.web.handlers import BaseAPIHandler
-from biothings.web.services.namespace import BiothingsNamespace
 from tornado.web import HTTPError
 
 
