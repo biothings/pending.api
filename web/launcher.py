@@ -53,11 +53,11 @@ class PendingAPILauncher:
         Specific to nodenorm, creates a swagger UI for the nodenorm
         endpoint
 
-        openapi file location: /web/handlers/nodenorm/specification/openapi.yaml
+        openapi file location: /web/handlers/nodenorm/specification/openapi.json
         """
         web_directory = pathlib.Path(__file__).resolve().absolute().parent
         specification_directory = web_directory / "handlers" / "nodenorm" / "specification"
-        nodenorm_spec = specification_directory.joinpath("openapi.yaml")
+        nodenorm_spec = specification_directory.joinpath("openapi.json")
         api_doc(
             application, config_path=nodenorm_spec, url_prefix="/nodenorm/api/doc", title="Nodenorm API Documentation"
         )

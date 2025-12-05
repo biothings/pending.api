@@ -1,7 +1,7 @@
 from biothings.web.settings.default import APP_LIST
 
 from web.handlers.nodenorm import (
-    NodeNormStatusHandler,
+    NodeNormHealthHandler,
     NormalizedNodesHandler,
     SemanticTypeHandler,
     SetIdentifierHandler,
@@ -15,7 +15,7 @@ APP_LIST = [
     (r"/{pre}/{ver}/get_normalized_nodes?", NormalizedNodesHandler),
     (r"/{pre}/{ver}/get_semantic_types?", SemanticTypeHandler),
     (r"/{pre}/{ver}/get_setid?", SetIdentifierHandler),
-    (r"/{pre}/{ver}/status?", NodeNormStatusHandler),
+    (r"/{pre}/{ver}/health?", NodeNormHealthHandler),
     *APP_LIST,
 ]
 

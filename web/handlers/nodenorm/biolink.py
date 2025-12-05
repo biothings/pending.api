@@ -8,7 +8,8 @@ import bmt
 # > get_normalized_nodes
 # > get_semantic_types
 
-BIOLINK_MODEL_VERSION = os.getenv("BIOLINK_VERSION", "v4.2.2")
+DEFAULT_BIOLINK_MODEL_VERSION = "v4.2.6-rc5"
+BIOLINK_MODEL_VERSION = os.getenv("BIOLINK_VERSION", DEFAULT_BIOLINK_MODEL_VERSION)
 BIOLINK_MODEL_URL = (
     f"https://raw.githubusercontent.com/biolink/biolink-model/{BIOLINK_MODEL_VERSION}/biolink-model.yaml"
 )
