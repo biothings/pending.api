@@ -38,7 +38,7 @@ class NodeNormHealthHandler(BaseAPIHandler):
             cat_nodes_response = await self.biothings.elasticsearch.async_client.cat.nodes(format="json", h=h_string)
             nodes_status = {node["name"]: node for node in cat_nodes_response}
             nodes = {"elasticsearch": {"nodes": nodes_status}}
-        except Exception as gen_exc:
+        except Exception:
             status_response = {
                 "status": "error",
                 "babel_version": babel_version,
