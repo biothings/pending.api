@@ -26,11 +26,11 @@
     "description": "Node Normalization takes a CURIE, and returns: <ol> <li>The preferred CURIE for this entity <li>All other known equivalent identifiers for the entity <li>Semantic types for the entity as defined by the <a href=\"https://biolink.github.io/biolink-model/\">BioLink Model</a> </ol> The data served by Node Normalization is created by <a href=\"https://github.com/TranslatorSRI/Babel\">Babel</a>, which attempts to find identifier equivalences, and makes sure that CURIE prefixes are BioLink Model Compliant.  To determine whether Node Normalization is likely to be useful, check /get_semantic_types, which lists the BioLink semantic types for which normalization has been attempted, and /get_curie_prefixes, which lists the number of times each prefix is used for a semantic type."
   },
   "paths": {
-    "/health": {
+    "/status": {
       "get": {
-        "summary": "Health information on this NodeNorm instance",
+        "summary": "Status information on this NodeNorm instance",
         "description": "Returns information about this NodeNorm instance and the elasticsearch instance backing it.",
-        "operationId": "health_get",
+        "operationId": "status",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -38,7 +38,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "title": "Response Health Get"
+                  "title": "Response Status Get"
                 }
               }
             }
