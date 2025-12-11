@@ -26,6 +26,26 @@
     "description": "Node Normalization takes a CURIE, and returns: <ol> <li>The preferred CURIE for this entity <li>All other known equivalent identifiers for the entity <li>Semantic types for the entity as defined by the <a href=\"https://biolink.github.io/biolink-model/\">BioLink Model</a> </ol> The data served by Node Normalization is created by <a href=\"https://github.com/TranslatorSRI/Babel\">Babel</a>, which attempts to find identifier equivalences, and makes sure that CURIE prefixes are BioLink Model Compliant.  To determine whether Node Normalization is likely to be useful, check /get_semantic_types, which lists the BioLink semantic types for which normalization has been attempted, and /get_curie_prefixes, which lists the number of times each prefix is used for a semantic type."
   },
   "paths": {
+    "/status": {
+      "get": {
+        "summary": "Status information on this NodeNorm instance",
+        "description": "Returns information about this NodeNorm instance and the elasticsearch instance backing it.",
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/get_normalized_nodes": {
       "get": {
         "summary": "Get the equivalent identifiers and semantic types for the curie(s) entered.",
@@ -293,7 +313,26 @@
           }
         }
       }
+    },
+    "/get_semantic_types": {
+      "get": {
+      "summary": "Return a list of BioLink semantic types for which normalization has been attempted.",
+      "description": "Returns a distinct set of the semantic types discovered in the compendium data.",
+      "operationId": "get_semantic_types_handler_get_semantic_types_get",
+      "responses": {
+        "200": {
+          "description": "Successful Response",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SemanticTypes"
+              }
+            }
+          }
+        }
+      }
     }
+  }
   },
   "components": {
     "schemas": {
@@ -3133,3 +3172,4 @@
     }
   ]
 }
+
