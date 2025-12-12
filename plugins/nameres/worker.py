@@ -248,7 +248,6 @@ def _upload_buffer(
             progress * 100,
         )
     except BulkWriteError as bulk_write_error:
-        breakpoint()
         _handle_bulk_write_error(bulk_write_error, collection, input_file)
 
 
