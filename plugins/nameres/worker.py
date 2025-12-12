@@ -108,14 +108,14 @@ def generate_file_offsets(file: Union[str, Path], num_partitions: int = None):
 
     if file_size_bytes > 0:
         logger.debug("Calculating SHA256 hashsum for file: %s", file)
-        file_hash = sha256sum(file)
+        # file_hash = sha256sum(file)
 
         if file_index.exists():
             with open(file_index, "r", encoding="utf-8") as index_handle:
                 previous_index = json_loads(index_handle.read())
 
-            if previous_index["hash"] == file_hash:
-                return previous_index["index"]
+            # if previous_index["hash"] == file_hash:
+            return previous_index["index"]
 
             logger.debug(
                 "Different hash found for file %s [%s, %s] [previous, current]. "
@@ -201,8 +201,9 @@ def subset_upload_worker(
     total_upload = 0
     with open(input_file, encoding="utf-8") as file_handle:
         buffer = []
-        line = file_handle.readline()
-        while line:
+        file_handle.seek(offset_start)
+        while file_handle.tell() < offset_end:
+            line = file_handle.readline()
             doc = json_loads(line)
             doc["_id"] = doc["curie"]
             try:
@@ -247,6 +248,7 @@ def _upload_buffer(
             progress * 100,
         )
     except BulkWriteError as bulk_write_error:
+        breakpoint()
         _handle_bulk_write_error(bulk_write_error, collection, input_file)
 
 
