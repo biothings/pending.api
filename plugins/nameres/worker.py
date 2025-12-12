@@ -108,14 +108,14 @@ def generate_file_offsets(file: Union[str, Path], num_partitions: int = None):
 
     if file_size_bytes > 0:
         logger.debug("Calculating SHA256 hashsum for file: %s", file)
-        # file_hash = sha256sum(file)
+        file_hash = sha256sum(file)
 
         if file_index.exists():
             with open(file_index, "r", encoding="utf-8") as index_handle:
                 previous_index = json_loads(index_handle.read())
 
-            # if previous_index["hash"] == file_hash:
-            return previous_index["index"]
+            if previous_index["hash"] == file_hash:
+                return previous_index["index"]
 
             logger.debug(
                 "Different hash found for file %s [%s, %s] [previous, current]. "
