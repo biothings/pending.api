@@ -216,14 +216,15 @@ def subset_upload_worker(
             except (TypeError, ValueError):
                 doc["clique_identifier_count"] = 0
 
+            biolink_types = doc.pop("types", [])
+            doc["biolink_types"] = biolink_types
+
             buffer.append(doc)
 
             if len(buffer) >= buffer_size:
                 total_upload += len(buffer)
                 _upload_buffer(collection, buffer, input_file, file_handle.tell() / offset_end)
                 buffer = []
-
-            line = file_handle.readline()
 
         if len(buffer) > 0:
             total_upload += len(buffer)
