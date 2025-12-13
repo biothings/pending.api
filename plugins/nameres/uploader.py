@@ -62,10 +62,10 @@ class NameResUploader(BaseSourceUploader):
         mapping = {
             "curie": {"type": "keyword"},
             "names": {"type": "text"},
-            "biolink_types": {"types": "keyword"},
+            "biolink_types": {"type": "keyword"},
             "preferred_name": {"type": "text"},
-            "shortest_name_length": {"types": "integer"},
-            "clique_identifier_count": {"types": "integer"},
+            "shortest_name_length": {"type": "integer"},
+            "clique_identifier_count": {"type": "integer"},
             "taxa": {"normalizer": "keyword_lowercase_normalizer", "type": "keyword"},
         }
         return mapping
