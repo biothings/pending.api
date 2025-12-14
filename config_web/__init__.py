@@ -57,6 +57,7 @@ from . import multiomics_clinicaltrials_kp
 from . import multiomics_drug_approvals_kp
 from . import multiomics_ehr_risk_kp  # use plugin "clinical_risk_kp"
 from . import multiomics_wellness
+from . import nameres
 from . import ncit
 from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 'pending-mondo', 'pending-chebi'
 from . import nodenorm
@@ -88,9 +89,7 @@ from . import umlschem
 from . import upheno_ontology
 
 
-APP_LIST += [
-    (r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")
-]
+APP_LIST += [(r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadataSourceHandler")]
 
 # Default Opentelemetry Settings
 OPENTELEMETRY_ENABLED = "False"
