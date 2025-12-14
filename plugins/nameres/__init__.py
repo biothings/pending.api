@@ -1,2 +1,2 @@
-from .dumper import NameResDumper
-from .uploader import NameResUploader
+from .dumper import NameResDumper  # noqa # pylint: disable=unused-import
+from .uploader import NameResUploader  # noqa # pylint: disable=unused-import

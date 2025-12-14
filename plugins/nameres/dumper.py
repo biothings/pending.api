@@ -41,6 +41,7 @@ class NameResDumper(LastModifiedHTTPDumper):
 
     def __init__(self, src_name: str = None, src_root_folder: str = None, log_folder: str = None, archive: bool = None):
         super().__init__(src_name, src_root_folder, log_folder, archive)
+        self.to_dump = []
         self.to_dump_large = []
 
     def create_todump_list(self, force: bool = False) -> None:
@@ -134,13 +135,16 @@ class NameResDumper(LastModifiedHTTPDumper):
                     os.remove(chunk_path)
                 logger.info(f"Combined all chunks -> {localfile}")
 
-    def download(self, remoteurl: str, localfile: Union[str, Path], headers: dict = {}) -> None:
+    def download(self, remoteurl: str, localfile: Union[str, Path], headers: dict = None) -> None:
         """
         Handles downloading of remote files over HTTP to the local file system
 
         Leverages multiple threads to download the remote file in multiple chunks
         concurrently and then combines them at the end
         """
+        if headers is None:
+            headers = {}
+
         logger.info("Downloading (normal) file %s -> %s | Partitions %s", remoteurl, localfile, 10)
         self.prepare_local_folders(localfile)
         num_partitions = 2
