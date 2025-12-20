@@ -1,0 +1,840 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Name Resolver",
+    "version": "1.5.1",
+    "x-translator": {
+      "component": "Utility",
+      "team": [
+        "Standards Reference Implementation Team"
+      ],
+      "infores": "infores:sri-name-resolver"
+    },
+    "termsOfService": "https://toss.apps.renci.org/tos?service_long=Name+Resolver&provider_long=the+Translator+Consortium",
+    "description": "Name Resolution/Name Lookup service<p/>This service takes lexical strings and attempts to map them to identifiers (CURIEs) from a vocabulary or ontology.  The lookup is not exact, but includes partial matches.<p/> Multiple results may be returned representing possible conceptual matches, but all of the identifiers have been correctly normalized using the <a href=\"https://github.com/TranslatorSRI/NodeNormalization\">Node Normalization</a> service."
+  },
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Get status and counts for this NameRes instance.",
+        "description": "This endpoint will return status information and a list of counts from the underlying Solr instance for this NameRes instance.",
+        "operationId": "status_get_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Status Get Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/synonyms": {
+      "get": {
+        "tags": [
+          "lookup"
+        ],
+        "summary": "Look up synonyms for a CURIE.",
+        "description": "Returns a list of synonyms for a particular preferred CURIE. You can normalize a CURIE to a preferred CURIE using NodeNorm.",
+        "operationId": "lookup_names_get_synonyms_get",
+        "parameters": [
+          {
+            "name": "preferred_curies",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "A list of CURIEs to look up synonyms for.",
+              "title": "Preferred Curies"
+            },
+            "description": "A list of CURIEs to look up synonyms for.",
+            "example": [
+              "MONDO:0005737",
+              "MONDO:0009757"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Lookup Names Get Synonyms Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "lookup"
+        ],
+        "summary": "Look up synonyms for a CURIE.",
+        "description": "Returns a list of synonyms for a particular preferred CURIE. You can normalize a CURIE to a preferred CURIE using NodeNorm.",
+        "operationId": "lookup_names_post_synonyms_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SynonymsRequest"
+              },
+              "example": {
+                "preferred_curies": [
+                  "MONDO:0005737",
+                  "MONDO:0009757"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Lookup Names Post Synonyms Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lookup": {
+      "get": {
+        "tags": [
+          "lookup"
+        ],
+        "summary": "Look up cliques for a fragment of a name or synonym.",
+        "description": "Returns cliques with a name or synonym that contains a specified string.",
+        "operationId": "lookup_curies_get_lookup_get",
+        "parameters": [
+          {
+            "name": "string",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The string to search for.",
+              "title": "String"
+            },
+            "description": "The string to search for."
+          },
+          {
+            "name": "autocomplete",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Is the input string incomplete (autocomplete=true) or a complete phrase (autocomplete=false)?",
+              "default": true,
+              "title": "Autocomplete"
+            },
+            "description": "Is the input string incomplete (autocomplete=true) or a complete phrase (autocomplete=false)?"
+          },
+          {
+            "name": "highlighting",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return information on which labels and synonyms matched the search query?",
+              "default": false,
+              "title": "Highlighting"
+            },
+            "description": "Return information on which labels and synonyms matched the search query?"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The number of results to skip. Can be used to page through the results of a query.",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "The number of results to skip. Can be used to page through the results of a query."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "The number of results to skip. Can be used to page through the results of a query.",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "The number of results to skip. Can be used to page through the results of a query."
+          },
+          {
+            "name": "biolink_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The Biolink types to filter to (with or without the `biolink:` prefix), e.g. `biolink:Disease` or `Disease`. Multiple types will be combined with OR, i.e. filtering for PhenotypicFeature and Disease will return concepts that are either PhenotypicFeatures OR Disease, not concepts that are both PhenotypicFeature AND Disease.",
+              "default": [],
+              "title": "Biolink Type"
+            },
+            "description": "The Biolink types to filter to (with or without the `biolink:` prefix), e.g. `biolink:Disease` or `Disease`. Multiple types will be combined with OR, i.e. filtering for PhenotypicFeature and Disease will return concepts that are either PhenotypicFeatures OR Disease, not concepts that are both PhenotypicFeature AND Disease."
+          },
+          {
+            "name": "only_prefixes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of prefixes to filter to, e.g. `MONDO|EFO`.",
+              "title": "Only Prefixes"
+            },
+            "description": "Pipe-separated, case-sensitive list of prefixes to filter to, e.g. `MONDO|EFO`."
+          },
+          {
+            "name": "exclude_prefixes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of prefixes to exclude, e.g. `UMLS|EFO`.",
+              "title": "Exclude Prefixes"
+            },
+            "description": "Pipe-separated, case-sensitive list of prefixes to exclude, e.g. `UMLS|EFO`."
+          },
+          {
+            "name": "only_taxa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of taxa to filter, e.g. `NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955`.",
+              "title": "Only Taxa"
+            },
+            "description": "Pipe-separated, case-sensitive list of taxa to filter, e.g. `NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupResult"
+                  },
+                  "title": "Response Lookup Curies Get Lookup Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "lookup"
+        ],
+        "summary": "Look up cliques for a fragment of a name or synonym.",
+        "description": "Returns cliques with a name or synonym that contains a specified string.",
+        "operationId": "lookup_curies_post_lookup_post",
+        "parameters": [
+          {
+            "name": "string",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The string to search for.",
+              "title": "String"
+            },
+            "description": "The string to search for."
+          },
+          {
+            "name": "autocomplete",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Is the input string incomplete (autocomplete=true) or a complete phrase (autocomplete=false)?",
+              "default": true,
+              "title": "Autocomplete"
+            },
+            "description": "Is the input string incomplete (autocomplete=true) or a complete phrase (autocomplete=false)?"
+          },
+          {
+            "name": "highlighting",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return information on which labels and synonyms matched the search query?",
+              "default": false,
+              "title": "Highlighting"
+            },
+            "description": "Return information on which labels and synonyms matched the search query?"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The number of results to skip. Can be used to page through the results of a query.",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "The number of results to skip. Can be used to page through the results of a query."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "The number of results to skip. Can be used to page through the results of a query.",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "The number of results to skip. Can be used to page through the results of a query."
+          },
+          {
+            "name": "biolink_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The Biolink types to filter to (with or without the `biolink:` prefix), e.g. `biolink:Disease` or `Disease`. Multiple types will be combined with OR, i.e. filtering for PhenotypicFeature and Disease will return concepts that are either PhenotypicFeatures OR Disease, not concepts that are both PhenotypicFeature AND Disease.",
+              "default": [],
+              "title": "Biolink Type"
+            },
+            "description": "The Biolink types to filter to (with or without the `biolink:` prefix), e.g. `biolink:Disease` or `Disease`. Multiple types will be combined with OR, i.e. filtering for PhenotypicFeature and Disease will return concepts that are either PhenotypicFeatures OR Disease, not concepts that are both PhenotypicFeature AND Disease."
+          },
+          {
+            "name": "only_prefixes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of prefixes to filter to, e.g. `MONDO|EFO`.",
+              "title": "Only Prefixes"
+            },
+            "description": "Pipe-separated, case-sensitive list of prefixes to filter to, e.g. `MONDO|EFO`."
+          },
+          {
+            "name": "exclude_prefixes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of prefixes to exclude, e.g. `UMLS|EFO`.",
+              "title": "Exclude Prefixes"
+            },
+            "description": "Pipe-separated, case-sensitive list of prefixes to exclude, e.g. `UMLS|EFO`."
+          },
+          {
+            "name": "only_taxa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pipe-separated, case-sensitive list of taxa to filter, e.g. `NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955`.",
+              "title": "Only Taxa"
+            },
+            "description": "Pipe-separated, case-sensitive list of taxa to filter, e.g. `NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupResult"
+                  },
+                  "title": "Response Lookup Curies Post Lookup Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk-lookup": {
+      "post": {
+        "tags": [
+          "lookup"
+        ],
+        "summary": "Look up cliques for a fragment of multiple names or synonyms.",
+        "description": "Returns cliques for each query.",
+        "operationId": "bulk_lookup_bulk_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NameResQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "items": {
+                      "$ref": "#/components/schemas/LookupResult"
+                    },
+                    "type": "array"
+                  },
+                  "type": "object",
+                  "title": "Response Bulk Lookup Bulk Lookup Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LookupResult": {
+        "properties": {
+          "curie": {
+            "type": "string",
+            "title": "Curie"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "highlighting": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Highlighting"
+          },
+          "synonyms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Synonyms"
+          },
+          "taxa": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Taxa"
+          },
+          "types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Types"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "clique_identifier_count": {
+            "type": "integer",
+            "title": "Clique Identifier Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "curie",
+          "label",
+          "highlighting",
+          "synonyms",
+          "taxa",
+          "types",
+          "score",
+          "clique_identifier_count"
+        ],
+        "title": "LookupResult"
+      },
+      "NameResQuery": {
+        "properties": {
+          "strings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Strings",
+            "description": "The strings to search for. The returned results will be in a dictionary with these values as keys."
+          },
+          "autocomplete": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autocomplete",
+            "description": "Is the input string incomplete (autocomplete=true) or a complete phrase (autocomplete=false)?",
+            "default": false
+          },
+          "highlighting": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highlighting",
+            "description": "Return information on which labels and synonyms matched the search query?",
+            "default": false
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset",
+            "description": "The number of results to skip. Can be used to page through the results of a query.",
+            "default": 0
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit",
+            "description": "The number of results to skip. Can be used to page through the results of a query.",
+            "default": 10
+          },
+          "biolink_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biolink Types",
+            "description": "The Biolink types to filter to (with or without the `biolink:` prefix), e.g. `biolink:Disease` or `Disease`. Multiple types will be combined with OR, i.e. filtering for PhenotypicFeature and Disease will return concepts that are either PhenotypicFeatures OR Disease, not concepts that are both PhenotypicFeature AND Disease.",
+            "default": []
+          },
+          "only_prefixes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Only Prefixes",
+            "description": "Pipe-separated, case-sensitive list of prefixes to filter to, e.g. `MONDO|EFO`.",
+            "default": ""
+          },
+          "exclude_prefixes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclude Prefixes",
+            "description": "Pipe-separated, case-sensitive list of prefixes to exclude, e.g. `UMLS|EFO`.",
+            "default": ""
+          },
+          "only_taxa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Only Taxa",
+            "description": "Pipe-separated, case-sensitive list of taxa to filter, e.g. `NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955`.",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "strings"
+        ],
+        "title": "NameResQuery",
+        "description": "A request for name resolution."
+      },
+      "Request": {
+        "properties": {
+          "curies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Curies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "curies"
+        ],
+        "title": "Request",
+        "description": "Reverse-lookup request body."
+      },
+      "SynonymsRequest": {
+        "properties": {
+          "preferred_curies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Curies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "preferred_curies"
+        ],
+        "title": "SynonymsRequest",
+        "description": "Synonyms search request body. "
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "translator"
+    }
+  ],
+  "servers": [
+    {
+      "description": "Default server",
+      "url": "https://biothings.ci.transltr.io/nameres/",
+      "x-maturity": "development",
+      "x-location": "RENCI"
+    },
+    {
+      "description": "localhost",
+      "url": "https://localhost:8000/nameres",
+      "x-maturity": "development",
+      "x-location": "RENCI"
+    }
+  ]
+}
