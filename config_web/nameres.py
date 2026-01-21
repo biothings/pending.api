@@ -2,7 +2,12 @@ import copy
 
 from biothings.web.settings.default import APP_LIST
 
-from web.handlers.nameres import NameResolutionHealthHandler, NameResolutionSynonymsHandler
+from web.handlers.nameres import (
+    NameResolutionHealthHandler,
+    NameResolutionSynonymsHandler,
+    NameResolutionLookupHandler,
+    NameResolutionBulkLookupHandler,
+)
 
 NAMERES_APP_LIST = copy.deepcopy(APP_LIST)
 
@@ -19,8 +24,10 @@ except ValueError:
     pass
 
 APP_LIST = [
-    (r"/{pre}/{ver}/synonyms?", NameResolutionSynonymsHandler),
+    (r"/{pre}/{ver}/bulk-lookup?", NameResolutionBulkLookupHandler),
+    (r"/{pre}/{ver}/lookup?", NameResolutionLookupHandler),
     (r"/{pre}/{ver}/status?", NameResolutionHealthHandler),
+    (r"/{pre}/{ver}/synonyms?", NameResolutionSynonymsHandler),
     *NAMERES_APP_LIST,
 ]
 
