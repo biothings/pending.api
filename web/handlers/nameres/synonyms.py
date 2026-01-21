@@ -30,7 +30,7 @@ class NameResolutionSynonymsHandler(BaseAPIHandler):
             synonym_response = await self.synonyms_lookup(preferred_curies)
             self.finish(synonym_response)
         except Exception as gen_exc:
-            raise HTTPError(detail="Error occurred during processing.", status_code=500)
+            raise HTTPError(detail="Error occurred during processing.", status_code=500) from gen_exc
 
     async def post(self):
         try:
@@ -42,7 +42,7 @@ class NameResolutionSynonymsHandler(BaseAPIHandler):
             synonym_response = await self.synonyms_lookup(preferred_curies)
             self.finish(synonym_response)
         except Exception as gen_exc:
-            raise HTTPError(detail="Error occurred during processing.", status_code=500)
+            raise HTTPError(detail="Error occurred during processing.", status_code=500) from gen_exc
 
     async def synonyms_lookup(self, curies: list[str]) -> dict[str, dict]:
         """
