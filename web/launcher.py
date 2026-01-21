@@ -50,17 +50,23 @@ class PendingAPILauncher:
 
     def _configure_swagger(self, application: tornado.web.Application) -> None:
         """
-        Specific to nodenorm, creates a swagger UI for the nodenorm
-        endpoint
+        Muliple swagger UI endpoints now:
+            * nodenorm
+            * nameres
 
-        openapi file location: /web/handlers/nodenorm/specification/openapi.json
+        nodenorm openapi file location: /web/handlers/nodenorm/specification/openapi.json
+        nameres  openapi file location: /web/handlers/nameres/specification/openapi.json
         """
         web_directory = pathlib.Path(__file__).resolve().absolute().parent
-        specification_directory = web_directory / "handlers" / "nodenorm" / "specification"
-        nodenorm_spec = specification_directory.joinpath("openapi.json")
+        nodenorm_specification_directory = web_directory / "handlers" / "nodenorm" / "specification"
+        nodenorm_spec = nodenorm_specification_directory.joinpath("openapi.json")
         api_doc(
             application, config_path=nodenorm_spec, url_prefix="/nodenorm/api/doc", title="Nodenorm API Documentation"
         )
+
+        nameres_specification_directory = web_directory / "handlers" / "nameres" / "specification"
+        nameres_spec = nameres_specification_directory.joinpath("openapi.json")
+        api_doc(application, config_path=nameres_spec, url_prefix="/nameres/api/doc", title="Nameres API Documentation")
 
     def _configure_settings(self, options: tornado.options.OptionParser, app_settings: dict) -> dict:
         """
