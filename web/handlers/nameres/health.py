@@ -16,7 +16,7 @@ class NameResolutionHealthHandler(BaseAPIHandler):
 
     async def get(self):
 
-        compendia_url = self.biothings.metadata.biothing_metadata["node"]["src"]["nodenorm"]["url"]
+        compendia_url = self.biothings.metadata.biothing_metadata["node"]["src"]["nameres"]["url"]
         parsed_compendia_url = urlparse(compendia_url)
         babel_version = parsed_compendia_url.path.split("/")[-2]
         babel_markdown = f"https://github.com/ncatstranslator/Babel/blob/master/releases/{babel_version}.md"
