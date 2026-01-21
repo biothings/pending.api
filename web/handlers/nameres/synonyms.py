@@ -49,7 +49,7 @@ class NameResolutionSynonymsHandler(BaseAPIHandler):
         Returns a list of synonyms for a particular CURIE.
 
         """
-        curie_terms_query = {"bool": {"filter": [{"terms": {"identifiers.i": curies}}]}}
+        curie_terms_query = {"bool": {"filter": [{"terms": {"curie": curies}}]}}
         index = self.biothings.elasticsearch.metadata.indices["node"]
         term_search_result = await self.biothings.elasticsearch.async_client.search(
             query=curie_terms_query, index=index, size=len(curies)
@@ -57,5 +57,7 @@ class NameResolutionSynonymsHandler(BaseAPIHandler):
 
         output = {curie: {} for curie in curies}
         for result in term_search_result.body["hits"]["hits"]:
-            output[result["curie"]] = result
+            source = result.get("_source", None)
+            if source is not None:
+                output[source["curie"]] = source
         return output
