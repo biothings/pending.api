@@ -118,17 +118,57 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
             logger.exception(lookup_arg_exc)
             raise LookupArgumentException from lookup_arg_exc
 
+        biolink_types = self.get_argument("biolink_types", default=[], strip=True)
+
+        filter_delimiter = "|"
+
+        only_prefixes = self.get_argument("only_prefixes", default="", strip=True)
+        only_prefixes = only_prefixes.split(filter_delimiter)
+        try:
+            only_prefixes.remove("")
+        except ValueError:
+            pass
+
+        exclude_prefixes = self.get_argument("exclude_prefixes", default="", strip=True)
+        exclude_prefixes = exclude_prefixes.split(filter_delimiter)
+        try:
+            exclude_prefixes.remove("")
+        except ValueError:
+            pass
+
+        only_taxa = self.get_argument("only_taxa", default="", strip=True)
+        only_taxa = only_taxa.split(filter_delimiter)
+        try:
+            only_taxa.remove("")
+        except ValueError:
+            pass
+
         self.filters = self._build_lookup_filters(
-            biolink_types=self.get_argument("biolink_types", default=[], strip=True),
-            include_prefixes=self.get_argument("only_prefixes", default=None, strip=True),
-            exclude_prefixes=self.get_argument("exclude_prefixes", default=None, strip=True),
-            only_taxa=self.get_argument("only_taxa", default=None, strip=True),
+            biolink_types=biolink_types,
+            include_prefixes=only_prefixes,
+            exclude_prefixes=exclude_prefixes,
+            only_taxa=only_taxa,
         )
 
-        autocomplete_option = self.get_argument("autocomplete", default=False, strip=True)
-        highlighting_option = self.get_argument("highlighting", default=False, strip=True)
-        offset_option = self.get_argument("offset", default=0, strip=True)
-        limit_option = self.get_argument("limit", default=10, strip=True)
+        def parse_boolean(argument: str | bool) -> bool:
+            if isinstance(argument, bool):
+                return argument
+            if isinstance(argument, str):
+                return not argument.lower() == "false"
+            return False
+
+        autocomplete_option = parse_boolean(self.get_argument("autocomplete", default=False, strip=True))
+        highlighting_option = parse_boolean(self.get_argument("highlighting", default=False, strip=True))
+        try:
+            offset_option = int(self.get_argument("offset", default=0, strip=True))
+            limit_option = int(self.get_argument("limit", default=10, strip=True))
+            if offset_option < 0 or limit_option < 0:
+                raise ValueError
+        except ValueError:
+            lookup_message = (
+                "Invalid literal for `offset` or `limit` option | " "offset and limit must be non-negative integers "
+            )
+            raise LookupArgumentException(lookup_message)
 
         self.lookup_queries = []
         for search_string in sanitized_lookup_strings:
@@ -160,7 +200,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
         return lookup_strings
 
     def _sanitize_lookup_query(self, lookup_strings: list[str]) -> list[tuple[str]]:
-        """Performs input sanitization on the lookup query terms.
+        r"""Performs input sanitization on the lookup query terms.
 
         Sanitization Operations:
         1) strip and lowercase the query (all indexes are case-insensitive)
@@ -176,7 +216,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
             If there's nothing to search don't perform any search
         4) escape special characters
             We need to use backslash to escape characters
-               (e.g. "\("))
+               ( e.g. "\(" )
             to remove the special significance of characters
             inside round brackets, but not inside double-quotes.
             So we escape them separately:
@@ -198,7 +238,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
 
             if lookup_string is not None and lookup_string != "":
                 lookup_string_with_escaped_groups = lookup_string.replace("\\", "")
-                lookup_string_with_escaped_groups = lookup_string_with_escaped_groups.replace.replace('"', "")
+                lookup_string_with_escaped_groups = lookup_string_with_escaped_groups.replace('"', "")
 
                 # Regex overview
                 # r'[!(){}\[\]^"~*?:/+-\\]'
@@ -217,7 +257,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
                 # characters group we wish to escape, it will surrond the last matched special
                 # character with quotes and backslash
                 # Example: query_term? -> query_term"\?"
-                substitution_escape_backreference = (r"\\\g<0>",)
+                substitution_escape_backreference = r"\\\g<0>"
                 fully_escaped_lookup_string = re.sub(
                     special_characters_group, substitution_escape_backreference, lookup_string
                 )
@@ -225,14 +265,16 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
                 fully_escaped_lookup_string = fully_escaped_lookup_string.replace("&&", " ")
                 fully_escaped_lookup_string = fully_escaped_lookup_string.replace("||", " ")
 
-                sanitized_lookup_strings.append((lookup_string_with_escaped_groups, fully_escaped_lookup_string))
+                sanitized_lookup_strings.append(set([lookup_string_with_escaped_groups, fully_escaped_lookup_string]))
+
+        return sanitized_lookup_strings
 
     def _build_lookup_filters(
         self,
         biolink_types: list[str],
-        include_prefixes: str,
-        exclude_prefixes: str,
-        only_taxa: str,
+        include_prefixes: list[str],
+        exclude_prefixes: list[str],
+        only_taxa: list[str],
     ) -> dict:
         # Apply filters as needed.
         filters = {"should": [], "must_not": []}
@@ -247,15 +289,14 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
 
         # Prefix: only filter
         # Elasticsearch should + Match boolean prefix query
-        prefix_delimiter = "|"
-        for prefix in include_prefixes.split(prefix_delimiter):
+        for prefix in include_prefixes:
             prefix = prefix.strip()
             should_filter = {"prefix": {"curie": prefix}}
             filters["should"].append(should_filter)
 
         # Prefix: exclude filter
         # Elasticsearch must not
-        for prefix in exclude_prefixes.split(prefix_delimiter):
+        for prefix in exclude_prefixes:
             prefix = prefix.strip()
             must_not_filter = {"prefix": {"curie": prefix}}
             filters["must_not"].append(must_not_filter)
@@ -263,7 +304,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
         # Taxa filter.
         # only_taxa is like: 'NCBITaxon:9606|NCBITaxon:10090|NCBITaxon:10116|NCBITaxon:7955'
         # Elasticsearch should
-        for taxon in only_taxa.split(prefix_delimiter):
+        for taxon in only_taxa:
             taxon = taxon.strip()
             should_filter = {"term": {"taxa": taxon}}
             filters["should"].append(should_filter)
@@ -337,8 +378,11 @@ async def lookup(
         highlight_configuration = {
             "type": "unified",
             "encoder": "html",
-            "pre_tags": "<strong>",
-            "post_tags": "<strong>",
+            "require_field_match": False,
+            "fields": {
+                "names": {"pre_tags": ["<strong>"], "post_tags": ["</strong>"]},
+                "preferred_names": {"pre_tags": ["<strong>"], "post_tags": ["</strong>"]},
+            },
         }
 
     search_result_ordering = [{"_score": "desc"}, {"clique_identifier_count": "desc"}]
@@ -354,23 +398,21 @@ async def lookup(
     }
     lookup_response = await biothings_metadata.elasticsearch.async_client.search(**search_parameters)
 
-    # Associate highlighting information with search results.
-    highlighting_response = lookup_response.get("highlighting", {})
-
     outputs = []
-    for doc in lookup_response["response"]["hits"]:
+    for doc in lookup_response["hits"]["hits"]:
         preferred_matches = []
         synonym_matches = []
 
-        if doc["id"] in highlighting_response:
-            matches = highlighting_response[doc["id"]]
-            preferred_matches.extend(matches.get("preferred_name", []))
-            synonym_matches.extend(matches.get("names", []))
+        highlighting_response = doc.get("highlight", None)
+        if highlighting_response is not None and isinstance(highlighting_response, dict):
+            synonym_matches.extend(highlighting_response.get("names", []))
+            preferred_matches.extend(highlighting_response.get("preferred_name", []))
 
+        source = doc["_source"]
         outputs.append(
             LookupResult(
-                curie=doc.get("curie", ""),
-                label=doc.get("preferred_name", ""),
+                curie=source.get("curie", ""),
+                label=source.get("preferred_name", ""),
                 highlighting=(
                     {
                         "labels": preferred_matches,
@@ -379,11 +421,11 @@ async def lookup(
                     if lookup_query.highlighting
                     else {}
                 ),
-                synonyms=doc.get("names", []),
-                score=doc.get("score", ""),
-                taxa=doc.get("taxa", []),
-                clique_identifier_count=doc.get("clique_identifier_count", 0),
-                types=[f"biolink:{d}" for d in doc.get("types", [])],
+                synonyms=source.get("names", []),
+                score=doc.get("_score", ""),
+                taxa=source.get("taxa", []),
+                clique_identifier_count=source.get("clique_identifier_count", 0),
+                types=[f"biolink:{d}" for d in source.get("biolink_types", [])],
             )
         )
 
@@ -394,41 +436,45 @@ def _build_elasticsearch_query(lookup_query: list[LookupQuery], filters: dict) -
     queries = []
 
     # Base Query
-    queries.append(
-        {
-            "multi_match": {
-                "query": lookup_query.string,
-                "type": "best_fields",
-                "fields": ["preferred_name^25", "name^10"],
-            }
-        }
-    )
-
-    # https://www.elastic.co/search-labs/blog/elasticsearch-autocomplete-search#2.-query-time
-    if lookup_query.autocomplete:
+    for lookup_string in lookup_query.string:
         queries.append(
             {
                 "multi_match": {
-                    "query": lookup_query.string,
-                    "type": "phrase",
-                    "fields": ["preferred_name^30", "name^20"],
+                    "query": lookup_string,
+                    "type": "best_fields",
+                    "fields": ["preferred_name^25", "name^10"],
                 }
             }
         )
 
+    # https://www.elastic.co/search-labs/blog/elasticsearch-autocomplete-search#2.-query-time
+    if lookup_query.autocomplete:
+        for lookup_string in lookup_query.string:
+            queries.append(
+                {
+                    "multi_match": {
+                        "query": lookup_string,
+                        "type": "phrase",
+                        "fields": ["preferred_name^30", "name^20"],
+                    }
+                }
+            )
+
     compound_lookup_query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "dis_max": {
-                            "queries": queries,
-                        }
-                    },
-                    {"bool": {"should": [*filters["should"]]}},
-                ],
-                "must_not": [*filters["must_not"]],
-            }
+        "bool": {
+            "must": [
+                {
+                    "dis_max": {
+                        "queries": queries,
+                    }
+                }
+            ]
         }
     }
+    if len(filters["should"]) > 0:
+        compound_lookup_query["bool"]["must"].append({"bool": {"should": [*filters["should"]]}})
+
+    if len(filters["must_not"]) > 0:
+        compound_lookup_query["bool"]["must_not"] = [*filters["must_not"]]
+
     return compound_lookup_query
