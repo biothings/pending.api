@@ -1,6 +1,35 @@
+import copy
+
+from biothings.web.settings.default import APP_LIST
+
+from web.handlers.nameres import (
+    NameResolutionHealthHandler,
+    NameResolutionSynonymsHandler,
+    NameResolutionLookupHandler,
+    NameResolutionBulkLookupHandler,
+)
+
+NAMERES_APP_LIST = copy.deepcopy(APP_LIST)
+
 ES_HOST = "http://localhost:9200"
 ES_INDEX = "pending-nameres"
 ES_DOC_TYPE = "node"
+
+# We want to override the default biothings StatusHandler
+# The status endpoint will instead leveage the <NameResolutionmHealthHandler>
+default_status_handler = (r"/{pre}/status", "biothings.web.handlers.StatusHandler")
+try:
+    NAMERES_APP_LIST.remove(default_status_handler)
+except ValueError:
+    pass
+
+APP_LIST = [
+    (r"/{pre}/{ver}/bulk-lookup?", NameResolutionBulkLookupHandler),
+    (r"/{pre}/{ver}/lookup?", NameResolutionLookupHandler),
+    (r"/{pre}/{ver}/status?", NameResolutionHealthHandler),
+    (r"/{pre}/{ver}/synonyms?", NameResolutionSynonymsHandler),
+    *NAMERES_APP_LIST,
+]
 
 API_PREFIX = "nameres"
 API_VERSION = ""

@@ -2,14 +2,14 @@ import copy
 
 from biothings.web.settings.default import APP_LIST
 
-NODENORM_APP_LIST = copy.deepcopy(APP_LIST)
-
 from web.handlers.nodenorm import (
     NodeNormHealthHandler,
     NormalizedNodesHandler,
     SemanticTypeHandler,
     SetIdentifierHandler,
 )
+
+NODENORM_APP_LIST = copy.deepcopy(APP_LIST)
 
 ES_HOST = "http://localhost:9200"
 ES_INDEX = "pending-nodenorm"
