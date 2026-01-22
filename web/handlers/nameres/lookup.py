@@ -6,7 +6,6 @@ Converted from SOLR -> Elasticsearch
 
 import dataclasses
 import logging
-import json
 import re
 from typing import Optional
 
@@ -118,37 +117,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
             logger.exception(lookup_arg_exc)
             raise LookupArgumentException from lookup_arg_exc
 
-        biolink_types = self.get_argument("biolink_types", default=[], strip=True)
-
-        filter_delimiter = "|"
-
-        only_prefixes = self.get_argument("only_prefixes", default="", strip=True)
-        only_prefixes = only_prefixes.split(filter_delimiter)
-        try:
-            only_prefixes.remove("")
-        except ValueError:
-            pass
-
-        exclude_prefixes = self.get_argument("exclude_prefixes", default="", strip=True)
-        exclude_prefixes = exclude_prefixes.split(filter_delimiter)
-        try:
-            exclude_prefixes.remove("")
-        except ValueError:
-            pass
-
-        only_taxa = self.get_argument("only_taxa", default="", strip=True)
-        only_taxa = only_taxa.split(filter_delimiter)
-        try:
-            only_taxa.remove("")
-        except ValueError:
-            pass
-
-        self.filters = self._build_lookup_filters(
-            biolink_types=biolink_types,
-            include_prefixes=only_prefixes,
-            exclude_prefixes=exclude_prefixes,
-            only_taxa=only_taxa,
-        )
+        self.filters = self._build_lookup_filters()
 
         def parse_boolean(argument: str | bool) -> bool:
             if isinstance(argument, bool):
@@ -269,13 +238,44 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
 
         return sanitized_lookup_strings
 
-    def _build_lookup_filters(
-        self,
-        biolink_types: list[str],
-        include_prefixes: list[str],
-        exclude_prefixes: list[str],
-        only_taxa: list[str],
-    ) -> dict:
+    def _build_lookup_filters(self) -> dict:
+        """Handles the parsing and building of various elasticsearch boolean logic queries.
+
+        We have two types of boolean logic queries we need to build for this endpoint
+
+        1) should
+        In this case we want to boolean OR specific different types of required
+        fields we want in the results output
+
+        2) must_not
+        In this case we to boolean AND NOT specific different types of required
+        fields we want to ensure `don't` exist in the results output
+        """
+        biolink_types = self.get_argument("biolink_types", default=[], strip=True)
+
+        filter_delimiter = "|"
+
+        only_prefixes = self.get_argument("only_prefixes", default="", strip=True)
+        only_prefixes = only_prefixes.split(filter_delimiter)
+        try:
+            only_prefixes.remove("")
+        except ValueError:
+            pass
+
+        exclude_prefixes = self.get_argument("exclude_prefixes", default="", strip=True)
+        exclude_prefixes = exclude_prefixes.split(filter_delimiter)
+        try:
+            exclude_prefixes.remove("")
+        except ValueError:
+            pass
+
+        only_taxa = self.get_argument("only_taxa", default="", strip=True)
+        only_taxa = only_taxa.split(filter_delimiter)
+        try:
+            only_taxa.remove("")
+        except ValueError:
+            pass
+
         # Apply filters as needed.
         filters = {"should": [], "must_not": []}
 
@@ -289,7 +289,7 @@ class BaseNameResolutionLookupHandler(BaseAPIHandler):
 
         # Prefix: only filter
         # Elasticsearch should + Match boolean prefix query
-        for prefix in include_prefixes:
+        for prefix in only_prefixes:
             prefix = prefix.strip()
             should_filter = {"prefix": {"curie": prefix}}
             filters["should"].append(should_filter)
