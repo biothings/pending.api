@@ -112,7 +112,6 @@
 	path = plugins/pseudocap_go
 	url = https://github.com/kevinxin90/pseudocap_go
 	ignore = dirty
-
 [submodule "plugins/rare_source"]
         path = plugins/rare_source
         url = https://github.com/biothings/rare_source
