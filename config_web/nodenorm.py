@@ -7,6 +7,7 @@ from web.handlers.nodenorm import (
     NormalizedNodesHandler,
     SemanticTypeHandler,
     SetIdentifierHandler,
+    ValidConflationsHandler,
 )
 
 NODENORM_APP_LIST = copy.deepcopy(APP_LIST)
@@ -24,6 +25,7 @@ except ValueError:
     pass
 
 APP_LIST = [
+    (r"/{pre}/{ver}/get_allowed_conflations?", ValidConflationsHandler),
     (r"/{pre}/{ver}/get_normalized_nodes?", NormalizedNodesHandler),
     (r"/{pre}/{ver}/get_semantic_types?", SemanticTypeHandler),
     (r"/{pre}/{ver}/get_setid?", SetIdentifierHandler),
