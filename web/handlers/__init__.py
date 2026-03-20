@@ -13,7 +13,6 @@ from config_web import (
     OPENTELEMETRY_SERVICE_NAME,
 )
 
-from .annotator import AnnotatorHandler
 from .api import ApiListHandler
 from .diseases import DiseasesHandler
 from .graph import GraphQueryHandler  # noqa # pylint: disable=unused-import
@@ -60,6 +59,5 @@ EXTRA_HANDLERS = [
     (r"/status", StatusDefaultHandler),
     (r"/version", VersionHandler),
     (r"/api/list", ApiListHandler),
-    (r"/annotator(?:/([^/]+))?/?", AnnotatorHandler),
     (r"/DISEASES(?:/.*)?", DiseasesHandler),
 ]
