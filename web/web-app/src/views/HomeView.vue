@@ -227,82 +227,87 @@ function toggleType(type) {
               >MyGene.info</a
             >, <a rel="noopener" href="https://myvariant.info" target="_blank">MyVariant.info</a>,
             <a rel="noopener" href="https://mychem.info" target="_blank">MyChem.info</a>,
-            <a rel="noopener" href="https://mydisease.info" target="_blank">MyDisease.info</a> etc).
+            <a rel="noopener" href="https://mydisease.info" target="_blank">MyDisease.info</a>,
+            <a rel="noopener" href="https://mytaxon.info" target="_blank">MyTaxon.info</a> etc).
             Pending APIs are also pending to be integrated into the proper official BioThings API
             based on their entity type.
           </p>
           <div class="row w-75 m-auto">
-            <div class="col-sm-12 col-md-6 p-4">
-              <a rel="noopener" target="_blank" href="https://mygene.info/" title="MyGene.info">
-                <img
+            <!-- MyGene.info -->
+            <div class="col-sm-12 col-md-6 p-4 text-center">
+              <img
                   alt="myGene"
+                  class="m-auto"
                   style="border: 0px"
-                  width="128"
-                  src="https://biothings.io@/assets/img/mygene-logo-128.png"
+                  width="60"
+                  src="@/assets/img/mygene-logo-xl.png"
                 />
-                <small class="d-block"> Gene annotation <br />as a service </small>
-                <small class="d-block mt-2">
-                  Learn More About MyGene <i class="fas fa-external-link-square-alt"></i>
-                </small>
-              </a>
+                <h3>MyGene.info</h3>
+                <p> Gene annotation as a service </p>
+                <p><a rel="noopener" target="_blank" href="https://mygene.info/">
+                  Learn More <i class="fas fa-external-link-square-alt"></i>
+                </a></p>
             </div>
-            <div class="col-sm-12 col-md-6 p-4">
-              <a
-                rel="noopener"
-                target="_blank"
-                href="https://myvariant.info/"
-                title="MyVariant.info"
-              >
-                <img
+            <!-- MyVariant -->
+            <div class="col-sm-12 col-md-6 p-4 text-center">
+              <img
                   alt="myVariant"
+                  class="m-auto"
                   style="border: 0px"
-                  width="128"
-                  src="https://biothings.io@/assets/img/myvariant-logo-128.png"
+                  width="60"
+                  src="@/assets/img/myvariant-logo-xl.png"
                 />
-                <small class="d-block"> Variant annotation <br />as a service </small>
-                <small class="d-block mt-2">
-                  Learn More About MyVariant <i class="fas fa-external-link-square-alt"></i>
-                </small>
-              </a>
+                <h3>MyVariant.info</h3>
+                <p> Variant annotation as a service </p>
+                <p><a rel="noopener" target="_blank" href="https://myvariant.info/">
+                  Learn More <i class="fas fa-external-link-square-alt"></i>
+                </a></p>
             </div>
-            <div class="col-sm-12 col-md-6 p-4">
-              <a rel="noopener" target="_blank" href="https://mychem.info/" title="MyChem.info">
-                <img
+            <!-- MyChem.info -->
+            <div class="col-sm-12 col-md-6 p-4 text-center">
+              <img
                   alt="myChem"
+                  class="m-auto"
                   style="border: 0px"
-                  width="128"
-                  src="https://biothings.io@/assets/img/mychem-logo-128.png"
+                  width="60"
+                  src="@/assets/img/mychem-logo-xl.png"
                 />
-                <small class="d-block"> Chemical/Drug annotation <br />as a service </small>
-                <small class="d-block mt-2">
-                  Learn More About MyChem <i class="fas fa-external-link-square-alt"></i>
-                </small>
-              </a>
+                <h3>MyChem.info</h3>
+                <p> Chemical annotation as a service </p>
+                <p><a rel="noopener" target="_blank" href="https://mychem.info/">
+                  Learn More <i class="fas fa-external-link-square-alt"></i>
+                </a></p>
             </div>
-            <div class="col-sm-12 col-md-6 p-4">
-              <a
-                rel="noopener"
-                target="_blank"
-                href="https://mydisease.info/"
-                title="MyDisease.info"
-              >
-                <img
+            <!-- MyDisease.info -->
+            <div class="col-sm-12 col-md-6 p-4 text-center">
+              <img
                   alt="myDisease"
+                  class="m-auto"
                   style="border: 0px"
-                  width="128"
-                  src="https://biothings.io@/assets/img/mydisease-text-3.svg"
+                  width="60"
+                  src="@/assets/img/mydisease-logo-xl.png"
                 />
-                <small class="d-block"> Disease annotation <br />as a service </small>
-                <small class="d-block mt-2">
-                  Learn More About MyDisease <i class="fas fa-external-link-square-alt"></i>
-                </small>
-              </a>
+                <h3>MyDisease.info</h3>
+                <p> Disease annotation as a service </p>
+                <p><a rel="noopener" target="_blank" href="https://mydisease.info/">
+                  Learn More <i class="fas fa-external-link-square-alt"></i>
+                </a></p>
             </div>
-            <div class="col-sm-12 text-center p-5">
-              <a rel="noopener" href="http://biothings.io/#access" target="_blank"
-                >Other BioThings APIs in production <i class="fas fa-external-link-square-alt"></i
-              ></a>
-            </div>
+            <!-- MyTaxon.info -->
+            <div class="col-sm-12 col-md-6 p-4 text-center">
+              <img
+                  alt="myTaxon"
+                  class="m-auto"
+                  style="border: 0px"
+                  width="60"
+                  src="@/assets/img/mytaxon-logo.png"
+                />
+                <h3>MyTaxon.info</h3>
+                <p> Taxonomy annotation as a service </p>
+                <p><a rel="noopener" target="_blank" href="https://mytaxon.info/">
+                  Learn More <i class="fas fa-external-link-square-alt"></i>
+                </a></p>
+              </div>
           </div>
         </div>
       </div>
