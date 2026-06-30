@@ -34,17 +34,14 @@ if OPENTELEMETRY_ENABLED == "true":
     TornadoInstrumentor().instrument()
 
     # Configure the OpenTelemetry exporter
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import SERVICE_NAME, Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
     from opentelemetry import trace
 
-    trace_exporter = JaegerExporter(
-        agent_host_name=OPENTELEMETRY_JAEGER_HOST,
-        agent_port=OPENTELEMETRY_JAEGER_PORT,
-        udp_split_oversized_batches=True,
-    )
+    os.environ.setdefault("OTEL_EXPORTER_OTLP_ENDPOINT", f"{OPENTELEMETRY_JAEGER_HOST}:{OPENTELEMETRY_JAEGER_PORT}")
+    trace_exporter = OTLPSpanExporter()
 
     trace_provider = TracerProvider(resource=Resource.create({SERVICE_NAME: OPENTELEMETRY_SERVICE_NAME}))
     trace_provider.add_span_processor(BatchSpanProcessor(trace_exporter))

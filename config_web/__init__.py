@@ -95,4 +95,4 @@ APP_LIST += [(r"/{pre}/{ver}/metadata/?", "web.handlers.metadata.PendingMetadata
 OPENTELEMETRY_ENABLED = "False"
 OPENTELEMETRY_SERVICE_NAME = "Service Provider"
 OPENTELEMETRY_JAEGER_HOST = "http://localhost"
-OPENTELEMETRY_JAEGER_PORT = 6831
+OPENTELEMETRY_JAEGER_PORT = 4318
