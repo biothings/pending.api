@@ -95,7 +95,6 @@ def transform_pubmed_metadata_record(
     line_number: int | None = None,
 ) -> dict:
     """Validate and namespace one upstream PubMed record."""
-
     location = _location(source, line_number)
     if not isinstance(record, dict):
         raise PubMedMetadataValidationError(
@@ -148,7 +147,6 @@ def transform_pubmed_metadata_record(
 
 def iter_pubmed_metadata_documents(data_path: str | Path) -> Iterator[dict]:
     """Yield validated documents from a gzip-compressed NDJSON shard."""
-
     path = Path(data_path)
     try:
         with gzip.open(

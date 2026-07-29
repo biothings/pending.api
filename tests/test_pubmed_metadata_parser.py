@@ -9,7 +9,7 @@ import pytest
 PARSER_PATH = Path(__file__).parents[1] / "plugins" / "pubmed_metadata" / "parser.py"
 PARSER_SPEC = importlib.util.spec_from_file_location("pubmed_metadata_parser", PARSER_PATH)
 parser = importlib.util.module_from_spec(PARSER_SPEC)
-assert PARSER_SPEC.loader is not None
+assert PARSER_SPEC.loader is not None  # nosec B101
 PARSER_SPEC.loader.exec_module(parser)
 
 
@@ -38,7 +38,7 @@ def write_shard(path, lines):
 def test_transform_namespaces_pubmed_metadata():
     document = parser.transform_pubmed_metadata_record(upstream_record())
 
-    assert document == {
+    assert document == {  # nosec B101
         "_id": "PMID:12345678",
         "pubmed": {
             "journal": {
@@ -61,11 +61,11 @@ def test_streams_gzip_ndjson(tmp_path):
 
     documents = list(parser.iter_pubmed_metadata_documents(shard_path))
 
-    assert [document["_id"] for document in documents] == [
+    assert [document["_id"] for document in documents] == [  # nosec B101
         "PMID:12345678",
         "PMID:87654321",
     ]
-    assert documents[0]["pubmed"]["abstract"].endswith("β.")
+    assert documents[0]["pubmed"]["abstract"].endswith("β.")  # nosec B101
 
 
 @pytest.mark.parametrize(
@@ -100,7 +100,7 @@ def test_rejects_invalid_records(record, message):
 def test_builds_dates_at_available_precision(date_parts, expected_date):
     document = parser.transform_pubmed_metadata_record(upstream_record(**date_parts))
 
-    assert document["pubmed"]["pub_date"] == expected_date
+    assert document["pubmed"]["pub_date"] == expected_date  # nosec B101
 
 
 def test_omits_date_when_all_components_are_missing():
@@ -108,7 +108,7 @@ def test_omits_date_when_all_components_are_missing():
         upstream_record(pub_year="", pub_month="", pub_day="")
     )
 
-    assert "pub_date" not in document["pubmed"]
+    assert "pub_date" not in document["pubmed"]  # nosec B101
 
 
 @pytest.mark.parametrize(

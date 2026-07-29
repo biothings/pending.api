@@ -43,5 +43,4 @@ PUBMED_METADATA_MAPPING = {
 
 def get_pubmed_metadata_mapping() -> dict:
     """Return an independent mapping because Hub consumers may mutate it."""
-
     return deepcopy(PUBMED_METADATA_MAPPING)

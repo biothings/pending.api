@@ -23,5 +23,4 @@ class PubMedMetadataDumper(LastModifiedHTTPDumper):
 
     def set_release(self) -> None:
         """Use the date encoded in the pinned upstream directory."""
-
         self.release = RELEASE

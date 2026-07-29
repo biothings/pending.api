@@ -9,13 +9,16 @@ import pytest
 
 
 @pytest.fixture
-def uploader_module(monkeypatch):
+def uploader_module(monkeypatch, tmp_path):
     biothings = types.ModuleType("biothings")
-    biothings.config = types.SimpleNamespace(DATA_ARCHIVE_ROOT="/tmp/pubmed")
+    biothings.config = types.SimpleNamespace(DATA_ARCHIVE_ROOT=str(tmp_path / "archive"))
     hub = types.ModuleType("biothings.hub")
     dataload = types.ModuleType("biothings.hub.dataload")
     dumper = types.ModuleType("biothings.hub.dataload.dumper")
     uploader = types.ModuleType("biothings.hub.dataload.uploader")
+    biothings.__path__ = []
+    hub.__path__ = []
+    dataload.__path__ = []
 
     class LastModifiedHTTPDumper:
         pass
@@ -25,6 +28,10 @@ def uploader_module(monkeypatch):
 
     dumper.LastModifiedHTTPDumper = LastModifiedHTTPDumper
     uploader.ParallelizedSourceUploader = ParallelizedSourceUploader
+    biothings.hub = hub
+    hub.dataload = dataload
+    dataload.dumper = dumper
+    dataload.uploader = uploader
     modules = {
         "biothings": biothings,
         "biothings.hub": hub,
@@ -84,10 +91,12 @@ def test_jobs_partition_shards_across_four_workers(tmp_path, uploader_module):
 
     jobs = uploader.jobs()
 
-    assert len(jobs) == 4
-    assert [len(job[0]) for job in jobs] == [4, 4, 4, 4]
-    assert jobs[0][0] == tuple(str(tmp_path / filename) for filename in filenames[::4])
-    assert sorted(path for job in jobs for path in job[0]) == sorted(
+    assert len(jobs) == 4  # nosec B101
+    assert [len(job[0]) for job in jobs] == [4, 4, 4, 4]  # nosec B101
+    assert jobs[0][0] == tuple(  # nosec B101
+        str(tmp_path / filename) for filename in filenames[::4]
+    )
+    assert sorted(path for job in jobs for path in job[0]) == sorted(  # nosec B101
         str(tmp_path / filename) for filename in filenames
     )
 
@@ -116,8 +125,8 @@ def test_load_data_streams_every_shard_in_a_worker_group(tmp_path, uploader_modu
     )
     documents = list(uploader.load_data((str(first_shard), str(second_shard))))
 
-    assert [document["_id"] for document in documents] == [
+    assert [document["_id"] for document in documents] == [  # nosec B101
         "PMID:12345678",
         "PMID:87654321",
     ]
-    assert documents[0]["pubmed"]["pub_date"] == "2026-06-30"
+    assert documents[0]["pubmed"]["pub_date"] == "2026-06-30"  # nosec B101
