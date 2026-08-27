@@ -15,6 +15,7 @@ class OntologyHelper:
     """
 
     IS_A_EDGE_TYPE = "is_a"
+    DEFINITION_PATTERN = re.compile(r'^"(?P<text>.*)"\s*(?:\[(?P<xrefs>.*)\])?\s*$', re.DOTALL)
     SYNONYM_PATTERN = re.compile(r"\"(.+?)\"")
     XREF_INVALID_PREFIXES = {"https", "http"}
     XREF_ALWAYS_PREFIXED = {"DOID", "HP", "MP", "OBI", "EFO"}
@@ -72,6 +73,20 @@ class OntologyHelper:
         if related_synonyms:
             synonyms["related"] = related_synonyms
         return synonyms
+
+    def parse_definition(self, node_obj: dict) -> str:
+        """
+        Extract definition text from an OBO definition value.
+
+        Args:
+            node_obj (dict): The node attributes from the ontology graph.
+
+        Returns:
+            str: The definition text without its wrapping quotes or xref list.
+        """
+        raw_definition = node_obj.get("def", "")
+        match = self.DEFINITION_PATTERN.match(raw_definition.strip())
+        return match.group("text") if match else raw_definition
 
     def parse_xref(self, node_obj: dict) -> dict:
         """
@@ -267,7 +282,7 @@ def load_obo(data_folder, obofile, prefix=None):
         node_doc["xrefs"] = helper.parse_xref(node_obj)
         node_doc["relationships"] = helper.parse_relationship(node_obj)
 
-        node_doc["definition"] = node_obj.get("def", "").replace('"', '')
+        node_doc["definition"] = helper.parse_definition(node_obj)
         node_doc["label"] = node_obj.get("name")
 
         node_doc = {k: v for k, v in node_doc.items() if v not in [None, [], ""]}
