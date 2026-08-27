@@ -88,6 +88,11 @@ class OntologyHelper:
         match = self.DEFINITION_PATTERN.match(raw_definition.strip())
         return match.group("text") if match else raw_definition
 
+    @staticmethod
+    def normalize_curie_prefix(curie_prefix: str) -> str:
+        """Return an Elasticsearch-safe field name for a CURIE prefix."""
+        return curie_prefix.lower().replace(".", "_")
+
     def parse_xref(self, node_obj: dict) -> dict:
         """
         Parse cross-references from a node object.
@@ -105,10 +110,11 @@ class OntologyHelper:
             curie_prefix, curie_id = curie.split(":", 1)
             if curie_prefix in self.XREF_INVALID_PREFIXES:
                 continue
+            field_name = self.normalize_curie_prefix(curie_prefix)
             if curie_prefix in self.XREF_ALWAYS_PREFIXED:
-                xrefs[curie_prefix.lower()].add(curie)
+                xrefs[field_name].add(curie)
             else:
-                xrefs[curie_prefix.lower()].add(curie_id)
+                xrefs[field_name].add(curie_id)
         for curie_prefix in xrefs:
             xrefs[curie_prefix] = list(xrefs[curie_prefix])
         return xrefs
@@ -128,8 +134,9 @@ class OntologyHelper:
         rels = defaultdict(set)
         for relationship_description in node_obj.get("relationship"):
             predicate, curie = relationship_description.split(" ")
-            curie_prefix = curie.split(":")[0].lower()
-            rels[curie_prefix].add(curie)
+            curie_prefix = curie.split(":")[0]
+            field_name = self.normalize_curie_prefix(curie_prefix)
+            rels[field_name].add(curie)
         for curie_prefix in rels:
             rels[curie_prefix] = list(rels[curie_prefix])
         return dict(rels)
