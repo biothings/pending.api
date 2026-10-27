@@ -1,1 +1,1 @@
--e git+https://github.com/biothings/biothings.api.git@0.12.x#egg=biothings[hub]
+biothings[hub]==1.2.2
