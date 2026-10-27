@@ -166,4 +166,4 @@
 	url = https://github.com/lucyzhang95/HMDB_data
 [submodule "plugins/mAbsData"]
 	path = plugins/mAbsData
-	url = https://github.com/smazroueeods/mAbsData.git
+	url = https://github.com/smazrouee/mAbsData.git
