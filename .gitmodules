@@ -167,3 +167,13 @@
 [submodule "plugins/mAbsData"]
 	path = plugins/mAbsData
 	url = https://github.com/smazrouee/mAbsData.git
+[submodule "plugins/PRIME_DB"]
+	path = plugins/PRIME_DB
+	url = https://github.com/d3pant/PRIME_DB
+	branch = main
+	ignore = dirty
+[submodule "plugins/GMREPOV3"]
+	path = plugins/GMREPOV3
+	url = https://github.com/d3pant/GMREPOV3
+	branch = main
+	ignore = dirty

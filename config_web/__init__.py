@@ -37,6 +37,7 @@ from . import foodb  # use plugin "foodb_json"
 from . import fooddata  # use plugin "FoodData_parser"
 from . import geneset  # use plugin "geneset1"
 from . import gmmad2
+from . import gmrepo  # use plugin "GMREPOV3"
 from . import go
 from . import go_bp
 from . import go_cc
@@ -63,6 +64,7 @@ from . import node_expansion  # an integration of 'pending-go', 'pending-doid', 
 from . import nodenorm
 from . import pfocr
 from . import phewas
+from . import primedb  # use plugin "PRIME_DB"
 from . import pseudocap_go
 from . import pubtator3
 from . import rare_source
